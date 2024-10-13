@@ -1,0 +1,69 @@
+/* Basic reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Set html and body to 100% height */
+html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+/* Center the content inside the body */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+/* Main container */
+main {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Take up full width */
+    height: 100%; /* Take up full height */
+    overflow-y: auto; /* Allow vertical scrolling if content overflows */
+}
+
+/* Center align headers */
+h1, h2 {
+    text-align: center;
+}
+
+/* Margins for paragraphs */
+p {
+    margin: 10px 0;
+}
+
+/* Optional: Styling for navigation links */
+nav ul {
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    margin-bottom: 20px;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #007BFF;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+h3 {
+    text-align: center; /* Center the FAQ question */
+    margin: 20px 0; /* Space above and below the heading */
+    font-size: 24px; /* Adjust the font size as needed */
+}
