@@ -20,13 +20,9 @@ const Footer = () => {
 
           {/* Contact Section */}
           <Grid item xs={12} sm={4}>
-            <Typography variant="h6" gutterBottom>
+            <Button variant="contained" color="secondary">
               Contact Us
-            </Typography>
-            <Typography>
-              Email: info@retreat.com <br />
-              Phone: +123-456-7890
-            </Typography>
+            </Button>
 
             {/* Social Media Icons */}
             <Box sx={{ mt: 2 }}>
