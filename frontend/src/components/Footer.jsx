@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Container, Grid, Typography, Button, TextField } from '@mui/material'; // Use Grid instead of Grid2
+import { Box, Container, Grid, Typography, Button, TextField, IconButton } from '@mui/material';
+import { Facebook, Twitter, Instagram } from '@mui/icons-material'; // Importing social media icons
 
 const Footer = () => {
   return (
@@ -26,6 +27,22 @@ const Footer = () => {
               Email: info@retreat.com <br />
               Phone: +123-456-7890
             </Typography>
+
+            {/* Social Media Icons */}
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Follow Us
+              </Typography>
+              <IconButton color="inherit" href="https://www.facebook.com" target="_blank" aria-label="Facebook">
+                <Facebook />
+              </IconButton>
+              <IconButton color="inherit" href="https://www.twitter.com" target="_blank" aria-label="Twitter">
+                <Twitter />
+              </IconButton>
+              <IconButton color="inherit" href="https://www.instagram.com" target="_blank" aria-label="Instagram">
+                <Instagram />
+              </IconButton>
+            </Box>
           </Grid>
 
           {/* Sign Up Section */}
