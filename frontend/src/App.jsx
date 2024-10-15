@@ -10,7 +10,7 @@ import { faFontAwesomeLogoFull } from "@fortawesome/fontawesome-free-solid";
 import Footer from './components/Footer';
 import Contact from './components/ContactUs';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import FAQ from '../faq/faq'; 
+import FAQ from '../src/pages/faq'; 
 
 function App() {
   const [count, setCount] = useState(0);
