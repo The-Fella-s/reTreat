@@ -74,11 +74,17 @@ const FAQ = () => {
         }
     ];
 
-    // Filtered FAQ items based on search query
+    // Allows searching within the descriptions
+    const getTextFromAnswer = (answer) => {
+        return typeof answer === 'string' ? answer : answer.props.children.join('');
+    };
+
+    // Filtered FAQ items based on search query (for both question and answer)
     const filteredFAQItems = faqItems.filter(item => 
         item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.answer.toLowerCase().includes(searchQuery.toLowerCase())
+        getTextFromAnswer(item.answer).toLowerCase().includes(searchQuery.toLowerCase())
     );
+
 
     return (
         <>
