@@ -14,6 +14,7 @@ import FAQ from '../src/pages/faq';
 import Reviews from './components/Reviews';
 import SocialMedia from './components/SocialMedia';
 import ReadyToRelax from './components/ReadyToRelax';
+import Login from './pages/Login';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -65,6 +66,9 @@ function App() {
 
           {/* Contact Us Page */}
           <Route path="/contact-us" element={<Contact />} />
+
+          {/* Login Page */}
+          <Route path="/login" element={<Login />} /> 
         </Routes>
 
         {/* Footer is outside the routes, it will show on every page */}

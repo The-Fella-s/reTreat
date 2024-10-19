@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../style/Login.css';
+import { TextField, Button, Checkbox, FormControlLabel, Typography, Box } from '@mui/material';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -12,54 +12,84 @@ function Login() {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-box">
-        {/* Logo - replace with your actual logo */}
-        <img src="/path-to-logo.png" alt="Logo" className="login-logo" />
-        
-        <h2>Welcome Back</h2>
-        <p>Enter your credentials to access your account</p>
-        
+    <Box 
+      display="flex" 
+      justifyContent="center" 
+      alignItems="center" 
+      height="100vh" 
+      sx={{ backgroundColor: '#f0f0f0' }}  // Box component's built-in styling (sx)
+    >
+      <Box 
+        p={4} 
+        bgcolor="white" 
+        borderRadius={2} 
+        boxShadow={3} 
+        maxWidth={400} 
+        width="100%"
+        textAlign="center"
+      >
+        {/* Logo */}
+        <img src="/path-to-logo.png" alt="Logo" style={{ width: '100px', marginBottom: '1rem' }} />
+
+        <Typography variant="h4" gutterBottom>
+          Welcome Back
+        </Typography>
+        <Typography variant="body1" color="textSecondary" paragraph>
+          Enter your credentials to access your account
+        </Typography>
+
         <form onSubmit={handleSubmit}>
           {/* Email field */}
-          <div className="input-group">
-            <label>Email:</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+
           {/* Password field */}
-          <div className="input-group">
-            <label>Password:</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+
           {/* Remember me checkbox */}
-          <div className="remember-me">
-            <input type="checkbox" id="remember" />
-            <label htmlFor="remember">Remember me</label>
-          </div>
-          
+          <FormControlLabel
+            control={<Checkbox name="remember" color="primary" />}
+            label="Remember me"
+          />
+
           {/* Submit button */}
-          <button type="submit" className="login-btn">Sign In</button>
-          
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary" 
+            fullWidth 
+            sx={{ marginTop: 2 }}
+          >
+            Sign In
+          </Button>
+
           {/* Footer links */}
-          <div className="login-footer">
-            <a href="#">Forgot password?</a>
-            <p>Don’t have an account? <a href="#">Create one</a></p>
-          </div>
+          <Box mt={2}>
+            <Typography variant="body2">
+              <a href="#" style={{ color: '#1976d2', textDecoration: 'none' }}>Forgot password?</a>
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Don’t have an account? <a href="#" style={{ color: '#1976d2', textDecoration: 'none' }}>Create one</a>
+            </Typography>
+          </Box>
         </form>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
 
