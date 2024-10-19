@@ -28,7 +28,7 @@ const SocialMedia = () => {
       </Typography>
       <Grid container spacing={2} justifyContent="center">
         {socialMediaPosts.map((post, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}> {/* Responsive grid item */}
+          <Grid item xs={12} sm={6} md={4} key={index}> 
             <Card>
               <CardContent>
                 <Typography variant="h6" style={{ textAlign: 'left' }}>
@@ -38,11 +38,12 @@ const SocialMedia = () => {
                   {post.content}
                 </Typography>
                 <Button 
+                //setting up this button just to show that it can link to the sites
                   variant="contained" 
                   color="primary" 
                   href={post.link} 
                   target="_blank" 
-                  startIcon={getSocialMediaIcon(post.platform)} // Function to get the appropriate icon
+                  startIcon={getSocialMediaIcon(post.platform)} 
                 >
                   View Post
                 </Button>
