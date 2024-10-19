@@ -13,6 +13,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import FAQ from '../src/pages/faq'; 
 import Reviews from './components/Reviews';
 import SocialMedia from './components/SocialMedia';
+import ReadyToRelax from './components/ReadyToRelax';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -55,6 +56,7 @@ function App() {
 
               <Reviews />
               <SocialMedia />
+              <ReadyToRelax />
             </>
           } />
 
