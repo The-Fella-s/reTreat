@@ -10,6 +10,10 @@ import { faFontAwesomeLogoFull } from "@fortawesome/fontawesome-free-solid";
 import Footer from './components/Footer';
 import Contact from './components/ContactUs';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import FAQ from '../src/pages/faq'; 
+import Reviews from './components/Reviews';
+import SocialMedia from './components/SocialMedia';
+import ReadyToRelax from './components/ReadyToRelax';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -49,8 +53,15 @@ function App() {
               </div>
 
               <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
+
+              <Reviews />
+              <SocialMedia />
+              <ReadyToRelax />
             </>
           } />
+
+           {/* FAQ Page */}
+           <Route path="/faq" element={<FAQ />} />
 
           {/* Contact Us Page */}
           <Route path="/contact-us" element={<Contact />} />
