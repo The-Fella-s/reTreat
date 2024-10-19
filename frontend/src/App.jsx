@@ -11,6 +11,7 @@ import Footer from './components/Footer';
 import Contact from './components/ContactUs';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import FAQ from '../src/pages/faq'; 
+import Reviews from './components/Reviews';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -50,6 +51,8 @@ function App() {
               </div>
 
               <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
+
+              <Reviews />
             </>
           } />
 
