@@ -9,7 +9,7 @@ Website Development Page for the reTreat Salon &amp; Spa in Roseville California
 |   Kyle Nguyen   |  kyletnguyen@csus.edu   |
 | Jordan Penaloza | jordanpenaloza@csus.edu |
 | Anthony Barajas |anthonybarajas2@csus.edu |
-|                 |                         |
+|    Anna Tran    |  annahtran@csus.edu     |
 |                 |                         |
 
 ## Tech Stack
