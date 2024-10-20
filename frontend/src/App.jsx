@@ -15,6 +15,7 @@ import Reviews from './components/Reviews';
 import SocialMedia from './components/SocialMedia';
 import ReadyToRelax from './components/ReadyToRelax';
 import Login from './pages/Login';
+import Register from './Pages/Register';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -69,6 +70,9 @@ function App() {
 
           {/* Login Page */}
           <Route path="/login" element={<Login />} /> 
+        
+          {/* Register Page */}
+          <Route path="/register" element={<Register />} />
         </Routes>
 
         {/* Footer is outside the routes, it will show on every page */}
