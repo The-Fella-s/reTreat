@@ -10,7 +10,6 @@ import Login from './pages/Login';
 import NavBar from './components/NavBar'
 import Register from "./pages/Register.jsx";
 import MeetTheTeam from './Pages/MeetTheTeam.jsx';
-import NavBar from './components/NavBar';
 
 function App() {
 
