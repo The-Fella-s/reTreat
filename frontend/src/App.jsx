@@ -69,6 +69,10 @@ function App() {
 
           {/* Login Page */}
           <Route path="/login" element={<Login />} /> 
+
+          {/* Register Page */}
+          <Route path="/register" element={<Register />} /> 
+
         </Routes>
 
         {/* Footer is outside the routes, it will show on every page */}
