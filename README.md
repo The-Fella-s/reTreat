@@ -3,7 +3,7 @@ Website Development Page for the reTreat Salon &amp; Spa in Roseville California
 
 |   Team Member   |          Email          |
 | :-------------: | :---------------------: |
-|                 |                         |
+|   Samuel Caus   |    scaus@csus.edu       |
 |  Tristan Dinh   | tristandinh@csus.edu    |
 |    Puth Vang    |    puthvang@csus.edu    |
 |   Kyle Nguyen   |  kyletnguyen@csus.edu   |
