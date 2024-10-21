@@ -74,6 +74,9 @@ function App() {
           {/* Register Page */}
           <Route path="/register" element={<Register />} /> 
 
+          {/* Meet The Team page */}
+          <Route path="/meet-the-team" element={<MeetTheTeam />} />
+
         </Routes>
 
         {/* Footer is outside the routes, it will show on every page */}
