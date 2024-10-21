@@ -16,6 +16,7 @@ import SocialMedia from './components/SocialMedia';
 import ReadyToRelax from './components/ReadyToRelax';
 import Login from './pages/Login';
 import Register from "./pages/Register.jsx";
+import MeetTheTeam from './Pages/MeetTheTeam.jsx';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -73,6 +74,9 @@ function App() {
 
           {/* Register Page */}
           <Route path="/register" element={<Register />} /> 
+
+          {/* Meet the Team Page */}
+          <Route path="/meet-the-team" element={<MeetTheTeam />} /> 
 
         </Routes>
 
