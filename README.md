@@ -10,6 +10,7 @@ Website Development Page for the reTreat Salon &amp; Spa in Roseville California
 | Jordan Penaloza | jordanpenaloza@csus.edu |
 | Anthony Barajas |anthonybarajas2@csus.edu |
 |    Anna Tran    |  annahtran@csus.edu     |
+|  Wenshen Zhong  |  wenshenzhong@csus.edu  |
 |                 |                         |
 
 ## Tech Stack
