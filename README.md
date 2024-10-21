@@ -4,7 +4,7 @@ Website Development Page for the reTreat Salon &amp; Spa in Roseville California
 |   Team Member   |          Email          |
 | :-------------: | :---------------------: |
 |                 |                         |
-|                 |                         |
+|  Tristan Dinh   | tristandinh@csus.edu    |
 |    Puth Vang    |    puthvang@csus.edu    |
 |   Kyle Nguyen   |  kyletnguyen@csus.edu   |
 | Jordan Penaloza | jordanpenaloza@csus.edu |
