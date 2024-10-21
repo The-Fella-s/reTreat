@@ -10,11 +10,12 @@ import { faFontAwesomeLogoFull } from "@fortawesome/fontawesome-free-solid";
 import Footer from './components/Footer';
 import Contact from './components/ContactUs';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import FAQ from '../src/pages/faq'; 
+import FAQ from './pages/FAQ.jsx';
 import Reviews from './components/Reviews';
 import SocialMedia from './components/SocialMedia';
 import ReadyToRelax from './components/ReadyToRelax';
 import Login from './pages/Login';
+import Register from "./pages/Register.jsx";
 
 function App() {
   const [count, setCount] = useState(0);
