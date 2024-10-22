@@ -46,28 +46,29 @@ function MeetTheTeam() {
       {/* Team Members */}
       <Grid container spacing={3} justifyContent="center">
         {teamMembers.map((member, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card sx={{ maxWidth: 300 }}>
-              {/* Image (Using a placeholder for now) */}
-              <CardMedia
-                component="img"
-                height="200"
-                image="/path-to-team-member-image.jpg"
-                alt={member.name}
-              />
-              {/* Card Content */}
-              <CardContent>
-                <Typography variant="h6" component="div">
-                  {member.title}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {member.name}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+            <Grid item xs={12} sm={6} md={3} key={index} sx={{ textAlign: 'center' }}>
+              <Card sx={{ width: '100%', maxWidth: 300, mx: 'auto' }}>
+                {/* Image (Using a placeholder for now) */}
+                <CardMedia
+                    component="img"
+                    height="200"
+                    image="/path-to-team-member-image.jpg"
+                    alt={member.name}
+                />
+                {/* Card Content */}
+                <CardContent>
+                  <Typography variant="h6" component="div">
+                    {member.title}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    {member.name}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
         ))}
       </Grid>
+
     </Box>
   );
 }
