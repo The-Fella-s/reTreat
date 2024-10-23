@@ -8,7 +8,14 @@ const Footer = () => {
         <Container>
 
           <Grid2 container>
-            <Grid2 item size={4}>
+            <Grid2
+                container
+                item
+                size={4}
+                justifyContent="center"
+                alignItems="center"
+                direction="column"
+            >
               <Typography variant="h6" gutterBottom>
                 About Us
               </Typography>
@@ -17,13 +24,19 @@ const Footer = () => {
                 Placeholder text for now.
               </Typography>
             </Grid2>
-            <Grid2 item size={4}>
+            <Grid2
+                container
+                item
+                size={4}
+                justifyContent="center"
+                alignItems="center"
+                direction="column">
               <Button variant="contained" color="secondary">
                 Contact Us
               </Button>
 
               {/* Social Media Icons */}
-              <Box sx={{ mt: 2 }}>
+              <Box sx={{ mt: 2, textAlign: 'center' }}>
                 <Typography variant="h6" gutterBottom>
                   Follow Us
                 </Typography>
@@ -39,7 +52,13 @@ const Footer = () => {
               </Box>
             </Grid2>
 
-            <Grid2 item size={4}>
+            <Grid2
+                container
+                item
+                size={4}
+                justifyContent="center"
+                alignItems="center"
+                direction="column">
               <Typography variant="h6" gutterBottom>
                 Sign Up for Updates
               </Typography>
