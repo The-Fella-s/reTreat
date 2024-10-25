@@ -1,8 +1,20 @@
-import React from 'react';
-import { Box, Container, Typography, Avatar, Grid2, Card, IconButton } from '@mui/material';
+import React, { useState } from 'react'; // Import useState
+import { Box, Container, Typography, Avatar, Grid2, Card, IconButton, TextField, Button } from '@mui/material';
 import { Email, Phone, CalendarToday, Edit } from '@mui/icons-material'; // Icons for email, phone, bookings, and edit
 
 const ProfilePage = () => {
+  // State variables for profile data
+  const [isEditing, setIsEditing] = useState(false); // Toggle between view and edit mode
+  const [name, setName] = useState('Name'); // Name state
+  const [email, setEmail] = useState('email@gmail.com'); // Email state
+  const [phone, setPhone] = useState('916-123-4567'); // Phone state
+  const [bookings] = useState('x Appointments Booked'); // Bookings info is not editable for now
+
+  // Handlers to toggle edit mode and update state
+  const handleEditToggle = () => setIsEditing(!isEditing);
+  const handleCancel = () => setIsEditing(false); // Cancels the editing
+  const handleSave = () => setIsEditing(false); // "Saves" changes and exits edit mode
+
   return (
     <Box sx={{ bgcolor: 'primary.main', color: 'white', py: 4, minHeight: '100vh' }}>
       <Container>
@@ -12,6 +24,7 @@ const ProfilePage = () => {
           <IconButton 
             sx={{ position: 'absolute', top: 8, right: 8 }} 
             aria-label="edit"
+            onClick={handleEditToggle}
           >
             <Edit />
           </IconButton>
@@ -32,26 +45,68 @@ const ProfilePage = () => {
               
               {/* Name */}
               <Grid2 item>
-                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                  Prashant Kumar Singh {/* Placeholder name */}
-                </Typography>
+                {isEditing ? (
+                  <TextField 
+                    label="Name"
+                    variant="outlined"
+                    fullWidth
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                ) : (
+                  <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                    {name}
+                  </Typography>
+                )}
               </Grid2>
               
-              {/* Information (Email, Phone, Bookings) */}
+              {/* Information (Email, Phone) */}
               <Grid2 item container spacing={2} alignItems="center">
                 <Grid2 item sx={{ display: 'flex', alignItems: 'center' }}>
                   <Email sx={{ mr: 1 }} />
-                  officialprashanttt@gmail.com {/* Placeholder email */}
+                  {isEditing ? (
+                    <TextField 
+                      label="Email"
+                      variant="outlined"
+                      fullWidth
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  ) : (
+                    <Typography>{email}</Typography>
+                  )}
                 </Grid2>
                 <Grid2 item sx={{ display: 'flex', alignItems: 'center' }}>
                   <Phone sx={{ mr: 1 }} />
-                  +91 8009396321 {/* Placeholder phone number */}
+                  {isEditing ? (
+                    <TextField 
+                      label="Phone"
+                      variant="outlined"
+                      fullWidth
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  ) : (
+                    <Typography>{phone}</Typography>
+                  )}
                 </Grid2>
                 <Grid2 item sx={{ display: 'flex', alignItems: 'center' }}>
                   <CalendarToday sx={{ mr: 1 }} />
-                  7 Hotels Booked {/* Placeholder bookings */}
+                  <Typography>{bookings}</Typography>
                 </Grid2>
               </Grid2>
+
+              {/* Save and Cancel Buttons */}
+              {isEditing && (
+                <Grid2 item container spacing={2} justifyContent="flex-end" sx={{ mt: 2 }}>
+                  <Button variant="outlined" color="secondary" onClick={handleCancel}>
+                    Cancel
+                  </Button>
+                  <Button variant="contained" color="primary" onClick={handleSave}>
+                    Save
+                  </Button>
+                </Grid2>
+              )}
 
             </Grid2>
 
