@@ -1,83 +1,56 @@
 import React from 'react';
-import {Box, Container, Typography, Button, TextField, IconButton, Grid2} from '@mui/material';
-import { Facebook, Twitter, Instagram } from '@mui/icons-material'; // Importing social media icons
+import { Box, Container, Typography, IconButton, Grid } from '@mui/material';
+import { Facebook, Instagram } from '@mui/icons-material'; // Importing social media icons
 
 const Footer = () => {
   return (
-      <Box sx={{ bgcolor: 'primary.main', color: 'white', py: 4 }}>
-        <Container>
+    <Box sx={{ bgcolor: 'primary.main', color: 'white', py: 4 }}>
+      <Container>
+        <Grid container spacing={2} justifyContent="space-around">
 
-          <Grid2 container>
-            <Grid2
-                container
-                item
-                size={4}
-                justifyContent="center"
-                alignItems="center"
-                direction="column"
-            >
-              <Typography variant="h6" gutterBottom>
-                About Us
-              </Typography>
-              <Typography>
-                We are a company focused on providing the best reTreats to help you relax and unwind.
-                Placeholder text for now.
-              </Typography>
-            </Grid2>
-            <Grid2
-                container
-                item
-                size={4}
-                justifyContent="center"
-                alignItems="center"
-                direction="column">
-              <Button variant="contained" color="secondary">
-                Contact Us
-              </Button>
+          {/* Location Section */}
+          <Grid item xs={12} sm={4} textAlign="center">
+            <Typography variant="h6" gutterBottom>
+              LOCATION
+            </Typography>
+            <Typography>
+              198 Cirby Way Suite 135, <br />
+              Roseville, CA, 95678
+            </Typography>
+          </Grid>
 
-              {/* Social Media Icons */}
-              <Box sx={{ mt: 2, textAlign: 'center' }}>
-                <Typography variant="h6" gutterBottom>
-                  Follow Us
-                </Typography>
-                <IconButton color="inherit" href="https://www.facebook.com" target="_blank" aria-label="Facebook">
-                  <Facebook />
-                </IconButton>
-                <IconButton color="inherit" href="https://www.twitter.com" target="_blank" aria-label="Twitter">
-                  <Twitter />
-                </IconButton>
-                <IconButton color="inherit" href="https://www.instagram.com" target="_blank" aria-label="Instagram">
-                  <Instagram />
-                </IconButton>
-              </Box>
-            </Grid2>
+          {/* Connect With Us Section */}
+          <Grid item xs={12} sm={4} textAlign="center">
+            <Typography variant="h6" gutterBottom>
+              CONNECT WITH US
+            </Typography>
+            <Box>
+              <IconButton href="https://www.facebook.com" target="_blank" aria-label="Facebook" sx={{ color: 'white' }}>
+                <Facebook />
+              </IconButton>
+            </Box>
+            <Box>
+              <IconButton href="https://www.instagram.com" target="_blank" aria-label="Instagram" sx={{ color: 'white' }}>
+                <Instagram />
+              </IconButton>
+            </Box>
+          </Grid>
 
-            <Grid2
-                container
-                item
-                size={4}
-                justifyContent="center"
-                alignItems="center"
-                direction="column">
-              <Typography variant="h6" gutterBottom>
-                Sign Up for Updates
-              </Typography>
-              <TextField
-                  label="Email Address"
-                  variant="filled"
-                  size="small"
-                  fullWidth
-                  sx={{ backgroundColor: 'white' }}
-              />
-              <Button variant="contained" color="secondary" sx={{ mt: 2 }}>
-                Sign Up
-              </Button>
-            </Grid2>
-
-          </Grid2>
-
-        </Container>
-      </Box>
+          {/* Business Hours Section */}
+          <Grid item xs={12} sm={4} textAlign="center">
+            <Typography variant="h6" gutterBottom>
+              BUSINESS HOURS
+            </Typography>
+            <Typography>
+              Tuesday-Wednesday: 10 AM - 6 PM <br />
+              Thursday: 10 AM - 7 PM <br />
+              Friday & Saturday: 10 AM - 6 PM <br />
+              Sunday: 11 AM - 5 PM
+            </Typography>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 
