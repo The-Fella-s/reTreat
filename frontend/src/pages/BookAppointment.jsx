@@ -1,7 +1,10 @@
 import React, {useState} from 'react';
 import {Typography, Grid2, Button, Box} from '@mui/material';
+import AppointmentCard from "../components/AppointmentCard.jsx";
+import {formatDuration} from "../utilities/formatDuration.js";
+import services from "../temporarydata/Services.jsx";
 
-const categories = ['Body Treatments', 'Facials', 'Nanochanneling Facials', 'Hydrafacials', 'Dermaplaning', 'Nail Care', 'Massages', 'Waxing', 'Add-Ons'];
+const categories = ['Body Treatments', 'Facials', 'Nanochanneling Facials', 'Hydrafacials', 'Dermaplaning', 'Dermabrasion', 'Nail Care', 'Massages', 'Waxing', 'Add-Ons'];
 
 const BookAppointment = () => {
 
@@ -23,6 +26,7 @@ const BookAppointment = () => {
                 {/* Centers the categories and put spacing between them */}
                 <Grid2 container spacing={2} justifyContent="center" alignItems="center">
                     {categories.map((category, index) => (
+
                         // Add padding to the buttons
                         <Grid2 item xs={12} sm={6} md={4} key={index}>
 
@@ -50,6 +54,40 @@ const BookAppointment = () => {
 
                 {/* Bottom padding */}
                 <Box p={5}>
+
+                    {/* Makes the cards stack horizontally and keep them centered */}
+                    <Grid2 container direction="row" sx={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}>
+
+                        {Object.values(services[0]).map((service, index) => {
+                            const description = service.description; // Get the array descriptions of the service
+                            const category = service.category; // Get the category of the service
+                            const duration = service.duration; // Get the duration of the service
+
+                            {/* Check if the category is selected */}
+                            if (category === selectedCategory) {
+                                return (
+                                    <Grid2 item sx={{p: 1.5}} key={index}>
+                                        <AppointmentCard
+                                            title={service.name}
+                                            description={description.map((line, lineIndex) => (
+                                                <span key={lineIndex}>
+                                                    {line}
+                                                    <br/> {/* Add line break after each line */}
+                                                </span>
+                                            ))}
+                                            pricing={service.pricing}
+                                            duration={formatDuration(duration)} // Set the duration of the service and format it
+                                        />
+                                    </Grid2>
+                                );
+                            }
+
+                        })}
+                    </Grid2>
+
                 </Box>
 
             </Box>
