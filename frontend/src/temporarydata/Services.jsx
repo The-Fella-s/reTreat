@@ -219,11 +219,11 @@ const services = [{
         "description": [
             "Dermaplaning is a treatment that removes dead skin cells and peach fuzz leaving your face brighter and smoother. This service includes reTreat's Signature Facial paired with a Dermaplance service.",
             "The pros:",
-            "- softer, smoother skin",
-            "- brighter-looking appearance",
-            "- smoother foundation for makeup",
-            "- a light exfoliation",
-            "- peach-fuzz removal"
+            "• softer, smoother skin",
+            "• brighter-looking appearance",
+            "• smoother foundation for makeup",
+            "• a light exfoliation",
+            "• peach-fuzz removal"
         ],
         "pricing": 150,
         "duration": "1:00:00",
@@ -234,11 +234,11 @@ const services = [{
         "description": [
             "Dermaplaning is a treatment that removes dead skin cells and peach fuzz leaving your face brighter and smoother. This service will include reTreat's Signature Facial, Dermaplane treatment, followed by a Peel of the esthetician's choice based on needs and desired results.",
             "The pros:",
-            "- softer, smoother skin",
-            "- brighter-looking appearance",
-            "- smoother foundation for makeup",
-            "- a light exfoliation",
-            "- peach-fuzz removal"
+            "• softer, smoother skin",
+            "• brighter-looking appearance",
+            "• smoother foundation for makeup",
+            "• a light exfoliation",
+            "• peach-fuzz removal"
         ],
         "pricing": 175,
         "duration": "1:15:00",
@@ -249,11 +249,11 @@ const services = [{
         "description": [
             "Dermaplaning is a treatment that removes dead skin cells and peach fuzz leaving your face brighter and smoother. This facial will include treatment to the neck and decollete added onto the Dermaplane facial.",
             "The pros:",
-            "- softer, smoother skin",
-            "- brighter-looking appearance",
-            "- smoother foundation for makeup",
-            "- a light exfoliation",
-            "- peach-fuzz removal"
+            "• softer, smoother skin",
+            "• brighter-looking appearance",
+            "• smoother foundation for makeup",
+            "• a light exfoliation",
+            "• peach-fuzz removal"
         ],
         "pricing": 250,
         "duration": "1:45:00",
@@ -264,11 +264,11 @@ const services = [{
         "description": [
             "Dermaplaning is a treatment that removes dead skin cells and peach fuzz leaving your face brighter and smoother. This is a great add-on for any facial.",
             "The pros:",
-            "- softer, smoother skin",
-            "- brighter-looking appearance",
-            "- smoother foundation for makeup",
-            "- a light exfoliation",
-            "- peach-fuzz removal"
+            "• softer, smoother skin",
+            "• brighter-looking appearance",
+            "• smoother foundation for makeup",
+            "• a light exfoliation",
+            "• peach-fuzz removal"
         ],
         "pricing": 80,
         "duration": "0:30:00",
@@ -279,11 +279,11 @@ const services = [{
         "description": [
             "Dermaplaning is a treatment that removes dead skin cells and peach fuzz leaving your face brighter and smoother. This is a great add-on for any facial.",
             "The pros:",
-            "- softer, smoother skin",
-            "- brighter-looking appearance",
-            "- smoother foundation for makeup",
-            "- a light exfoliation",
-            "- peach-fuzz removal"
+            "• softer, smoother skin",
+            "• brighter-looking appearance",
+            "• smoother foundation for makeup",
+            "• a light exfoliation",
+            "• peach-fuzz removal"
         ],
         "pricing": 80,
         "duration": "0:30:00",
@@ -506,7 +506,7 @@ const services = [{
         "category": "Massages"
     },
     "53": {
-        "name": "Focus Massage 30- add on",
+        "name": "Focus Massage 30 - add on",
         "description": [
             "Focus massage added onto any massage"
         ],
