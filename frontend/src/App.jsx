@@ -7,32 +7,30 @@ import Reviews from './components/Reviews';
 import SocialMedia from './components/SocialMedia';
 import ReadyToRelax from './components/ReadyToRelax';
 import Login from './pages/Login';
-import NavBar from './components/NavBar'
+import NavBar from './components/NavBar';
 import Register from "./pages/Register.jsx";
 import MeetTheTeam from './Pages/MeetTheTeam.jsx';
+import Profile from './components/Profile.jsx'; // Import Profile component
 
 function App() {
 
   return (
-    
     <Router>
-      {/*Navigation Bar is outside the routes, it will show on every page */}
+      {/* Navigation Bar is outside the routes, it will show on every page */}
       <NavBar/>
       <div>
         <Routes>
           {/* Home Page (Main content) */}
           <Route path="/" element={
             <>
-              
               <Reviews />
               <SocialMedia />
               <ReadyToRelax />
             </>
           } />
 
-
-           {/* FAQ Page */}
-           <Route path="/faq" element={<FAQ />} />
+          {/* FAQ Page */}
+          <Route path="/faq" element={<FAQ />} />
 
           {/* Contact Us Page */}
           <Route path="/contact-us" element={<Contact />} />
@@ -46,8 +44,11 @@ function App() {
           {/* Meet the Team Page */}
           <Route path="/meet-the-team" element={<MeetTheTeam />} /> 
 
+          {/* Profile Page */}
+          <Route path="/profile" element={<Profile />} /> {/* Added Profile Route */}
+          
         </Routes>
-          {/* */}
+        
         {/* Footer is outside the routes, it will show on every page */}
         <Footer />
       </div>
