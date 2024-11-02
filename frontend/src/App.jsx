@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import NavBar from './components/NavBar';
 import Register from "./pages/Register.jsx";
 import MeetTheTeam from './Pages/MeetTheTeam.jsx';
+import BookAppointment from "./pages/BookAppointment.jsx";
 import Profile from './components/Profile.jsx'; // Import Profile component
 
 function App() {
@@ -42,7 +43,10 @@ function App() {
           <Route path="/register" element={<Register />} /> 
 
           {/* Meet the Team Page */}
-          <Route path="/meet-the-team" element={<MeetTheTeam />} /> 
+          <Route path="/meet-the-team" element={<MeetTheTeam />} />
+
+          {/* Book appointment page */}
+          <Route path="/appointment" element={<BookAppointment />} />
 
           {/* Profile Page */}
           <Route path="/profile" element={<Profile />} /> {/* Added Profile Route */}
