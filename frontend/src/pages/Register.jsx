@@ -1,11 +1,16 @@
-import React, {useState} from "react";
-import {Box, Button, Grid2, IconButton, InputAdornment, TextField, Typography} from "@mui/material";
+import React, { useState } from "react";
+import {
+    Box,
+    Button,
+    IconButton,
+    InputAdornment,
+    TextField,
+    Typography
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {Link} from "react-router-dom";
-import {Visibility, VisibilityOff} from "@mui/icons-material";
-import reactLogo from "../assets/react.svg";
 
 const Register = () => {
-
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -23,142 +28,122 @@ const Register = () => {
     }
 
     return (
-        <Grid2 container direction="column" alignItems="center" spacing={4}>
+        <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100vh"
+            sx={{ backgroundColor: '#f0f0f0' }}
+        >
             <Box
-                sx={{
-                    width: '100%',
-                    maxWidth: 750,
-                    maxHeight: 700,
-                    borderRadius: 1,
-                    bgcolor: '#d9d9d9',
-                    p: 2
-                }}
+                p={4}
+                bgcolor="white"
+                borderRadius={2}
+                boxShadow={3}
+                maxWidth={400}
+                width="100%"
+                textAlign="center"
             >
-                <Box
-                    sx={{
-                        width: '100%',
-                        maxWidth: 750,
-                        maxHeight: 700,
-                        borderRadius: 1,
-                        bgcolor: '#ffffff',
-                    }}
-                >
-                    <Grid2 container
-                           spacing={2.5}
-                           direction="column"
-                           alignItems="center"
-                           justifyContent="center"
-                           sx={{minHeight: '75vh'}}
-                    >
-                        { /* Logo */ }
-                        <Box
-                            component="img"
-                            sx={{
-                                height: 80,
-                                width: 64,
-                                maxHeight: { xs: 80, md: 64 },
-                                maxWidth: { xs: 80, md: 64 },
-                            }}
-                            alt="logo."
-                            src={reactLogo}
+                {/* Logo */}
+
+                <img src="/path-to-logo.png" alt="Logo" style={{ width: '100px', marginBottom: '1rem' }} />
+
+                <Typography variant="h4" gutterBottom>
+                    Register
+                </Typography>
+                <Typography variant="body1" color="textSecondary" paragraph>
+                    Join our community for relaxation and rejuvenation
+                </Typography>
+
+                <form onSubmit={handleSubmit}>
+                    {/* Name fields */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                        <TextField
+                            label="First Name"
+                            variant="outlined"
+                            fullWidth
+                            sx={{ mr: 1 }} // Margin between fields
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                         />
 
-                        <Typography variant="h4" gutterbottom sx={{ fontWeight: 'bold' }}>Register</Typography>
-                        <Typography variant="h6" gutterbottom>Join our community for relaxation and rejuvenation</Typography>
-                        <Grid2 container size={8}>
-                            <TextField
-                                id="outlined-basic"
-                                label="First Name"
-                                variant="outlined"
-                                fullWidth
-                                sx={{minWidth: 100, width: '50%', flex: 1}}
-                                value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
-                            />
-                            <TextField
-                                id="outlined-basic"
-                                label="Last Name"
-                                variant="outlined"
-                                fullWidth
-                                sx={{minWidth: 100, width: '50%'}}
-                                value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
-                            />
-                            <TextField
-                                id="outlined-basic"
-                                label="Email"
-                                variant="outlined"
-                                fullWidth
-                                sx={{minWidth: 100}}
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                            <TextField
-                                id="outlined-basic"
-                                label="Password"
-                                variant="outlined"
-                                fullWidth
-                                sx={{minWidth: 100}}
-                                type={showPassword ? 'text' : 'password'}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => setShowPassword((prev) => !prev)}  // Correctly toggle the state
-                                                edge="end"
-                                            >
-                                                {showPassword ? <VisibilityOff/> : <Visibility/>}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                            <TextField
-                                id="outlined-basic"
-                                label="Phone Number"
-                                variant="outlined"
-                                fullWidth
-                                sx={{minWidth: 100}}
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                            />
-                            <Button
-                                variant="contained"
-                                fullWidth
-                                onClick={handleSubmit}
-                            >
-                                Register
-                            </Button>
-                            <Grid2 container size={16}
-                                   direction="column"
-                                   alignItems="center"
-                                   justifyContent="center"
-                            >
-                                <Typography>
-                                    Already have an account?
-                                    <Button
-                                        variant="text"
-                                        component={Link}
-                                        to="/login"
-                                        sx={{
-                                            '&.MuiButton-root:hover': {bgcolor: 'transparent'},
-                                            textTransform: "none"
-                                        }}
-                                    >
-                                        Sign in
-                                    </Button>
-                                </Typography>
-                            </Grid2>
-                        </Grid2>
-                    </Grid2>
-                </Box>
-            </Box>
-        </Grid2>
-    );
+                        <TextField
+                            label="Last Name"
+                            variant="outlined"
+                            fullWidth
+                            sx={{ ml: 1 }} // Margin between fields
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                        />
+                    </Box>
 
+                    {/* Email field */}
+                    <TextField
+                        label="Email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        fullWidth
+                        margin="normal"
+                        required
+                    />
+
+                    {/* Password field */}
+                    <TextField
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={() => setShowPassword((prev) => !prev)}
+                                        edge="end"
+                                    >
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                        fullWidth
+                        margin="normal"
+                        required
+                    />
+
+                    {/* Phone Number field */}
+                    <TextField
+                        label="Phone Number"
+                        type="phone"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        fullWidth
+                        margin="normal"
+                        required
+                    />
+
+                    {/* Submit button */}
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        sx={{ mt: 2 }}
+                    >
+                        Register
+                    </Button>
+
+                    {/* Footer links */}
+                    <Box mt={2}>
+                        <Typography variant="body2" color="textSecondary">
+                            Already have an account? <Link to="/login" style={{ color: '#1976d2', textDecoration: 'none' }}>Sign in</Link>
+                        </Typography>
+                    </Box>
+                </form>
+            </Box>
+        </Box>
+    );
 };
 
 export default Register;
