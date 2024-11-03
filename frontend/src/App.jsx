@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import './App.css';
 import Footer from './components/Footer';
 import Contact from './components/ContactUs';
@@ -13,14 +14,25 @@ import MeetTheTeam from './Pages/MeetTheTeam.jsx';
 import BookAppointment from "./pages/BookAppointment.jsx";
 import Profile from './components/Profile.jsx'; // Import Profile component
 import Menu from './pages/Menu.jsx'; // Import Menu component
+import { ToastContainer, toast } from 'react-toastify'; //Toastify components
+import 'react-toastify/dist/ReactToastify.css'; 
 
 function App() {
+  //Test for notification pop up on main page
+  /*
+  useEffect(() => {
+    toast.success("Welcome to our website!");
+  }, []); 
+  */
 
   return (
     <Router>
       {/* Navigation Bar is outside the routes, it will show on every page */}
       <NavBar/>
       <div>
+        {/* Place ToastContainer here */}
+        <ToastContainer />
+
         <Routes>
           {/* Home Page (Main content) */}
           <Route path="/" element={

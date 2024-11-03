@@ -1,9 +1,18 @@
 import React from 'react';
 import { AppBar, Toolbar, Button, Typography, Box, Grid, Card, CardContent, CardActions, CardMedia } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function SpaMenuPage() {
+
+  const handlePurchase = () => {
+    toast.success("Purchase added..."); // Display the toast notification
+  };
+
   return (
     <div>
+      {/* Toast Container */}
+      <ToastContainer />
 
       {/* Header Section */}
       <Box textAlign="center" p={5} bgcolor="#e0e0e0">
@@ -44,7 +53,7 @@ function SpaMenuPage() {
               </CardContent>
               <CardActions style={{ justifyContent: 'space-between', padding: '16px' }}>
                 <Typography variant="h6">{packageItem.price}</Typography>
-                <Button variant="contained" color="primary">Purchase</Button>
+                <Button variant="contained" color="primary"onClick={handlePurchase}>Purchase</Button>
               </CardActions>
             </Card>
           </Grid>
