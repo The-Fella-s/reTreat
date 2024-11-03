@@ -19,9 +19,11 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   //Test for notification pop up on main page
+  /*
   useEffect(() => {
     toast.success("Welcome to our website!");
   }, []); 
+  */
 
   return (
     <Router>

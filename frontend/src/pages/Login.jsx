@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Checkbox, FormControlLabel, Typography, Box } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -7,6 +9,7 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    toast.info("Logging you in..."); // Show the toast notification
     console.log('Email:', email);
     console.log('Password:', password);
   };
@@ -89,6 +92,7 @@ function Login() {
           </Box>
         </form>
       </Box>
+      <ToastContainer /> {/* Add ToastContainer here */}
     </Box>
   );
 }
