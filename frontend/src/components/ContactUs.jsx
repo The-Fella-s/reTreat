@@ -1,7 +1,15 @@
 import React from 'react';
 import { Box, TextField, Typography, Button } from '@mui/material'; 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Contact = () => {
+    const handleSubmit = () => {
+        // Display the toast notification
+        toast.success("Form successfully sent!");
+    };
+
+
     return (
         <div style={{ textAlign: 'center', marginTop: '50px' }}>
             <h1>Contact Us</h1>
@@ -55,10 +63,14 @@ const Contact = () => {
                 <Button 
                 variant="contained" 
                 color="secondary"
-                fullWidth>
+                fullWidth
+                onClick={handleSubmit} // Attach the handleSubmit function to the button
+                >
                 Submit
                 </Button>
             </Box>
+             {/* Toast container to display the notification */}
+             <ToastContainer />
         </div>
     );
 };
