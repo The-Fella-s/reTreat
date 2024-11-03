@@ -12,6 +12,7 @@ import Register from "./pages/Register.jsx";
 import MeetTheTeam from './Pages/MeetTheTeam.jsx';
 import BookAppointment from "./pages/BookAppointment.jsx";
 import Profile from './components/Profile.jsx'; // Import Profile component
+import Menu from './pages/Menu.jsx'; // Import Menu component
 
 function App() {
 
@@ -50,6 +51,8 @@ function App() {
 
           {/* Profile Page */}
           <Route path="/profile" element={<Profile />} /> {/* Added Profile Route */}
+
+          <Route path="/menu" element={<Menu />} /> 
           
         </Routes>
         
