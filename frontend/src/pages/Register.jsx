@@ -9,6 +9,8 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {Link} from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
     const [firstName, setFirstName] = useState('');
@@ -25,6 +27,8 @@ const Register = () => {
         console.log('Email:', email);
         console.log('Password:', password);
         console.log('Phone:', phone);
+
+        toast.success("Registration complete!");
     }
 
     return (
@@ -141,6 +145,9 @@ const Register = () => {
                         </Typography>
                     </Box>
                 </form>
+
+                {/* Toast container to display the notification */}
+                <ToastContainer />
             </Box>
         </Box>
     );
