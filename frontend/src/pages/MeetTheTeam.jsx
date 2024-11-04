@@ -4,10 +4,20 @@ import { Navigate } from 'react-router-dom';
 
 function MeetTheTeam() {
   const teamMembers = [
-    { name: 'Holly', title: 'Co-owner' },
-    { name: 'Danniel', title: 'Co-owner' },
-    { name: 'Angela', title: 'Manager' },
-    { name: 'Lauren', title: 'Hair Stylist' }
+    { name: 'Holly', title: 'Co-owner', image: 'src/assets/team_photos/holly.webp'},
+    { name: 'Danniel', title: 'Co-owner', image: 'src/assets/team_photos/danniel.webp'},
+    { name: 'Angela', title: 'Manager', image: 'src/assets/team_photos/angela.webp'},
+    { name: 'Lauren', title: 'Hair Stylist', image: 'src/assets/team_photos/lauren.webp'},
+    { name: 'Melissa', title: 'Hair Stylist', image: 'src/assets/team_photos/melissa.webp'},
+    { name: 'Evgenia', title: 'Esthetician', image: 'src/assets/team_photos/evgenia.webp'},
+    { name: 'Vy', title: 'Nail Technician', image: 'src/assets/team_photos/vy.webp'},
+    { name: 'Yella', title: 'Esthetician', image: 'src/assets/team_photos/yella.webp'},
+    { name: 'Franny', title: 'Receptionist', image: 'src/assets/team_photos/franny.webp'},
+    { name: 'Megan', title: 'Esthetician', image: 'src/assets/team_photos/megan.webp'},
+    { name: 'Ashlyn', title: 'Receptionist', image: 'src/assets/team_photos/ashlyn.webp'},
+    { name: 'Sofiya', title: 'Esthetician & Receptionist', image: 'src/assets/team_photos/sofiya.webp'},
+    { name: 'Irina', title: 'Massage Therapist', image: 'src/assets/team_photos/irina.webp'}
+
   ];
 
   return (
@@ -16,7 +26,7 @@ function MeetTheTeam() {
       flexDirection="column" 
       justifyContent="center" 
       alignItems="center" 
-      sx={{ height: '100vh', backgroundColor: '#f5f5f5' }}
+      sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', paddingTop: 4, paddingBottom: 4 }}
     >
       {/* Header Section */}
       <Typography variant="h3" gutterBottom>
@@ -51,17 +61,18 @@ function MeetTheTeam() {
                 {/* Image (Using a placeholder for now) */}
                 <CardMedia
                     component="img"
-                    height="200"
-                    image="/path-to-team-member-image.jpg"
+                    height="300"
+                    image={member.image}
                     alt={member.name}
+                    sx={{ objectFit: 'contain'}}
                 />
                 {/* Card Content */}
                 <CardContent>
                   <Typography variant="h6" component="div">
-                    {member.title}
+                    {member.name}
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
-                    {member.name}
+                    {member.title}
                   </Typography>
                 </CardContent>
               </Card>
