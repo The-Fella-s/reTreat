@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Typography, Avatar, Box } from '@mui/material';
+import { Card, CardContent, Typography, Avatar, Box, LinearProgress } from '@mui/material'; // Added LinearProgress
 import { Star } from '@mui/icons-material';
 
 const reviews = [
@@ -23,19 +23,35 @@ const reviews = [
   },
 ];
 
+const ROTATION_INTERVAL = 5000; // Define rotation interval constant as 5000 milliseconds
+
 const Reviews = () => {
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Rotate to next review every 5 seconds
-    const timer = setInterval(() => {
+    // Progress bar update timer
+    const progressTimer = setInterval(() => {
+      setProgress((oldProgress) => {
+        if (oldProgress === 100) {
+          return 0;
+        }
+        return Math.min(oldProgress + (100 / (ROTATION_INTERVAL / 100)), 100);
+      });
+    }, 100);
+
+    // Review rotation timer
+    const rotationTimer = setInterval(() => {
       setCurrentReviewIndex((prevIndex) => 
         prevIndex === reviews.length - 1 ? 0 : prevIndex + 1
       );
-    }, 5000); // 5000ms = 5 seconds
+      setProgress(0); // Reset progress when review changes
+    }, ROTATION_INTERVAL);
 
-    // Cleanup timer on component unmount
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(progressTimer);
+      clearInterval(rotationTimer);
+    };
   }, []);
 
   const currentReview = reviews[currentReviewIndex];
@@ -45,7 +61,7 @@ const Reviews = () => {
       <Typography variant="h4" gutterBottom align="center">
         Reviews
       </Typography>
-      <Card sx={{ minHeight: '200px' }}>
+      <Card sx={{ minHeight: '200px', position: 'relative' }}> 
         <CardContent>
           <Box display="flex" alignItems="center">
             <Avatar style={{ marginRight: '10px' }} />
@@ -58,7 +74,6 @@ const Reviews = () => {
               </Typography>
             </Box>
           </Box>
-
           <Box display="flex" alignItems="center" marginTop={1}>
             {[...Array(5)].map((_, i) => (
               <Star 
@@ -69,18 +84,31 @@ const Reviews = () => {
               />
             ))}
           </Box>
-
           <Typography 
             variant="body2" 
             style={{ 
               marginTop: '10px', 
               textAlign: 'left',
-              minHeight: '80px' // Ensures consistent height
+              minHeight: '80px'
             }}
           >
             {currentReview.content}
           </Typography>
         </CardContent>
+        
+        <LinearProgress 
+          variant="determinate" 
+          value={progress} 
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            width: '100%',
+            height: '4px',
+            '& .MuiLinearProgress-bar': {
+              transition: 'none'
+            }
+          }}
+        />
       </Card>
     </div>
   );
