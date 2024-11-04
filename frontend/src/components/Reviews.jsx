@@ -1,9 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, Typography, Avatar, Box } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import { Star } from '@mui/icons-material'; // For rating stars
+import { Star } from '@mui/icons-material';
 
-// Sample reviews data
 const reviews = [
   {
     name: 'Lauren',
@@ -14,61 +12,76 @@ const reviews = [
   {
     name: 'Katya N',
     date: 'August 15th, 2024',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...',
+    content: 'The devil went down to georgia and he was looking for a soul to steal',
     rating: 5,
   },
   {
     name: 'Scott Thomas',
     date: 'June 3rd, 2024',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...',
+    content: 'he was in a bind because he was way behind and he was willing to make a deal',
     rating: 5,
   },
 ];
 
 const Reviews = () => {
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+
+  useEffect(() => {
+    // Rotate to next review every 5 seconds
+    const timer = setInterval(() => {
+      setCurrentReviewIndex((prevIndex) => 
+        prevIndex === reviews.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000); // 5000ms = 5 seconds
+
+    // Cleanup timer on component unmount
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentReview = reviews[currentReviewIndex];
+
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
       <Typography variant="h4" gutterBottom align="center">
         Reviews
       </Typography>
-      <Grid container spacing={2}>
-        {reviews.map((review, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card>
-              <CardContent>
-                <Box display="flex" alignItems="center">
-                  <Avatar style={{ marginRight: '10px' }} />
-                  <Box>
-                    <Typography variant="h6" component="div">
-                      {review.name}
-                    </Typography>
-                    {/* Date beneath the name */}
-                    <Typography color="textSecondary">
-                      {review.date}
-                    </Typography>
-                  </Box>
-                </Box>
+      <Card sx={{ minHeight: '200px' }}>
+        <CardContent>
+          <Box display="flex" alignItems="center">
+            <Avatar style={{ marginRight: '10px' }} />
+            <Box>
+              <Typography variant="h6" component="div">
+                {currentReview.name}
+              </Typography>
+              <Typography color="textSecondary">
+                {currentReview.date}
+              </Typography>
+            </Box>
+          </Box>
 
-                {/* Star Rating */}
-                <Box display="flex" alignItems="center" marginTop={1}>
-                  {[...Array(5)].map((_, i) =>
-                    i < review.rating ? (
-                      <Star key={i} style={{ color: '#FFD700' }} /> // Gold filled star
-                    ) : (
-                      <StarBorder key={i} style={{ color: '#FFD700' }} /> // Gold empty star
-                    )
-                  )}
-                </Box>
+          <Box display="flex" alignItems="center" marginTop={1}>
+            {[...Array(5)].map((_, i) => (
+              <Star 
+                key={i} 
+                style={{ 
+                  color: i < currentReview.rating ? '#FFD700' : '#D3D3D3'
+                }} 
+              />
+            ))}
+          </Box>
 
-                {/* Review Content */}
-                <Typography variant="body2" style={{ marginTop: '10px', textAlign: 'left' }}>
-                  {review.content}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+          <Typography 
+            variant="body2" 
+            style={{ 
+              marginTop: '10px', 
+              textAlign: 'left',
+              minHeight: '80px' // Ensures consistent height
+            }}
+          >
+            {currentReview.content}
+          </Typography>
+        </CardContent>
+      </Card>
     </div>
   );
 };
