@@ -11,6 +11,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {Link} from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import reTreatLogo from '../assets/reTreatLogo.png';
 
 const Register = () => {
     const [firstName, setFirstName] = useState('');
@@ -50,7 +51,7 @@ const Register = () => {
             >
                 {/* Logo */}
 
-                <img src="/path-to-logo.png" alt="Logo" style={{ width: '100px', marginBottom: '1rem' }} />
+                <img src={reTreatLogo} alt="Logo" style={{ width: '100px', marginBottom: '1rem' }} />
 
                 <Typography variant="h4" gutterBottom>
                     Register

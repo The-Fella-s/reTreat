@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Checkbox, FormControlLabel, Typography, Box } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import reTreatLogo from '../assets/reTreatLogo.png';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -32,7 +33,7 @@ function Login() {
         textAlign="center"
       >
         {/* Logo */}
-        <img src="/path-to-logo.png" alt="Logo" style={{ width: '100px', marginBottom: '1rem' }} />
+        <img src={reTreatLogo} alt="Logo" style={{ width: '100px', marginBottom: '1rem' }} />
 
         <Typography variant="h4" gutterBottom>
           Welcome Back
