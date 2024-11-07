@@ -8,20 +8,13 @@ const Footer = () => {
         <Container>
           <Grid2
               container
-              spacing={4} // Adds spacing between grid items
-              justifyContent={{ xs: 'center', md: 'space-between' }} // Centered on mobile, spaced on desktop
+              spacing={4}
+              justifyContent={{ xs: 'center', md: 'space-between' }}
               alignItems="center"
-              direction={{ xs: 'column', md: 'row' }} // Column on mobile, row on desktop
+              direction={{ xs: 'column', md: 'row' }}
           >
-            {/* Location Section */}
-            <Grid2
-                item
-                xs={12} sm={6} md={4} // Full width on mobile, split on desktop
-                display="flex"
-                flexDirection="column"
-                alignItems={{ xs: 'center', md: 'flex-start' }} // Centered on mobile, aligned left on desktop
-            >
-              <Typography variant="h5" gutterBottom>
+            <Grid2 item xs={12} md={12}>
+              <Typography variant="h5" gutterBottom sx={{ textAlign: 'center' }}> {/* Centered text */}
                 LOCATION
               </Typography>
               <Typography align="center">
@@ -30,18 +23,11 @@ const Footer = () => {
               </Typography>
             </Grid2>
 
-            {/* Social Media Section */}
-            <Grid2
-                item
-                xs={12} sm={6} md={4}
-                display="flex"
-                flexDirection="column"
-                alignItems="center" // Always centered
-            >
+            <Grid2 item xs={12} md={12}>
               <Typography variant="h5" gutterBottom>
                 CONNECT WITH US
               </Typography>
-              <Box>
+              <Box display="flex" justifyContent="center" gap={2}>
                 <IconButton color="inherit" href="https://www.facebook.com" target="_blank" aria-label="Facebook">
                   <Facebook />
                 </IconButton>
@@ -51,14 +37,7 @@ const Footer = () => {
               </Box>
             </Grid2>
 
-            {/* Business Hours Section */}
-            <Grid2
-                item
-                xs={12} sm={12} md={4}
-                display="flex"
-                flexDirection="column"
-                alignItems={{ xs: 'center', md: 'flex-end' }} // Centered on mobile, aligned right on desktop
-            >
+            <Grid2 item xs={12} md={12}>
               <Typography variant="h5" gutterBottom>
                 BUSINESS HOURS
               </Typography>
@@ -66,9 +45,11 @@ const Footer = () => {
                 <Grid2 item xs={12} sm={6}>
                   <Typography align="left">
                     Monday: <br />
-                    Tuesday/Wednesday: <br />
+                    Tuesday: <br />
+                    Wednesday: <br />
                     Thursday: <br />
-                    Friday/Saturday: <br />
+                    Friday: <br />
+                    Saturday: <br />
                     Sunday:
                   </Typography>
                 </Grid2>
@@ -76,7 +57,9 @@ const Footer = () => {
                   <Typography align="right">
                     Closed <br />
                     10 AM - 6 PM <br />
+                    10 AM - 6 PM <br />
                     10 AM - 7 PM <br />
+                    10 AM - 6 PM <br />
                     10 AM - 6 PM <br />
                     11 AM - 5 PM
                   </Typography>
