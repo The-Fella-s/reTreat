@@ -8,7 +8,7 @@ import { Box, CardMedia, Dialog, DialogTitle, DialogContent, DialogActions } fro
 import StockImage from '../assets/StockImage.jpg';
 import PropTypes from 'prop-types';
 
-const AppointmentCard = ({ title, description, pricing, duration }) => {
+const AppointmentCard = ({ title, description, pricing, duration, onAppointmentBookConfirm }) => {
     const [openDialog, setOpenDialog] = React.useState(false);
 
     // Function to handle opening the dialog
@@ -19,6 +19,15 @@ const AppointmentCard = ({ title, description, pricing, duration }) => {
     // Function to handle closing the dialog
     const handleCloseDialog = () => {
         setOpenDialog(false);
+    };
+
+    // Handles the button clicks
+    const handleClick = () => {
+        console.log(title);
+        console.log(description);
+        console.log(pricing);
+        console.log(duration);
+        onAppointmentBookConfirm({ title, description, pricing, duration });  // Send data to the parent
     };
 
     return (
@@ -77,7 +86,7 @@ const AppointmentCard = ({ title, description, pricing, duration }) => {
             }}>
                 <Button size="small">${pricing}</Button>
                 <Button size="small">{duration}</Button>
-                <Button variant="outlined" size="small">Book</Button>
+                <Button variant="outlined" size="small" onClick={handleClick}>Book</Button>
             </CardActions>
 
             {/* Dialog popup for "Read more" content */}
@@ -99,7 +108,7 @@ const AppointmentCard = ({ title, description, pricing, duration }) => {
 // PropTypes for the AppointmentCard component
 AppointmentCard.propTypes = {
     title: PropTypes.string.isRequired,
-    description: PropTypes.string,
+    description: PropTypes.array,
     pricing: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     duration: PropTypes.string.isRequired,
 };
