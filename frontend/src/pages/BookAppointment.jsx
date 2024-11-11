@@ -1,14 +1,21 @@
 import React, {useState} from 'react';
 import {Typography, Grid2, Button, Box} from '@mui/material';
-import AppointmentCard from "../components/AppointmentCard.jsx";
-import {formatDuration} from "../utilities/formatDuration.js";
-import services from "../temporarydata/Services.jsx";
+import AppointmentCard from '../components/AppointmentCard.jsx';
+import {formatDuration} from '../utilities/formatDuration.js';
+import services from '../temporarydata/Services.jsx';
+import {useNavigate} from 'react-router-dom';
 
 const categories = ['Body Treatments', 'Facials', 'Nanochanneling Facials', 'Hydrafacials', 'Dermaplaning', 'Dermabrasion', 'Nail Care', 'Massages', 'Waxing', 'Add-Ons'];
 
 const BookAppointment = () => {
+    const navigate = useNavigate();
 
     const [selectedCategory, setSelectedCategory] = useState('Body Treatments');
+
+    // Navigate to payment page and pass the data via state
+    const handleAppointmentBookConfirm = (appointmentData) => {
+        navigate('/payment', { state: { appointmentData } });
+    };
 
     return (
 
@@ -80,6 +87,7 @@ const BookAppointment = () => {
                                             ))}
                                             pricing={service.pricing}
                                             duration={formatDuration(duration)} // Set the duration of the service and format it
+                                            onAppointmentBookConfirm={() => handleAppointmentBookConfirm(service)} // Pass data to the payment page
                                         />
                                     </Grid2>
                                 );

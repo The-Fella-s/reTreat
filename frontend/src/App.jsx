@@ -15,7 +15,8 @@ import BookAppointment from "./pages/BookAppointment.jsx";
 import Profile from './components/Profile.jsx'; // Import Profile component
 import Menu from './pages/Menu.jsx'; // Import Menu component
 import { ToastContainer, toast } from 'react-toastify'; //Toastify components
-import 'react-toastify/dist/ReactToastify.css'; 
+import 'react-toastify/dist/ReactToastify.css';
+import Payment from "./pages/Payment.jsx";
 
 function App() {
   //Test for notification pop up on main page
@@ -64,8 +65,11 @@ function App() {
           {/* Profile Page */}
           <Route path="/profile" element={<Profile />} /> {/* Added Profile Route */}
 
-          <Route path="/menu" element={<Menu />} /> 
-          
+          <Route path="/menu" element={<Menu />} />
+
+          {/* Payment Page */}
+          <Route path="/payment" element={<Payment />} />
+
         </Routes>
         
         {/* Footer is outside the routes, it will show on every page */}
