@@ -2,22 +2,19 @@ import { useLocation } from 'react-router-dom';
 import AppointmentCardDetailsOnly from '../components/AppointmentCardDetailsOnly.jsx';
 import { Box, Grid2 } from '@mui/material';
 import TotalPaymentCard from '../components/TotalPaymentCard.jsx';
+import CalendarAndAvailableHours from '../components/CalendarAndAvailableHours.jsx';
 
-// Define the Payment component
 const Payment = () => {
-    // Retrieve the state from the React Router location
     const { state } = useLocation();
     // Destructure the appointment data from the state object
     const { appointmentData } = state || {};
 
-    // If there is no appointment data available, display a message
     if (!appointmentData) {
         return <div>No appointment data found!</div>;
     }
 
     return (
         <>
-            {/* Main container layout using Grid2 with responsive padding */}
             <Grid2
                 container
                 direction='row'
@@ -28,7 +25,7 @@ const Payment = () => {
                 justifyContent={{ xs: 'center', md: 'flex-start' }} // Center on mobile, align left on desktop
                 alignItems={{ xs: 'center', md: 'flex-start' }} // Align center vertically on mobile, align center left on desktop
                 sx={{
-                    height: '100vh', // Dynamic height to adjust to content
+                    height: 'auto', // Dynamic height to adjust to content
                 }}
             >
                 {/* Appointment details card */}
@@ -45,7 +42,6 @@ const Payment = () => {
                     />
                 </Grid2>
 
-                {/* Image Box component - hidden on mobile, shown on larger screens */}
                 <Box
                     component='img'
                     sx={{
@@ -76,6 +72,11 @@ const Payment = () => {
                         title={appointmentData.name} // Display appointment name in payment card
                         pricing={appointmentData.pricing} // Display appointment pricing in payment card
                     />
+                </Grid2>
+
+                {/* Ensure DateTimePicker is always below AppointmentCardDetailsOnly */}
+                <Grid2 item xs={12} sx={{ order: { xs: 1, md: 2 } }}>
+                    <CalendarAndAvailableHours />
                 </Grid2>
             </Grid2>
         </>
