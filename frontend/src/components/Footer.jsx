@@ -4,7 +4,7 @@ import { Facebook, Instagram } from '@mui/icons-material';
 
 const Footer = () => {
   return (
-      <Box sx={{ bgcolor: 'primary.main', color: 'white', py: 4 }}>
+      <Box sx={{ bgcolor: 'secondary.main', color: 'white', py: 4 }}>
         <Container>
           <Grid2
               container

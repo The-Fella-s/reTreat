@@ -17,6 +17,8 @@ import Menu from './pages/Menu.jsx'; // Import Menu component
 import { ToastContainer, toast } from 'react-toastify'; //Toastify components
 import 'react-toastify/dist/ReactToastify.css';
 import Payment from "./pages/Payment.jsx";
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './components/Theme.jsx'
 
 function App() {
   //Test for notification pop up on main page
@@ -29,7 +31,10 @@ function App() {
   return (
     <Router>
       {/* Navigation Bar is outside the routes, it will show on every page */}
+      <ThemeProvider theme = {theme}>
       <NavBar/>
+      </ThemeProvider>
+
       <div>
         {/* Place ToastContainer here */}
         <ToastContainer />
@@ -73,7 +78,9 @@ function App() {
         </Routes>
         
         {/* Footer is outside the routes, it will show on every page */}
+        <ThemeProvider theme = {theme}>
         <Footer />
+        </ThemeProvider>
       </div>
     </Router>
   );

@@ -46,7 +46,7 @@ function NavBar() {
     };
 
     return (
-        <AppBar position="static">
+        <AppBar position="static" color = "secondary">
             <Container maxWidth="lx1">
                 <Toolbar disableGutters>
                     {/* Logo with Link to Home */}
@@ -135,7 +135,7 @@ function NavBar() {
                             anchorEl={userAnchor}
                             anchorOrigin={{
                                 vertical: 'top',
-                                horizontal: 'right',
+                                horizontal: 'right'
                             }}
                             open={Boolean(userAnchor)}
                             onClose={handleCloseUser}
