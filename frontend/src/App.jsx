@@ -12,6 +12,7 @@ import NavBar from './components/NavBar';
 import Register from "./pages/Register.jsx";
 import MeetTheTeam from './Pages/MeetTheTeam.jsx';
 import BookAppointment from "./pages/BookAppointment.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 import Profile from './components/Profile.jsx'; // Import Profile component
 import Menu from './pages/Menu.jsx'; // Import Menu component
 import { ToastContainer, toast } from 'react-toastify'; //Toastify components
@@ -74,6 +75,9 @@ function App() {
 
           {/* Payment Page */}
           <Route path="/payment" element={<Payment />} />
+
+          {/* Dashboard Page */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
         </Routes>
         
