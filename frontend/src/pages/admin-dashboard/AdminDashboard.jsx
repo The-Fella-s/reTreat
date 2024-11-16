@@ -8,6 +8,7 @@ import UserSection from './UserSection';
 import MenuSection from './MenuSection';
 import BookingSection from './BookingSection';
 import StatisticsSection from './StatisticsSection';
+import ThemeSection from './ThemeSection';
 
 const AdminDashboard = () => {
   const [selectedSection, setSelectedSection] = useState('statistics');
@@ -52,6 +53,9 @@ const AdminDashboard = () => {
           <ListItem button onClick={() => handleNavigation('booking')}>
             <ListItemText primary="Booking Section" />
           </ListItem>
+          <ListItem button onClick={() => handleNavigation('theme')}>
+            <ListItemText primary="Theme Section" />
+          </ListItem>
         </List>
       </Drawer>
 
@@ -72,6 +76,7 @@ const AdminDashboard = () => {
           <Route path="user" element={<UserSection />} />
           <Route path="menu" element={<MenuSection />} />
           <Route path="booking" element={<BookingSection />} />
+          <Route path="theme" element={<ThemeSection />} />
         </Routes>
       </Box>
     </Box>
