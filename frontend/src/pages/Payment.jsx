@@ -1,10 +1,8 @@
 import { useLocation } from 'react-router-dom';
 import AppointmentCardDetailsOnly from '../components/AppointmentCardDetailsOnly.jsx';
-import {Box, Button, Card, Grid2, TextField, Typography} from '@mui/material';
+import {Box, Grid2} from '@mui/material';
 import TotalPaymentCard from '../components/TotalPaymentCard.jsx';
 import CalendarAndAvailableHours from '../components/CalendarAndAvailableHours.jsx';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import CreditCardIcon from '@mui/icons-material/CreditCard';
 import PaymentInformation from "../components/PaymentInformation.jsx";
 
 const Payment = () => {
