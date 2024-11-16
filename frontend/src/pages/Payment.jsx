@@ -1,12 +1,14 @@
 import { useLocation } from 'react-router-dom';
 import AppointmentCardDetailsOnly from '../components/AppointmentCardDetailsOnly.jsx';
-import { Box, Grid2 } from '@mui/material';
+import {Box, Button, Card, Grid2, TextField, Typography} from '@mui/material';
 import TotalPaymentCard from '../components/TotalPaymentCard.jsx';
 import CalendarAndAvailableHours from '../components/CalendarAndAvailableHours.jsx';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import PaymentInformation from "../components/PaymentInformation.jsx";
 
 const Payment = () => {
     const { state } = useLocation();
-    // Destructure the appointment data from the state object
     const { appointmentData } = state || {};
 
     if (!appointmentData) {
@@ -74,10 +76,24 @@ const Payment = () => {
                     />
                 </Grid2>
 
-                {/* Ensure DateTimePicker is always below AppointmentCardDetailsOnly */}
-                <Grid2 item xs={12} sx={{ order: { xs: 1, md: 2 } }}>
+                {/* Calendar and Available Hours */}
+                <Grid2 item xs={12} md={6} sx={{ order: { xs: 1, md: 2 } }}>
                     <CalendarAndAvailableHours />
                 </Grid2>
+
+                <Box
+                    sx={{
+                        height: { xs: 'auto', md: '100%', lg: '100%' }, // Auto height on mobile, fixed height on desktop
+                        minWidth: { xs: '300px', md: '40%' }, // Minimum width on desktop
+                        maxWidth: { xs: '300px', md: '300px', lg: '60%' }, // Maximum width from desktop to large screens
+                        width: '100%', // Full width on all screen sizes
+                        gridColumn: { xs: 'span 0', md: 'span 6' }, // Does not occupy grid space on mobile
+                        order: { xs: 1, md: 2 },
+                    }}
+                >
+                    <PaymentInformation/>
+                </Box>
+
             </Grid2>
         </>
     );
