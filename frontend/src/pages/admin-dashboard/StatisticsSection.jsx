@@ -3,7 +3,7 @@ import {Typography, Grid2, Button, Box} from '@mui/material';
 import VisitsCard from "../../components/VisitsCard";
 import SignupsCard from "../../components/SignupsCard";
 
-const Dashboard = () => {
+const StatisticsSection = () => {
     return (<Box>
  <Typography variant="h5" sx={{ fontWeight: 'bold' }}  xs={12} sm={6} md={4} p={5}>
                     Admin Dashboard
