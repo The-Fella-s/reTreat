@@ -10,7 +10,7 @@ export const SignupsData ={
     ],
     datasets:[
         {
-            label: "Visits",
+            label: "Signups",
             data: [80, 40, 30, 70, 55, 29, 95],
             borderColor: "blue",
         }
