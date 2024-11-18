@@ -149,9 +149,6 @@ const PaymentInformation = () => {
                         />
                     </Box>
 
-                    {/* Middle Space */}
-                    <Box sx={{ width: { lg: "300px" } }}></Box>
-
                     {/* Right Section: Payment Information */}
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%" }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

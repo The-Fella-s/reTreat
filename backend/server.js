@@ -1,22 +1,27 @@
 const express = require('express');
+const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-require('dotenv').config();
 
+
+dotenv.config();
 const app = express();
+
+// Middleware
+app.use(express.json());
 
 // Connect Database
 connectDB();
 
-// Middleware to parse incoming requests
-app.use(express.json());
+// Routes
+const userRoutes = require('./routes/userRoutes');
+app.use('/api/users', userRoutes);
+const employeeRoutes = require('./routes/employeeRoutes');
+app.use('/api/employees', employeeRoutes);
 
-// Basic route to check if server is running
-app.get('/', (req, res) => {
-    res.send('API is running');
-  });
 
-// Define the port from .env or default
+// Test Route
+app.get('/', (req, res) => res.send('API is running'));
+
+// Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

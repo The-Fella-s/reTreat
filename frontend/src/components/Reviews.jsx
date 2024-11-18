@@ -58,7 +58,7 @@ const Reviews = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <Typography variant="h4" gutterBottom align="center">
+      <Typography variant="h4" gutterBottom align="center" sx = {{fontFamily: "Special Elite"}}>
         Reviews
       </Typography>
       <Card sx={{ minHeight: '200px', position: 'relative' }}> 

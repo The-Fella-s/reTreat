@@ -23,7 +23,7 @@ const socialMediaPosts = [
 const SocialMedia = () => {
   return (
     <Box style={{ padding: '20px' }}>
-      <Typography variant="h4" gutterBottom align="center">
+      <Typography variant="h4" gutterBottom align="center" sx = {{fontFamily: "Special Elite"}}>
         Social Media
       </Typography>
       <Grid container spacing={2} justifyContent="center">

@@ -12,7 +12,7 @@ const ReadyToRelax = () => {
         marginTop: '20px' 
       }}
     >
-      <Typography variant="h4" component="h2" gutterBottom>
+      <Typography variant="h4" component="h2" gutterBottom sx = {{fontFamily: "Special Elite"}}>
         Ready to Relax?
       </Typography>
       <Typography variant="body1" gutterBottom>

@@ -88,7 +88,7 @@ const FAQ = () => {
 
     return (
         <>
-            <Typography variant="h3" gutterBottom align="center">
+            <Typography variant="h3" gutterBottom align="center" sx = {{fontFamily: "Special Elite", mb: 2}} xs={12} sm={6} md={4} p={5}>
                 Frequently Asked Questions
             </Typography>
 

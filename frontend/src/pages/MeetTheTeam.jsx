@@ -29,7 +29,7 @@ function MeetTheTeam() {
       sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', paddingTop: 4, paddingBottom: 4 }}
     >
       {/* Header Section */}
-      <Typography variant="h3" gutterBottom>
+      <Typography variant="h3" gutterBottom sx = {{fontFamily: "Special Elite"}}>
         Meet the Team
       </Typography>
       <Typography variant="body1" color="textSecondary" paragraph>
