@@ -20,6 +20,7 @@ import Payment from "./pages/Payment.jsx";
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './components/Theme.jsx'
 import Main from './components/MainPage.jsx';
+import AdminDashboard from './pages/admin-dashboard/AdminDashboard.jsx';
 
 function App() {
   //Test for notification pop up on main page
@@ -76,6 +77,8 @@ function App() {
           {/* Payment Page */}
           <Route path="/payment" element={<Payment />} />
 
+          {/* Dashboard Page */}
+          <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
         </Routes>
         
         {/* Footer is outside the routes, it will show on every page */}

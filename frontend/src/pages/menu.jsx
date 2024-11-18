@@ -1,17 +1,37 @@
 import React from 'react';
-import { AppBar, Toolbar, Button, Typography, Box, Grid, Card, CardContent, CardActions, CardMedia } from '@mui/material';
+import { Box, Typography, Grid, Button } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ItemCard from '../components/ItemCard'; // Import the ItemCard component
 
 function SpaMenuPage() {
-
-  const handlePurchase = () => {
-    toast.success("Purchase added..."); // Display the toast notification
+  // Handle purchase logic
+  const handlePurchase = (itemName) => {
+    toast.success(`${itemName} added to your cart!`);
   };
+
+  // Menu items data
+  const menuItems = [
+    {
+      name: 'Deluxe Spa Package',
+      description: 'Includes\n• Signature facial with addon\n• 60 minute Swedish massage\n• Lounge access with robes',
+      price: '$210',
+    },
+    {
+      name: 'Luxury Spa Package',
+      description: 'Includes\n• Luxury anti-aging facial with addon\n• 100 minute Swedish massage\n• Lounge access with robes',
+      price: '$290',
+    },
+    {
+      name: 'Customizable Spa Package',
+      description: 'Customize with\n• Manicure\n• Pedicure\n• Body scrub treatment',
+      price: '$???',
+    },
+  ];
 
   return (
     <div>
-      {/* Toast Container */}
+      {/* Toast Notifications */}
       <ToastContainer />
 
       {/* Header Section */}
@@ -28,34 +48,16 @@ function SpaMenuPage() {
         ))}
       </Box>
 
-      {/* Card Grid */}
+      {/* Cards Section */}
       <Grid container spacing={3} justifyContent="center" style={{ padding: '20px' }}>
-        {[ 
-          { title: 'Deluxe Spa Package', description: 'Includes\n• Signature facial with addon\n• 60 minute Swedish massage\n• Lounge access with robes', price: '$210' },
-          { title: 'Luxury Spa Package', description: 'Includes\n• Luxury anti-aging facial with addon\n• 100 minute Swedish massage\n• Lounge access with robes', price: '$290' },
-          { title: 'Customizable Spa Package', description: 'Customize with\n• Manicure\n• Pedicure\n• Body scrub treatment', price: '$???' }
-        ].map((packageItem, index) => (
+        {menuItems.map((item, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card style={{ maxWidth: 345, margin: 'auto', backgroundColor: '#f5f5f5' }}>
-              <CardMedia
-                component="div"
-                style={{ height: '150px', backgroundColor: '#e0e0e0' }} // Placeholder for image
-              />
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {packageItem.title}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {packageItem.description.split('\n').map((line, i) => (
-                    <span key={i}>{line}<br /></span>
-                  ))}
-                </Typography>
-              </CardContent>
-              <CardActions style={{ justifyContent: 'space-between', padding: '16px' }}>
-                <Typography variant="h6">{packageItem.price}</Typography>
-                <Button variant="contained" color="primary"onClick={handlePurchase}>Purchase</Button>
-              </CardActions>
-            </Card>
+            <ItemCard
+              name={item.name}
+              description={item.description}
+              price={item.price}
+              onPurchase={() => handlePurchase(item.name)}
+            />
           </Grid>
         ))}
       </Grid>
