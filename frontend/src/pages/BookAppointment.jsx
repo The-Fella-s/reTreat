@@ -26,7 +26,7 @@ const BookAppointment = () => {
             <Box>
 
                 {/* Title */}
-                <Typography variant="h3" gutterBottom align="center" sx={{ fontWeight: 'bold' }}  xs={12} sm={6} md={4} p={5}>
+                <Typography variant="h3" gutterBottom align="center" sx={{ fontWeight: 'bold',fontFamily: "Special Elite"}}  xs={12} sm={6} md={4} p={5}>
                     Book Appointment
                 </Typography>
 

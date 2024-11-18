@@ -16,7 +16,7 @@ function SpaMenuPage() {
 
       {/* Header Section */}
       <Box textAlign="center" p={5} bgcolor="#e0e0e0">
-        <Typography variant="h3">Menu</Typography>
+        <Typography variant="h3" sx = {{fontFamily: "Special Elite"}}>Menu</Typography>
       </Box>
 
       {/* Filter Buttons */}
