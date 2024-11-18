@@ -19,6 +19,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Payment from "./pages/Payment.jsx";
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './components/Theme.jsx'
+import Main from './components/MainPage.jsx';
 import AdminDashboard from './pages/admin-dashboard/AdminDashboard.jsx';
 
 function App() {
@@ -34,7 +35,6 @@ function App() {
       {/* Navigation Bar is outside the routes, it will show on every page */}
       <ThemeProvider theme = {theme}>
       <NavBar/>
-      </ThemeProvider>
 
       <div>
         {/* Place ToastContainer here */}
@@ -44,6 +44,7 @@ function App() {
           {/* Home Page (Main content) */}
           <Route path="/" element={
             <>
+              <Main />
               <Reviews />
               <SocialMedia />
               <ReadyToRelax />
@@ -81,10 +82,10 @@ function App() {
         </Routes>
         
         {/* Footer is outside the routes, it will show on every page */}
-        <ThemeProvider theme = {theme}>
+        
         <Footer />
-        </ThemeProvider>
       </div>
+      </ThemeProvider>
     </Router>
   );
 }

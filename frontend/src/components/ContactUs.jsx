@@ -11,7 +11,7 @@ const Contact = () => {
 
 
     return (
-        <div style={{ textAlign: 'center', marginTop: '50px' }}>
+        <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: "Special Elite"}}>
             <h1>Contact Us</h1>
 
             <Box 

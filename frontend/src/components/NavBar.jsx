@@ -58,6 +58,7 @@ function NavBar() {
                             display: { xs: 'none', md: 'flex' },
                             alignItems: 'center',
                             textDecoration: 'none',
+                            
                         }}
                     >
                         <img src={logo} alt="reTreat Salon&Spa Logo" style={{ height: 40 }} />
@@ -87,7 +88,7 @@ function NavBar() {
                         >
                             {pages.map((page) => (
                                 <MenuItem key={page.name} onClick={handleCloseNav} component={Link} to={page.path}>
-                                    <Typography sx={{ textAlign: 'center' }}>{page.name}</Typography>
+                                    <Typography sx={{ textAlign: 'center',  }}>{page.name}</Typography>
                                 </MenuItem>
                             ))}
                         </Menu>
@@ -115,7 +116,7 @@ function NavBar() {
                                 component={Link}
                                 to={page.path}
                                 onClick={handleCloseNav}
-                                sx={{ my: 2, color: 'white', display: 'grid', px: 2.25 }}
+                                sx={{ my: 2, color: 'white', display: 'grid', px: 2.25, /* fontFamily: "Special Elite"*/}} // Maybe switch font later, we'll ask
                             >
                                 {page.name}
                             </Button>
