@@ -127,15 +127,15 @@ npm run dev
 ```
 
 # Timeline
-| Sprint | Task                                                                     | Status  | Date       |
-|--------|--------------------------------------------------------------------------|---------|------------|
-| 1      | Work on prototype and research APIs that are needed                      | Done    | 10/06/2024 |
-| 2      | Start working on the frontend                                            | Done    | 10/20/2024 |
-| 3      | Refine the UI and finish the other pages                                 | Done    | 11/06/2024 |
-| 4      | Finish most of the frontend, start working on the dashboard and backend  | Done    | 11/17/2024 |
-| 5      | Implement in client changes, start working on backend, implement in APIs | Pending | 02/10/2025 |
-| 6      | Implement more of the backend alongside the testing APIs                 | Pending | 02/24/2025 |
-| 7      | Track appointments, schedules, and allow things to be added to database  | Pending | 03/10/2025 |
-| 8      | Refine the frontend UI and backend                                       | Pending | 03/24/2025 |
-| 9      | Refine more of the frontend UI and do more testing, fix bugs             | Pending | 04/07/2025 |
-| 10     | Finish testing frontend and backend, complete finishing touches          | Pending | 04/21/2025 |
+| Sprint | Task                                                                     | Status  | Start Date | End Date   |
+|--------|--------------------------------------------------------------------------|---------|------------|------------|
+| 1      | Work on prototype and research APIs that are needed                      | Done    | 09/23/2024 | 10/06/2024 |
+| 2      | Start working on the frontend                                            | Done    | 10/07/2024 | 10/20/2024 |
+| 3      | Refine the UI and finish the other pages                                 | Done    | 10/21/2024 | 11/10/2024 |
+| 4      | Finish most of the frontend, start working on the dashboard and backend  | Done    | 11/11/2024 | 11/24/2024 |
+| 5      | Implement in client changes, start working on backend, implement in APIs | Pending | 01/22/2025 | 02/11/2025 |
+| 6      | Implement more of the backend alongside the testing APIs                 | Pending | 02/12/2025 | 02/25/2025 |
+| 7      | Track appointments, schedules, and allow things to be added to database  | Pending | 02/26/2025 | 03/11/2025 |
+| 8      | Refine the frontend UI and backend                                       | Pending | 03/12/2025 | 03/25/2025 |
+| 9      | Refine more of the frontend UI and do more testing, fix bugs             | Pending | 03/26/2025 | 04/15/2025 |
+| 10     | Finish testing frontend and backend, complete finishing touches          | Pending | 04/16/2025 | 04/29/2025 |
