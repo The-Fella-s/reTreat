@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Checkbox, FormControlLabel, Typography, Box } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -7,12 +9,33 @@ import reTreatLogo from '../assets/reTreatLogo.png';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    toast.info("Logging you in..."); // Show the toast notification
-    console.log('Email:', email);
-    console.log('Password:', password);
+    toast.info("Logging you in...");
+
+    try {
+      const res = await axios.post('http://localhost:5000/api/users/login', { email, password }, { withCredentials: true });
+
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token); // Store JWT token
+        localStorage.setItem('userRole', res.data.user.role); // Store user role
+        toast.success('Login successful!');
+
+        // Redirect based on role
+        if (res.data.user.role === 'admin') {
+          navigate('/admin-dashboard');
+        } else if (res.data.user.role === 'employee') {
+          navigate('/employee-dashboard');
+        } else {
+          navigate('/user-dashboard');
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || 'Login failed.');
+    }
   };
 
   return (
@@ -21,7 +44,7 @@ function Login() {
       justifyContent="center" 
       alignItems="center" 
       height="100vh" 
-      sx={{ backgroundColor: '#f0f0f0' }}  // Box component's built-in styling (sx)
+      sx={{ backgroundColor: '#f0f0f0' }}
     >
       <Box 
         p={4} 
@@ -32,7 +55,6 @@ function Login() {
         width="100%"
         textAlign="center"
       >
-        {/* Logo */}
         <img src={reTreatLogo} alt="Logo" style={{ width: '100px', marginBottom: '1rem' }} />
 
         <Typography variant="h4" gutterBottom>
@@ -43,7 +65,6 @@ function Login() {
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          {/* Email field */}
           <TextField
             label="Email"
             type="email"
@@ -54,7 +75,6 @@ function Login() {
             required
           />
 
-          {/* Password field */}
           <TextField
             label="Password"
             type="password"
@@ -65,13 +85,11 @@ function Login() {
             required
           />
 
-          {/* Remember me checkbox */}
           <FormControlLabel
             control={<Checkbox name="remember" color="primary" />}
             label="Remember me"
           />
 
-          {/* Submit button */}
           <Button 
             type="submit" 
             variant="contained" 
@@ -82,7 +100,6 @@ function Login() {
             Sign In
           </Button>
 
-          {/* Footer links */}
           <Box mt={2}>
             <Typography variant="body2">
               <a href="#" style={{ color: '#1976d2', textDecoration: 'none' }}>Forgot password?</a>
@@ -93,7 +110,7 @@ function Login() {
           </Box>
         </form>
       </Box>
-      <ToastContainer /> {/* Add ToastContainer here */}
+      <ToastContainer />
     </Box>
   );
 }

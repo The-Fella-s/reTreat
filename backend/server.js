@@ -1,26 +1,22 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-
+const { protect, adminOnly } = require('./middleware/authMiddleware'); // ✅ Ensure this is imported
 
 dotenv.config();
-const app = express();
-
-// Middleware
-app.use(express.json());
-
-// Connect Database
 connectDB();
+
+const app = express();
+app.use(express.json());
 
 // Routes
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
-const employeeRoutes = require('./routes/employeeRoutes');
-app.use('/api/employees', employeeRoutes);
 
-
-// Test Route
-app.get('/', (req, res) => res.send('API is running'));
+// ✅ Add this admin-protected route directly in `server.js`
+app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
+  res.json({ message: 'Welcome to Admin Dashboard' });
+});
 
 // Start Server
 const PORT = process.env.PORT || 5000;
