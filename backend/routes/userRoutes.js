@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 
-// ✅ REGISTER: Create a new user (Regular User or Employee)
+// Create a new user (Regular User or Employee)
 router.post('/register', async (req, res) => {
   const { email, password, name, phone, role } = req.body;
 
@@ -39,7 +39,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// ✅ LOGIN: Authenticate user and return JWT
+// Authenticate user and return JWT
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
