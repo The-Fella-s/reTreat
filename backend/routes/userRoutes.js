@@ -1,93 +1,31 @@
 const express = require('express');
-const router = express.Router();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const dotenv = require('dotenv');
+const cors = require('cors'); // Ensure CORS middleware is available
+const connectDB = require('./config/db');
+const { protect, adminOnly } = require('./middleware/authMiddleware'); // Import middleware
 
-// POST /api/users/register-client
-router.post('/register-client', async (req, res) => {
-  const { email, password, name } = req.body;
+dotenv.config();
+connectDB();
 
-  try {
-      // Validate input
-      if (!email || !password || !name) {
-          return res.status(400).json({ message: 'All fields are required' });
-      }
+const app = express();
+app.use(cors()); // Use CORS middleware
+app.use(express.json());
 
-      // Check for duplicate email
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-          return res.status(400).json({ message: 'Email already in use' });
-      }
+// Routes
+const userRoutes = require('./routes/userRoutes');
+const employeeRoutes = require('./routes/employeeRoutes'); // Keep if necessary
 
-      // Hash the password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+app.use('/api/users', userRoutes);
+app.use('/api/employees', employeeRoutes); // Ensure this exists in the project
 
-      // Create and save the new user
-      const newUser = new User({
-          email,
-          password: hashedPassword,
-          name,
-      });
-
-      console.log('Saving user:', newUser); // Add this for debugging
-
-      await newUser.save();
-
-      // Respond with success
-      res.status(201).json({ message: 'User registered successfully' });
-  } catch (error) {
-      console.error(error.message);
-      res.status(500).json({ message: 'Server error' });
-  }
+// Admin route
+app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
+  res.json({ message: 'Welcome to Admin Dashboard' });
 });
 
-// POST /api/users/login-client
-router.post('/login-client', async (req, res) => {
-  const { email, password } = req.body;
+// Test Route
+app.get('/', (req, res) => res.send('API is running'));
 
-  try {
-    console.log('Login attempt:', { email, password }); // Log input
-
-    // Check if the user exists
-    const user = await User.findOne({ email });
-    if (!user) {
-      console.log('User not found'); // Log if user doesn't exist
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    console.log('User found:', user); // Log found user
-
-    // Verify the password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      console.log('Invalid password'); // Log if password is incorrect
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    console.log('Password matched!'); // Log successful password match
-
-    // Generate JWT token
-    const payload = {
-      user: {
-        id: user._id,  // User's ObjectID from MongoDB
-        email: user.email
-      },
-    };
-
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    console.log('JWT generated:', token); // Log the generated token
-
-    // Return token on success
-    res.status(200).json({ token, message: 'Login successful' });
-
-  } catch (error) {
-    console.error('Login error:', error.message);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-
-module.exports = router;
+// Start Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
