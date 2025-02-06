@@ -82,13 +82,31 @@ router.post('/login', async (req, res) => {
         id: user._id,
         email: user.email,
         name: user.name,
+        phone: user.phone,  // Added phone
         role: user.role,
+        profilePicture: user.profilePicture, // Added profile picture
       },
       message: 'Login successful',
     });
 
   } catch (error) {
     console.error('Login error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Fetch user data from JWT (Session Persistence)
+router.get('/me', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password'); // Exclude password
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
