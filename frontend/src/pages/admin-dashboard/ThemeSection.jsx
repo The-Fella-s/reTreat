@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, {useMemo, useState} from 'react';
+import {Box, Button, CssBaseline, Grid2, TextField, Typography} from "@mui/material";
+import {createTheme, ThemeProvider} from "@mui/material/styles";
 import ColorPickerComponent from "../../components/ColorPickerComponent.jsx";
-import { Box, Button, Grid2, TextField, Typography } from "@mui/material";
 import SavedThemesComponent from "../../components/SavedThemesComponent.jsx";
 
 const ThemeSection = () => {
@@ -17,10 +18,31 @@ const ThemeSection = () => {
     // State to manage the list of saved themes
     const [savedThemes, setSavedThemes] = useState([]);
 
-    // Function to handle the form submission
+    // State to track the active theme
+    const [activeTheme, setActiveTheme] = useState({
+        primaryThemeColor,
+        secondaryThemeColor,
+        primaryTextColor,
+        secondaryTextColor,
+        backgroundColor,
+    });
+
+    // Function to create a Material UI theme object dynamically based on the active theme state
+    const muiTheme = useMemo(() => createTheme({
+        palette: {
+            primary: { main: activeTheme.primaryThemeColor },
+            secondary: { main: activeTheme.secondaryThemeColor },
+            text: {
+                primary: activeTheme.primaryTextColor,
+                secondary: activeTheme.secondaryTextColor,
+            },
+            background: { default: activeTheme.backgroundColor },
+        },
+    }), [activeTheme]);  // Only recreate the theme when the activeTheme state changes
+
+    // Function to handle the form submission for saving a new theme
     const handleSubmit = (e) => {
-        e.preventDefault();
-        // Create a new theme object with the current state values
+        e.preventDefault();  // Prevent default form submission behavior
         const newTheme = {
             name: themeName,
             primaryThemeColor,
@@ -30,90 +52,95 @@ const ThemeSection = () => {
             backgroundColor,
         };
 
-        // Add the new theme to the saved themes array
-        setSavedThemes([...savedThemes, newTheme]);
+        console.log("Saving theme: ", newTheme);
 
-        // Log the updated list of saved themes to the console
-        console.log(savedThemes);
+        // Save the new theme to the savedThemes array
+        setSavedThemes([...savedThemes, newTheme]);
+        console.log("Theme saved successfully: ", savedThemes);
+    };
+
+    // Function to apply a saved theme by setting it as the active theme
+    const handleActivateTheme = (theme) => {
+        console.log("Activating theme: ", theme);
+        setActiveTheme(theme);
+        console.log("Theme activated successfully");
+    };
+
+    // Function to delete a saved theme by filtering it out from the savedThemes array
+    const handleDeleteTheme = (index) => {
+        try {
+            // Retrieve the theme that will be deleted for logging purposes
+            const themeToRemove = savedThemes[index];
+            console.log("Deleting theme:", themeToRemove);
+
+            // Update the saved themes by filtering out the theme at the given index
+            setSavedThemes((previousThemes) => {
+                return previousThemes.filter((theme, filterIndex) => filterIndex !== index);
+            });
+
+            // Optionally, display a success message or execute another function here
+            console.log("Theme deleted successfully.");
+        } catch (error) {
+            // Handle potential errors, such as invalid index or other issues
+            console.error("Error deleting theme:", error);
+        }
     };
 
     return (
-        <Grid2>
-            {/* Header for the theme management section */}
-            <Typography variant="h4">
-                Theme Management
-            </Typography>
+        <ThemeProvider theme={muiTheme}>  {/* Apply the dynamically created theme */}
+            <CssBaseline />  {/* Ensure a consistent baseline style */}
+            <Grid2>
+                <Typography variant="h4">
+                    Theme Management
+                </Typography>
 
-            {/* Form to input theme details */}
-            <form onSubmit={handleSubmit}>
-                {/* Input field for the theme name */}
-                <TextField
-                    label="Theme Name"
-                    value={themeName}
-                    onChange={(e) => setThemeName(e.target.value)}
-                    fullWidth
-                    margin="normal"
-                    required
-                />
+                {/* Form for creating a new theme */}
+                <form onSubmit={handleSubmit}>
+                    <TextField
+                        label="Theme Name"
+                        value={themeName}
+                        onChange={(e) => setThemeName(e.target.value)}  // Update theme name
+                        fullWidth
+                        margin="normal"
+                        required  // Make the theme name field required
+                    />
 
-                {/* Container for color pickers */}
-                <Grid2 container direction="row" spacing={4}>
-                    {/* Color picker for primary theme color */}
-                    <ColorPickerComponent
-                        title="Primary theme color"
-                        color={primaryThemeColor}
-                        setColor={setPrimaryThemeColor}
-                    />
-                    {/* Color picker for secondary theme color */}
-                    <ColorPickerComponent
-                        title="Secondary theme color"
-                        color={secondaryThemeColor}
-                        setColor={setSecondaryThemeColor}
-                    />
-                    {/* Color picker for primary text color */}
-                    <ColorPickerComponent
-                        title="Primary text color"
-                        color={primaryTextColor}
-                        setColor={setPrimaryTextColor}
-                    />
-                    {/* Color picker for secondary text color */}
-                    <ColorPickerComponent
-                        title="Secondary text color"
-                        color={secondaryTextColor}
-                        setColor={setSecondaryTextColor}
-                    />
-                    {/* Color picker for background color */}
-                    <ColorPickerComponent
-                        title="Background color"
-                        color={backgroundColor}
-                        setColor={setBackgroundColor}
-                    />
-                </Grid2>
+                    <Grid2 container direction="row" spacing={4}>
+                        {/* Color pickers for different theme colors */}
+                        <ColorPickerComponent title="Primary theme color" color={primaryThemeColor} setColor={setPrimaryThemeColor} />
+                        <ColorPickerComponent title="Secondary theme color" color={secondaryThemeColor} setColor={setSecondaryThemeColor} />
+                        <ColorPickerComponent title="Primary text color" color={primaryTextColor} setColor={setPrimaryTextColor} />
+                        <ColorPickerComponent title="Secondary text color" color={secondaryTextColor} setColor={setSecondaryTextColor} />
+                        <ColorPickerComponent title="Background color" color={backgroundColor} setColor={setBackgroundColor} />
+                    </Grid2>
 
-                {/* Button to save the theme */}
-                <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-                    Save Theme
-                </Button>
-            </form>
+                    <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+                        Save Theme  {/* Button to submit the form and save the theme */}
+                    </Button>
+                </form>
 
-            {/* Section to display saved themes */}
-            <Box sx={{ mt: 4 }}>
-                <Typography variant="h5" gutterBottom>Saved Themes</Typography>
+                <Box sx={{ mt: 4 }}>
+                    <Typography variant="h5" gutterBottom>Saved Themes</Typography>
 
-                {/* Component to list saved themes */}
-                <SavedThemesComponent
-                    title="Test theme"
-                    primaryThemeColor={primaryThemeColor}
-                    secondaryThemeColor={secondaryThemeColor}
-                    primaryTextColor={primaryTextColor}
-                    secondaryTextColor={secondaryTextColor}
-                    backgroundColor={backgroundColor}
-                    handleActivate={() => { /* Function to handle theme activation */ }}
-                    handleDefault={() => { /* Function to handle setting theme as default */ }}
-                    handleDelete={() => { /* Function to handle theme deletion */ }}
-                />
-            </Box>
-        </Grid2>
+                    {/* Display a list of saved themes */}
+                    <Grid2 sx={{ mt: 4 }} container direction="row" spacing={4}>
+                        {savedThemes.map((theme, index) => (
+                            <SavedThemesComponent
+                                key={index}
+                                title={theme.name}
+                                primaryThemeColor={theme.primaryThemeColor}
+                                secondaryThemeColor={theme.secondaryThemeColor}
+                                primaryTextColor={theme.primaryTextColor}
+                                secondaryTextColor={theme.secondaryTextColor}
+                                backgroundColor={theme.backgroundColor}
+                                handleActivate={() => handleActivateTheme(theme)}  // Apply theme when clicked
+                                handleDelete={() => handleDeleteTheme(index)}  // Delete theme when clicked
+                            />
+                        ))}
+                    </Grid2>
+                </Box>
+            </Grid2>
+        </ThemeProvider>
     );
 };
 

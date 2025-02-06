@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Card, CardContent, Grid, Typography } from '@mui/material';
+import {Box, Button, Card, CardContent, Grid2, Typography} from '@mui/material';
 import CardActions from '@mui/material/CardActions';
 import PropTypes from 'prop-types';
 
@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 // - handleActivate: Function to call when the "Activate" button is clicked.
 // - handleDelete: Function to call when the "Delete" button is clicked.
 // - handleDefault: Function to call when the "Default" button is clicked.
-const SavedThemesComponent = ({ title, primaryThemeColor, secondaryThemeColor, primaryTextColor, secondaryTextColor, backgroundColor, handleActivate, handleDelete, handleDefault }) => {
+const SavedThemesComponent = ({ title, primaryThemeColor, secondaryThemeColor, primaryTextColor, secondaryTextColor, backgroundColor, handleActivate, handleDelete }) => {
     // Array of color entries with their corresponding labels.
     const colorEntries = [
         { color: primaryThemeColor, label: 'Primary Theme' },
@@ -29,9 +29,9 @@ const SavedThemesComponent = ({ title, primaryThemeColor, secondaryThemeColor, p
                 </Typography>
 
                 {/* Display the color swatches and their labels */}
-                <Grid container direction="column">
+                <Grid2 container direction="column">
                     {colorEntries.map((entry, index) => (
-                        <Grid container alignItems="center" key={index} sx={{ mb: 1 }}>
+                        <Grid2 container alignItems="center" key={index} sx={{ mb: 1 }}>
                             {/* Color swatch box */}
                             <Box
                                 sx={{
@@ -45,9 +45,9 @@ const SavedThemesComponent = ({ title, primaryThemeColor, secondaryThemeColor, p
                             <Typography variant="subtitle1" sx={{ ml: 2 }}>
                                 {entry.label}
                             </Typography>
-                        </Grid>
+                        </Grid2>
                     ))}
-                </Grid>
+                </Grid2>
             </CardContent>
 
             {/* Action buttons */}
@@ -57,9 +57,6 @@ const SavedThemesComponent = ({ title, primaryThemeColor, secondaryThemeColor, p
                 </Button>
                 <Button size="small" onClick={handleDelete}>
                     Delete
-                </Button>
-                <Button size="small" onClick={handleDefault}>
-                    Default
                 </Button>
             </CardActions>
         </Card>
@@ -75,7 +72,6 @@ SavedThemesComponent.propTypes = {
     backgroundColor: PropTypes.string.isRequired, // Color value for the background
     handleActivate: PropTypes.func.isRequired, // Function to call when the "Activate" button is clicked
     handleDelete: PropTypes.func.isRequired, // Function to call when the "Delete" button is clicked
-    handleDefault: PropTypes.func.isRequired, // Function to call when the "Default" button is clicked
 };
 
 export default SavedThemesComponent;
