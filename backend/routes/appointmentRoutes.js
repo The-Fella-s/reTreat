@@ -55,4 +55,22 @@ router.post('/populate', async (req, res) => {
   }
 });
 
+// Delete an appointment by its ID
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await Appointment.findByIdAndDelete(id);
+
+    if (!result) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+
+    res.status(200).json({ message: 'Appointment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting appointment:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
 module.exports = router;
