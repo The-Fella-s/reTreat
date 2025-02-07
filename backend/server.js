@@ -11,9 +11,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// User Routes
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
+
+// Appointment Routes
+const appointmentRoutes = require('./routes/appointmentRoutes');
+app.use('/api/appointments', appointmentRoutes);
 
 // Admin route
 app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
