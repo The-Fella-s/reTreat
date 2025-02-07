@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect } from 'react';
 import {Typography, Grid2, Button, Box} from '@mui/material';
 import AppointmentCard from '../components/AppointmentCard.jsx';
 import {formatDuration} from '../utilities/formatDuration.js';
 import services from '../temporarydata/Services.jsx';
 import {useNavigate} from 'react-router-dom';
+import axios from 'axios';
 
 const categories = ['Body Treatments', 'Facials', 'Nanochanneling Facials', 'Hydrafacials', 'Dermaplaning', 'Dermabrasion', 'Nail Care', 'Massages', 'Waxing', 'Add-Ons'];
 
@@ -11,11 +12,55 @@ const BookAppointment = () => {
     const navigate = useNavigate();
 
     const [selectedCategory, setSelectedCategory] = useState('Body Treatments');
+    const [isDataPopulated, setIsDataPopulated] = useState(false); // Track if data is populated
+
+    // Function to trigger populating data in MongoDB
+    const handlePopulateData = async () => {
+        try {
+            // Check if the data is already populated (only need to run once)
+            const response = await axios.get('http://localhost:5000/api/appointments/check-existence');
+            if (response.data.exists) {
+                console.log('Data already populated.');
+                setIsDataPopulated(true);
+                return;
+            }
+
+            const formattedAppointments = Object.values(services[0]).map(service => {
+                const appointmentData = {
+                    name: service.name || "Unknown",
+                    pricing: service.pricing !== undefined ? service.pricing : 0,
+                    duration: service.duration || "0:30:00",
+                    category: service.category || "Unknown",
+                    description: service.description && service.description.length > 0 ? service.description.join(' ') : "No description available"
+                };
+                return appointmentData;
+            });
+
+            // Post the new data
+            const postResponse = await axios.post('http://localhost:5000/api/appointments/populate', { appointments: formattedAppointments });
+      if (postResponse.status === 201) {
+        console.log('Appointments populated successfully');
+        setIsDataPopulated(true);
+      } else {
+        console.log('Unexpected response:', postResponse);
+      }
+    } catch (error) {
+      console.error('Error populating appointments:', error);
+    }
+  };
+
+    useEffect(() => {
+        if (!isDataPopulated) {
+        handlePopulateData();
+        }
+    }, [isDataPopulated]); // This will run once and only if data is not populated
+
 
     // Navigate to payment page and pass the data via state
     const handleAppointmentBookConfirm = (appointmentData) => {
         navigate('/payment', { state: { appointmentData } });
     };
+
 
     return (
 

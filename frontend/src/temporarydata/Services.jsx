@@ -917,6 +917,20 @@ const services = [{
         "pricing": 14,
         "duration": "0:10:00",
         "category": "Waxing"
+    },
+    "104": {
+        "name": "Test",
+        "description": [],
+        "pricing": 14,
+        "duration": "0:10:00",
+        "category": "Waxing"
+    },
+    "105": {
+        "name": "Test2",
+        "description": [],
+        "pricing": 14,
+        "duration": "0:10:00",
+        "category": "Waxing"
     }
 }];
 
