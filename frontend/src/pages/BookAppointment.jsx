@@ -15,39 +15,44 @@ const BookAppointment = () => {
   const [isDataPopulated, setIsDataPopulated] = useState(false); // Track if data is populated
 
   // Function to trigger populating data in MongoDB
+  // Function to check and populate new data into MongoDB
   const handlePopulateData = async () => {
     try {
       // Check if the data is already populated (only need to run once)
-      const response = await axios.get('http://localhost:5000/api/appointments/check-existence');
-      if (response.data.exists) {
-        console.log('Data already populated.');
-        setIsDataPopulated(true); // Mark as populated
-        return;
-      }
+      const response = await axios.get('http://localhost:5000/api/appointments');
+      const existingAppointments = response.data; // Get existing services from DB
 
-      const formattedAppointments = Object.values(services[0]).map(service => {
-        const appointmentData = {
-          name: service.name || "Unknown",
-          pricing: service.pricing !== undefined ? service.pricing : 0,
-          duration: service.duration || "0:30:00",
-          category: service.category || "Unknown",
-          description: service.description && service.description.length > 0 ? service.description.join(' ') : "No description available"
-        };
-        return appointmentData;
-      });
+      // Format the current services in services.jsx
+      const formattedAppointments = Object.values(services[0]).map(service => ({
+        name: service.name || "Unknown",
+        pricing: service.pricing !== undefined ? service.pricing : 0,
+        duration: service.duration || "0:30:00",
+        category: service.category || "Unknown",
+        description: service.description && service.description.length > 0 ? service.description.join(' ') : "No description available"
+      }));
 
-      // Post the new data
-      const postResponse = await axios.post('http://localhost:5000/api/appointments/populate', { appointments: formattedAppointments });
-      if (postResponse.status === 201) {
-        console.log('Appointments populated successfully');
-        setIsDataPopulated(true);
+      // Find the new services that are not in the database
+      const newAppointments = formattedAppointments.filter(service =>
+        !existingAppointments.some(existingService => existingService.name === service.name)
+      );
+
+      // If there are new services, send them to the backend to be populated
+      if (newAppointments.length > 0) {
+        const postResponse = await axios.post('http://localhost:5000/api/appointments/populate', { appointments: newAppointments });
+        if (postResponse.status === 201) {
+          console.log('New appointments populated successfully');
+        } else {
+          console.log('Unexpected response:', postResponse);
+        }
       } else {
-        console.log('Unexpected response:', postResponse);
+        console.log('No new appointments to add');
       }
+      setIsDataPopulated(true);
     } catch (error) {
       console.error('Error populating appointments:', error);
     }
   };
+
 
   // Effect to check if data has been populated and populate if not
   useEffect(() => {

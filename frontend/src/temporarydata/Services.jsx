@@ -931,6 +931,13 @@ const services = [{
         "pricing": 14,
         "duration": "0:10:00",
         "category": "Waxing"
+    },
+    "106": {
+        "name": "Test3",
+        "description": [],
+        "pricing": 14,
+        "duration": "0:10:00",
+        "category": "Waxing"
     }
 }];
 
