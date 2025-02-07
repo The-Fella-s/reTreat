@@ -14,14 +14,13 @@ const BookAppointment = () => {
   const [selectedCategory, setSelectedCategory] = useState('Body Treatments');
   const [isDataPopulated, setIsDataPopulated] = useState(false); // Track if data is populated
 
-  // Function to trigger populating data in MongoDB
   // Function to check and populate new data into MongoDB
   const handlePopulateData = async () => {
     try {
-      // Check if the data is already populated (only need to run once)
+      // Fetch existing services from the database
       const response = await axios.get('http://localhost:5000/api/appointments');
       const existingAppointments = response.data; // Get existing services from DB
-
+  
       // Format the current services in services.jsx
       const formattedAppointments = Object.values(services[0]).map(service => ({
         name: service.name || "Unknown",
@@ -30,12 +29,17 @@ const BookAppointment = () => {
         category: service.category || "Unknown",
         description: service.description && service.description.length > 0 ? service.description.join(' ') : "No description available"
       }));
-
+  
       // Find the new services that are not in the database
       const newAppointments = formattedAppointments.filter(service =>
         !existingAppointments.some(existingService => existingService.name === service.name)
       );
-
+  
+      // Find the deleted services that are in the database but no longer in services.jsx
+      const deletedAppointments = existingAppointments.filter(existingService =>
+        !formattedAppointments.some(service => service.name === existingService.name)
+      );
+  
       // If there are new services, send them to the backend to be populated
       if (newAppointments.length > 0) {
         const postResponse = await axios.post('http://localhost:5000/api/appointments/populate', { appointments: newAppointments });
@@ -44,15 +48,23 @@ const BookAppointment = () => {
         } else {
           console.log('Unexpected response:', postResponse);
         }
-      } else {
-        console.log('No new appointments to add');
       }
+  
+      // If there are deleted services, send them to the backend to be removed
+      if (deletedAppointments.length > 0) {
+        const deletePromises = deletedAppointments.map(deletedAppointment =>
+          axios.delete(`http://localhost:5000/api/appointments/${deletedAppointment._id}`)
+        );
+        await Promise.all(deletePromises);
+        console.log('Deleted appointments removed successfully');
+      }
+  
       setIsDataPopulated(true);
     } catch (error) {
       console.error('Error populating appointments:', error);
     }
   };
-
+  
 
   // Effect to check if data has been populated and populate if not
   useEffect(() => {
