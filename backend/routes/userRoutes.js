@@ -50,7 +50,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    console.log('Login attempt:', { email, password }); // Log input
+    console.log('Login attempt:', { email }); // Log input
 
     const user = await User.findOne({ email });
     if (!user) {
