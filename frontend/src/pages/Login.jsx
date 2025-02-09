@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { TextField, Button, Checkbox, FormControlLabel, Typography, Box } from '@mui/material';
+import { TextField, Button, Typography, Box } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import reTreatLogo from '../assets/reTreatLogo.png';
+import { AuthContext } from '../context/AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [user, setUser] = useState(null); // Store logged-in user data
+  const { user, login, logout } = useContext(AuthContext); // Access AuthContext methods
   const navigate = useNavigate();
 
-  // Function to fetch user data on page reload
+  // Function to fetch user data using token
   const fetchUserData = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -22,40 +23,33 @@ function Login() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("User data fetched:", res.data);
-      setUser(res.data);
+      console.log("Fetched user data:", res.data);
+      login(res.data); // Update context with fresh data
     } catch (error) {
-      console.error('Error fetching user:', error.response?.data || error.message);
-      localStorage.removeItem('token'); // Clear invalid token
+      console.error('Error fetching user data:', error.response?.data || error.message);
+      logout(); // Clear invalid token and log out
     }
   };
 
+  // Fetch user data on page load
   useEffect(() => {
-    fetchUserData(); // Run on page load
-  }, []);
+    if (!user) {
+      fetchUserData(); // Check if user is already logged in
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    toast.info("Logging you in...");
+    toast.info('Logging you in...');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/users/login', 
-        { email, password },
-        { headers: { "Content-Type": "application/json" } } // Removed withCredentials
-      );
-
-      console.log("Login response:", res.data);
+      const res = await axios.post('http://localhost:5000/api/users/login', { email, password });
 
       if (res.data.token) {
-        localStorage.setItem('token', res.data.token); // Store JWT token
-        localStorage.setItem('user', JSON.stringify(res.data.user)); // Store full user data
-        setUser(res.data.user); // Set user state
+        localStorage.setItem('token', res.data.token); // Store token
+        login(res.data.user); // Update context
         toast.success('Login successful!');
-
-        // Redirect based on role
-        navigate(res.data.user.role === 'admin' ? '/admin-dashboard' : 
-                 res.data.user.role === 'employee' ? '/employee-dashboard' : 
-                 '/user-dashboard');
+        navigate('/'); // Redirect to home
       }
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
@@ -63,104 +57,59 @@ function Login() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    navigate('/login');
-    toast.info('Logged out successfully.');
-  };
-
   return (
-    <Box 
-      display="flex" 
-      justifyContent="center" 
-      alignItems="center" 
-      height="100vh" 
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
       sx={{ backgroundColor: '#f0f0f0' }}
     >
-      <Box 
-        p={4} 
-        bgcolor="white" 
-        borderRadius={2} 
-        boxShadow={3} 
-        maxWidth={400} 
+      <Box
+        p={4}
+        bgcolor="white"
+        borderRadius={2}
+        boxShadow={3}
+        maxWidth={400}
         width="100%"
         textAlign="center"
       >
         <img src={reTreatLogo} alt="Logo" style={{ width: '100px', marginBottom: '1rem' }} />
+        <Typography variant="h4" gutterBottom>
+          Welcome Back
+        </Typography>
 
-        {user ? (
-          <>
-            <Typography variant="h4">Welcome, {user.name}!</Typography>
-            <Typography variant="body1">Role: {user.role}</Typography>
-            <Typography variant="body2">{user.email}</Typography>
-            <Button 
-              onClick={handleLogout} 
-              variant="contained" 
-              color="secondary" 
-              fullWidth 
-              sx={{ marginTop: 2 }}
-            >
-              Logout
-            </Button>
-          </>
-        ) : (
-          <>
-            <Typography variant="h4" gutterBottom>
-              Welcome Back
-            </Typography>
-            <Typography variant="body1" color="textSecondary" paragraph>
-              Enter your credentials to access your account
-            </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
 
-            <form onSubmit={handleSubmit}>
-              <TextField
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                fullWidth
-                margin="normal"
-                required
-              />
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
 
-              <TextField
-                label="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                fullWidth
-                margin="normal"
-                required
-              />
-
-              <FormControlLabel
-                control={<Checkbox name="remember" color="primary" />}
-                label="Remember me"
-              />
-
-              <Button 
-                type="submit" 
-                variant="contained" 
-                color="primary" 
-                fullWidth 
-                sx={{ marginTop: 2 }}
-              >
-                Sign In
-              </Button>
-
-              <Box mt={2}>
-                <Typography variant="body2">
-                  <a href="#" style={{ color: '#1976d2', textDecoration: 'none' }}>Forgot password?</a>
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Don’t have an account? <a href="#" style={{ color: '#1976d2', textDecoration: 'none' }}>Create one</a>
-                </Typography>
-              </Box>
-            </form>
-          </>
-        )}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ marginTop: 2 }}
+          >
+            Sign In
+          </Button>
+        </form>
       </Box>
       <ToastContainer />
     </Box>
