@@ -1,31 +1,114 @@
 const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors'); // Ensure CORS middleware is available
-const connectDB = require('./config/db');
-const { protect, adminOnly } = require('./middleware/authMiddleware'); // Import middleware
+const router = express.Router();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
+const { protect, adminOnly } = require('../middleware/authMiddleware');
 
-dotenv.config();
-connectDB();
+// Create a new user (Regular User or Employee)
+router.post('/register', async (req, res) => {
+  const { email, password, name, phone, role } = req.body;
 
-const app = express();
-app.use(cors()); // Use CORS middleware
-app.use(express.json());
+  try {
+    if (!email || !password || !name) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
 
-// Routes
-const userRoutes = require('./routes/userRoutes');
-const employeeRoutes = require('./routes/employeeRoutes'); // Keep if necessary
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
 
-app.use('/api/users', userRoutes);
-app.use('/api/employees', employeeRoutes); // Ensure this exists in the project
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-// Admin route
-app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
-  res.json({ message: 'Welcome to Admin Dashboard' });
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      name,
+      phone,
+      role: role || 'user', // Default role is 'user'
+    });
+
+    console.log('Saving user:', newUser); // Debugging log
+    await newUser.save();
+
+    res.status(201).json({ message: `New ${role || 'user'} registered successfully!` });
+
+  } catch (error) {
+    console.error('Registration error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
-// Test Route
-app.get('/', (req, res) => res.send('API is running'));
+// Authenticate user and return JWT
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
 
-// Start Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  try {
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    console.log('Login attempt:', { email }); // Log input
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log('User not found');
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    console.log('User found:', user);
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      console.log('Invalid password');
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    console.log('Password matched!');
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+
+    console.log('JWT generated:', token);
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        phone: user.phone,  // Added phone
+        role: user.role,
+        profilePicture: user.profilePicture, // Added profile picture
+      },
+      message: 'Login successful',
+    });
+
+  } catch (error) {
+    console.error('Login error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Fetch user data from JWT (Session Persistence)
+router.get('/me', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password'); // Exclude password
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+module.exports = router;
