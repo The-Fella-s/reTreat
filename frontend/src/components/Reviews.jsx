@@ -1,36 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Typography, Avatar, Box, LinearProgress } from '@mui/material'; // Added LinearProgress
+import { Card, CardContent, Typography, Avatar, Box, LinearProgress } from '@mui/material';
 import { Star } from '@mui/icons-material';
 
-const reviews = [
-  {
-    name: 'Lauren',
-    date: 'June 20th, 2024',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...',
-    rating: 5,
-  },
-  {
-    name: 'Katya N',
-    date: 'August 15th, 2024',
-    content: 'The devil went down to georgia and he was looking for a soul to steal',
-    rating: 5,
-  },
-  {
-    name: 'Scott Thomas',
-    date: 'June 3rd, 2024',
-    content: 'he was in a bind because he was way behind and he was willing to make a deal',
-    rating: 5,
-  },
-];
-
-const ROTATION_INTERVAL = 5000; // Define rotation interval constant as 5000 milliseconds
+const ROTATION_INTERVAL = 5000;
 
 const Reviews = () => {
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetch reviews from your backend
   useEffect(() => {
-    // Progress bar update timer
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/places/reviews');
+        if (!response.ok) {
+          throw new Error('Failed to fetch reviews');
+        }
+        const data = await response.json();
+        
+
+        const formattedReviews = data.reviews.map(review => ({
+          name: review.author_name,
+          date: new Date(review.time * 1000).toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+          }),
+          content: review.text,
+          rating: review.rating,
+          profilePhoto: review.profile_photo_url
+        }));
+        
+        setReviews(formattedReviews);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  // Progress bar and rotation logic
+  useEffect(() => {
+    if (reviews.length === 0) return;
+
     const progressTimer = setInterval(() => {
       setProgress((oldProgress) => {
         if (oldProgress === 100) {
@@ -40,31 +59,65 @@ const Reviews = () => {
       });
     }, 100);
 
-    // Review rotation timer
     const rotationTimer = setInterval(() => {
       setCurrentReviewIndex((prevIndex) => 
         prevIndex === reviews.length - 1 ? 0 : prevIndex + 1
       );
-      setProgress(0); // Reset progress when review changes
+      setProgress(0);
     }, ROTATION_INTERVAL);
 
     return () => {
       clearInterval(progressTimer);
       clearInterval(rotationTimer);
     };
-  }, []);
+  }, [reviews.length]);
+
+  if (loading) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+        <Typography variant="h4" gutterBottom align="center" sx={{ fontFamily: "Special Elite" }}>
+          Loading Reviews...
+        </Typography>
+        <LinearProgress />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+        <Typography variant="h4" gutterBottom align="center" sx={{ fontFamily: "Special Elite" }}>
+          Error Loading Reviews
+        </Typography>
+        <Typography color="error">{error}</Typography>
+      </div>
+    );
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+        <Typography variant="h4" gutterBottom align="center" sx={{ fontFamily: "Special Elite" }}>
+          No Reviews Available
+        </Typography>
+      </div>
+    );
+  }
 
   const currentReview = reviews[currentReviewIndex];
 
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <Typography variant="h4" gutterBottom align="center" sx = {{fontFamily: "Special Elite"}}>
+      <Typography variant="h4" gutterBottom align="center" sx={{ fontFamily: "Special Elite" }}>
         Reviews
       </Typography>
       <Card sx={{ minHeight: '200px', position: 'relative' }}> 
         <CardContent>
           <Box display="flex" alignItems="center">
-            <Avatar style={{ marginRight: '10px' }} />
+            <Avatar 
+              src={currentReview.profilePhoto} 
+              style={{ marginRight: '10px' }}
+            />
             <Box>
               <Typography variant="h6" component="div">
                 {currentReview.name}

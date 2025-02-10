@@ -1,9 +1,21 @@
 const express = require('express');
+const app = express();
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const { protect, adminOnly } = require('../middleware/authMiddleware');
+const User = require('./models/User');
+const { protect, adminOnly } = require('./middleware/authMiddleware');
+const googleRoutes = require('./routes/googleRoutes'); // Import the router
+
+require('dotenv').config();
+
+const PORT = process.env.PORT || 5000;
+
+app.use(express.json());
+app.use(router);
+
+//calling the route for my review api
+app.use('/api/places', googleRoutes); 
 
 // Create a new user (Regular User or Employee)
 router.post('/register', async (req, res) => {
@@ -93,4 +105,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-module.exports = router;
+app.listen(PORT, () => {
+  console.log(`Server is running at http://localhost:${PORT}`);
+});
