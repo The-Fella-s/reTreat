@@ -11,7 +11,8 @@ import Login from './pages/Login';
 import NavBar from './components/NavBar';
 import Register from './pages/Register.jsx';
 import MeetTheTeam from './pages/MeetTheTeam.jsx';
-import BookAppointment from './pages/BookAppointment.jsx';
+import BookAppointment from "./pages/BookAppointment.jsx";
+import AboutUs from './pages/AboutUs.jsx';
 import Profile from './components/Profile.jsx';
 import Menu from './pages/Menu.jsx';
 import { ToastContainer } from 'react-toastify';
@@ -54,8 +55,8 @@ function App() {
               <Route path="/appointment" element={<BookAppointment />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/menu" element={<Menu />} />
-              <Route path="/payment" element={<Payment />} />
-
+              <Route path="/about-us" element={<AboutUs />} />
+              
               {/* Protected Admin Route */}
               <Route element={<ProtectedRoute requiredRole="admin" />}>
                 <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
