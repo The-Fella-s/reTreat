@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import Footer from './components/Footer';
 import Contact from './components/ContactUs';
@@ -11,41 +11,64 @@ import Login from './pages/Login';
 import NavBar from './components/NavBar';
 import Register from './pages/Register.jsx';
 import MeetTheTeam from './pages/MeetTheTeam.jsx';
-import BookAppointment from './pages/BookAppointment.jsx';
+import BookAppointment from "./pages/BookAppointment.jsx";
 import Profile from './components/Profile.jsx';
 import Menu from './pages/Menu.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Payment from './pages/Payment.jsx';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from './components/Theme.jsx';
+import defaultTheme from './components/Theme.jsx';
 import Main from './components/MainPage.jsx';
 import AdminDashboard from './pages/admin-dashboard/AdminDashboard.jsx';
-import ProtectedRoute from './components/ProtectedRoute';
-import AuthProvider from './context/AuthContext'; // Import AuthProvider
+import { createCustomTheme } from "./utilities/themeUtils.js";
+import axios from "axios";
+import {Box} from "@mui/material";
+import AuthProvider from "./context/AuthContext.jsx";
+import AboutUs from "./pages/AboutUs.jsx";
 
 function App() {
+
+  // Use null as the initial state to indicate that the theme hasn't been loaded yet
+  const [theme, setTheme] = useState(defaultTheme);
+
+  // Pulls the active theme from the endpoint
+  // If no active theme or backend, uses built in theme file
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/themes/active')
+      .then(response => {
+        if (response.data) {
+          setTheme(createCustomTheme(response.data));
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching theme:", error);
+      });
+  }, []);
+
   return (
     <Router>
       <AuthProvider>
         <ThemeProvider theme={theme}>
           <NavBar />
-          <div>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: '100vh',
+              backgroundColor: 'background.default'
+            }}
+          >
             <ToastContainer />
-
             <Routes>
-              {/* Public Routes */}
-              <Route
-                path="/"
-                element={
-                  <>
-                    <Main />
-                    <Reviews />
-                    <SocialMedia />
-                    <ReadyToRelax />
-                  </>
-                }
-              />
+              <Route path="/" element={
+                <>
+                  <Main />
+                  <Reviews />
+                  <SocialMedia />
+                  <ReadyToRelax />
+                </>
+              } />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/contact-us" element={<Contact />} />
               <Route path="/login" element={<Login />} />
@@ -55,15 +78,11 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/menu" element={<Menu />} />
               <Route path="/payment" element={<Payment />} />
-
-              {/* Protected Admin Route */}
-              <Route element={<ProtectedRoute requiredRole="admin" />}>
-                <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
-              </Route>
+              <Route path="/admin-dashboard/*" element={<AdminDashboard setTheme={setTheme} />} />
+              <Route path="/about-us" element={<AboutUs />} />
             </Routes>
-
             <Footer />
-          </div>
+          </Box>
         </ThemeProvider>
       </AuthProvider>
     </Router>

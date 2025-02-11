@@ -41,13 +41,14 @@ function MeetTheTeam() {
         <Button 
           variant="contained" 
           sx={{ marginRight: 2, backgroundColor: '#333', color: '#fff' }}
+          href="/about-us"
         >
           About Us
         </Button>
         <Button 
           variant="outlined" 
           sx={{ borderColor: '#333', color: '#333' }}
-          onClick={() => Navigate('/contact-us')}
+          href="/contact-us"
         >
           Contact Us
         </Button>
