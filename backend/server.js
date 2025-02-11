@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
+const cors = require('cors');
 const { protect, adminOnly } = require('./middleware/authMiddleware');
 
 dotenv.config();
@@ -11,9 +12,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// First: Configure CORS before routes
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
+// Connect Database
+connectDB();
+
 // Routes
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
+const employeeRoutes = require('./routes/employeeRoutes');
+app.use('/api/employees', employeeRoutes);
+const themeRoutes = require('./routes/themeRoutes')
+app.use('/api/themes', themeRoutes);
 
 // Admin route
 app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
