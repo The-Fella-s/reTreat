@@ -1,49 +1,85 @@
-import React, { useState } from 'react';
-import { TextField, Button, Checkbox, FormControlLabel, Typography, Box } from '@mui/material';
+import React, { useState, useEffect, useContext } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { TextField, Button, Typography, Box } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import reTreatLogo from '../assets/reTreatLogo.png';
+import { AuthContext } from '../context/AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { user, login, logout } = useContext(AuthContext); // Access AuthContext methods
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  // Function to fetch user data using token
+  const fetchUserData = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const res = await axios.get('http://localhost:5000/api/users/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("Fetched user data:", res.data);
+      login(res.data); // Update context with fresh data
+    } catch (error) {
+      console.error('Error fetching user data:', error.response?.data || error.message);
+      logout(); // Clear invalid token and log out
+    }
+  };
+
+  // Fetch user data on page load
+  useEffect(() => {
+    if (!user) {
+      fetchUserData(); // Check if user is already logged in
+    }
+  }, [user]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    toast.info("Logging you in..."); // Show the toast notification
-    console.log('Email:', email);
-    console.log('Password:', password);
+    toast.info('Logging you in...');
+
+    try {
+      const res = await axios.post('http://localhost:5000/api/users/login', { email, password });
+
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token); // Store token
+        login(res.data.user); // Update context
+        toast.success('Login successful!');
+        navigate('/'); // Redirect to home
+      }
+    } catch (error) {
+      console.error("Login error:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || 'Login failed.');
+    }
   };
 
   return (
-    <Box 
-      display="flex" 
-      justifyContent="center" 
-      alignItems="center" 
-      height="100vh" 
-      sx={{ backgroundColor: '#f0f0f0' }}  // Box component's built-in styling (sx)
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
+      sx={{ backgroundColor: '#f0f0f0' }}
     >
-      <Box 
-        p={4} 
-        bgcolor="white" 
-        borderRadius={2} 
-        boxShadow={3} 
-        maxWidth={400} 
+      <Box
+        p={4}
+        bgcolor="white"
+        borderRadius={2}
+        boxShadow={3}
+        maxWidth={400}
         width="100%"
         textAlign="center"
       >
-        {/* Logo */}
         <img src={reTreatLogo} alt="Logo" style={{ width: '100px', marginBottom: '1rem' }} />
-
         <Typography variant="h4" gutterBottom>
           Welcome Back
         </Typography>
-        <Typography variant="body1" color="textSecondary" paragraph>
-          Enter your credentials to access your account
-        </Typography>
 
         <form onSubmit={handleSubmit}>
-          {/* Email field */}
           <TextField
             label="Email"
             type="email"
@@ -54,7 +90,6 @@ function Login() {
             required
           />
 
-          {/* Password field */}
           <TextField
             label="Password"
             type="password"
@@ -65,35 +100,18 @@ function Login() {
             required
           />
 
-          {/* Remember me checkbox */}
-          <FormControlLabel
-            control={<Checkbox name="remember" color="primary" />}
-            label="Remember me"
-          />
-
-          {/* Submit button */}
-          <Button 
-            type="submit" 
-            variant="contained" 
-            color="primary" 
-            fullWidth 
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
             sx={{ marginTop: 2 }}
           >
             Sign In
           </Button>
-
-          {/* Footer links */}
-          <Box mt={2}>
-            <Typography variant="body2">
-              <a href="#" style={{ color: '#1976d2', textDecoration: 'none' }}>Forgot password?</a>
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Don’t have an account? <a href="#" style={{ color: '#1976d2', textDecoration: 'none' }}>Create one</a>
-            </Typography>
-          </Box>
         </form>
       </Box>
-      <ToastContainer /> {/* Add ToastContainer here */}
+      <ToastContainer />
     </Box>
   );
 }
