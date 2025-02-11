@@ -10,8 +10,7 @@ const Reviews = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Fetch reviews from your backend
+  //this is meant to make use of the route set up in the google route
   useEffect(() => {
     const fetchReviews = async () => {
       try {
