@@ -21,8 +21,8 @@ const ReadyToRelax = () => {
 				Ready to Relax?
 			</Typography>
 			<Typography variant="body1" gutterBottom>
-				Book your appointment today and start your journey to relaxation
-				and rejuvenation.
+				Book your appointment today and start your journey to reLaxation
+				and reJuvenation.
 			</Typography>
 			<Button
 				variant="contained"
