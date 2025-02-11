@@ -87,7 +87,7 @@ const Register = () => {
                     Register
                 </Typography>
                 <Typography variant="body1" color="textSecondary" paragraph>
-                    Join our community for relaxation and rejuvenation
+                    Join our community for reLaxation and reJuvenation!
                 </Typography>
 
                 <form onSubmit={handleSubmit}>

@@ -1,13 +1,13 @@
 import React from "react";
 import { Box, Container, Typography, Button } from "@mui/material"; // Might change things utilizing Grid2 later on, leaving here for now
-import img from "/src/assets/StockImage.jpg";
 
 function MainPage() {
 	return (
 		<Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
 			{/* Header Section */}
-			<Box sx={{ textAlign: "center", mb: 4, color: "primary.main" }}>
-				<Typography variant="h3" color="text.secondary" sx={{ mb: 2 }}>
+			<Box sx={{ textAlign: "center", mb: 4}}>
+				<Typography variant = "h4" color = 'secondary'> Voted Best of the Best 2 Years in a Row! </Typography>
+				<Typography variant="h2" sx={{ mb: 2 }}>
 					Welcome to reTreat Salon & Spa!
 					<Box
 						sx={{
@@ -22,9 +22,8 @@ function MainPage() {
 						<iframe
 							width="100%"
 							height="100%"
-							src="https://www.youtube.com/embed/jNQXAC9IVRw"
+							src="https://www.youtube.com/embed/E2p_8yA3Rmg"
 							title="About reTreat Salon & Spa"
-							frameBorder="0"
 							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 							allowFullScreen
 							style={{
@@ -33,8 +32,8 @@ function MainPage() {
 								left: 0,
 								width: "100%",
 								height: "100%",
-								borderRadius: 6,
-								border: 6,
+								borderRadius: 20,
+								border: 100,
 								borderColor: "text.secondary",
 							}}
 						/>
