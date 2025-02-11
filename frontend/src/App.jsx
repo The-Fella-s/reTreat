@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import FAQ from './pages/FAQ.jsx';
 import Reviews from './components/Reviews';
 import SocialMedia from './components/SocialMedia';
+import Instagram from "./pages/Instagram.jsx";
 import ReadyToRelax from './components/ReadyToRelax';
 import Login from './pages/Login';
 import NavBar from './components/NavBar';
