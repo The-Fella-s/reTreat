@@ -60,7 +60,7 @@ const NavBar = () => {
               <MenuIcon />
             </IconButton>
             <Menu
-              id="menu-navbar"
+              id="menu-navbar2"
               anchorEl={navAnchor}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
               keepMounted

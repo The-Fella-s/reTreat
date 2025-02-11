@@ -12,7 +12,6 @@ import NavBar from './components/NavBar';
 import Register from './pages/Register.jsx';
 import MeetTheTeam from './pages/MeetTheTeam.jsx';
 import BookAppointment from "./pages/BookAppointment.jsx";
-import AboutUs from './pages/AboutUs.jsx';
 import Profile from './components/Profile.jsx';
 import Menu from './pages/Menu.jsx';
 import { ToastContainer } from 'react-toastify';
@@ -24,7 +23,9 @@ import Main from './components/MainPage.jsx';
 import AdminDashboard from './pages/admin-dashboard/AdminDashboard.jsx';
 import { createCustomTheme } from "./utilities/themeUtils.js";
 import axios from "axios";
-import {Box, CircularProgress, Grid2} from "@mui/material";
+import {Box} from "@mui/material";
+import AuthProvider from "./context/AuthContext.jsx";
+import AboutUs from "./pages/AboutUs.jsx";
 
 function App() {
 
@@ -47,69 +48,27 @@ function App() {
 
   return (
     <Router>
-      <ThemeProvider theme={theme}>
-        <NavBar />
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: '100vh',
-            backgroundColor: 'background.default'
-          }}
-        >
-          <ToastContainer />
-          <Routes>
-            <Route path="/" element={
-              <>
-                <Main />
-                <Reviews />
-                <SocialMedia />
-                <ReadyToRelax />
-              </>
-            } />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/contact-us" element={<Contact />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/meet-the-team" element={<MeetTheTeam />} />
-            <Route path="/appointment" element={<BookAppointment />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/menu" element={<Menu />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/admin-dashboard/*" element={<AdminDashboard setTheme={setTheme} />} />
-          </Routes>
-          <Footer />
-        </Box>
-      </ThemeProvider>
-=======
-import theme from './components/Theme.jsx';
-import Main from './components/MainPage.jsx';
-import AdminDashboard from './pages/admin-dashboard/AdminDashboard.jsx';
-import ProtectedRoute from './components/ProtectedRoute';
-import AuthProvider from './context/AuthContext'; // Import AuthProvider
-
-function App() {
-  return (
-    <Router>
       <AuthProvider>
         <ThemeProvider theme={theme}>
           <NavBar />
-          <div>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: '100vh',
+              backgroundColor: 'background.default'
+            }}
+          >
             <ToastContainer />
-
             <Routes>
-              {/* Public Routes */}
-              <Route
-                path="/"
-                element={
-                  <>
-                    <Main />
-                    <Reviews />
-                    <SocialMedia />
-                    <ReadyToRelax />
-                  </>
-                }
-              />
+              <Route path="/" element={
+                <>
+                  <Main />
+                  <Reviews />
+                  <SocialMedia />
+                  <ReadyToRelax />
+                </>
+              } />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/contact-us" element={<Contact />} />
               <Route path="/login" element={<Login />} />
@@ -118,16 +77,12 @@ function App() {
               <Route path="/appointment" element={<BookAppointment />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/menu" element={<Menu />} />
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/admin-dashboard/*" element={<AdminDashboard setTheme={setTheme} />} />
               <Route path="/about-us" element={<AboutUs />} />
-              
-              {/* Protected Admin Route */}
-              <Route element={<ProtectedRoute requiredRole="admin" />}>
-                <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
-              </Route>
             </Routes>
-
             <Footer />
-          </div>
+          </Box>
         </ThemeProvider>
       </AuthProvider>
     </Router>

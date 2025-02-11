@@ -2,11 +2,9 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
-const cors = require('cors');
 const { protect, adminOnly } = require('./middleware/authMiddleware');
 
 dotenv.config();
-connectDB();
 
 const app = express();
 app.use(cors());
@@ -29,8 +27,6 @@ connectDB();
 // Routes
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
-const employeeRoutes = require('./routes/employeeRoutes');
-app.use('/api/employees', employeeRoutes);
 const themeRoutes = require('./routes/themeRoutes')
 app.use('/api/themes', themeRoutes);
 
