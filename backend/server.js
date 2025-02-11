@@ -30,6 +30,10 @@ app.use('/api/users', userRoutes);
 const themeRoutes = require('./routes/themeRoutes')
 app.use('/api/themes', themeRoutes);
 
+// Appointment Routes
+const appointmentRoutes = require('./routes/appointmentRoutes');
+app.use('/api/appointments', appointmentRoutes);
+
 // Admin route
 app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
   res.json({ message: 'Welcome to Admin Dashboard' });
