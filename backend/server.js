@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// First: Configure CORS before routes
+// CORS Configuration
 app.use(cors({
     origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -24,26 +24,23 @@ app.options('*', cors());
 // Connect Database
 connectDB();
 
-// Routes
+// Import and Register Routes
 const userRoutes = require('./routes/userRoutes');
-app.use('/api/users', userRoutes);
-const themeRoutes = require('./routes/themeRoutes')
-app.use('/api/themes', themeRoutes);
-
-// Appointment Routes
+const themeRoutes = require('./routes/themeRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
-app.use('/api/appointments', appointmentRoutes);
+const scheduleRoutes = require('./routes/scheduleRoutes');
 
-// Admin route
+app.use('/api/users', userRoutes);
+app.use('/api/themes', themeRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/schedules', scheduleRoutes);
+
+// Fix admin route (Ensuring middleware is defined)
 app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
   res.json({ message: 'Welcome to Admin Dashboard' });
 });
 
-const scheduleRoutes = require('./routes/scheduleRoutes');
-app.use('/api/schedules', scheduleRoutes);
-
-
-// Test Route
+// Root Test Route
 app.get('/', (req, res) => res.send('API is running'));
 
 // Start Server
