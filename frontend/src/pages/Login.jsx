@@ -41,21 +41,29 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     toast.info('Logging you in...');
-
+  
     try {
       const res = await axios.post('http://localhost:5000/api/users/login', { email, password });
-
+  
       if (res.data.token) {
+        console.log("✅ Login Response:", res.data);
+  
         localStorage.setItem('token', res.data.token); // Store token
-        login(res.data.user); // Update context
+        localStorage.setItem('user', JSON.stringify(res.data.user)); // Store user properly
+        login({ user: res.data.user, token: res.data.token }); // Update context
+  
         toast.success('Login successful!');
         navigate('/'); // Redirect to home
+      } else {
+        console.error("🚨 Login response missing token or user data.");
+        toast.error("Invalid login response.");
       }
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
       toast.error(error.response?.data?.message || 'Login failed.');
     }
   };
+  
 
   return (
     <Box

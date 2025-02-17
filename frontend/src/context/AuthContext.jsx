@@ -9,23 +9,39 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const storedToken = localStorage.getItem('token');
+
+    if (storedUser && storedToken) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Error parsing stored user:", error);
+        localStorage.removeItem('user'); // Remove corrupt data
+      }
     }
   }, []);
 
   const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('token', userData.token); // Store token if needed
+    if (!userData || !userData.token || !userData.user) {
+      console.error("No token or user data found in login response.");
+      return;
+    }
+
+    console.log("Storing User Data:", userData.user);
+    console.log("Storing Token:", userData.token);
+
+    setUser(userData.user);
+    localStorage.setItem('user', JSON.stringify(userData.user));
+    localStorage.setItem('token', userData.token);
+
     navigate('/'); // Redirect to home
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
-    localStorage.removeItem('token'); // Clear the token
-    navigate('/login'); // Redirect to login
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
   return (

@@ -49,6 +49,10 @@ const NavBar = () => {
     { name: 'FAQ', path: '/faq' },
     { name: 'Contact Us', path: '/contact-us' },
   ];
+  
+  const employeePages = user?.role === 'employee' ? [{ name: 'Manage Schedule', path: '/employee-schedule' }] : [];
+  
+  const allPages = [...pages, ...employeePages];
 
   return (
     <AppBar position="static" color="secondary">
@@ -72,7 +76,7 @@ const NavBar = () => {
           </Box>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center', flexGrow: 1, textAlign: 'center' }}>
-            {pages.map((page) => (
+            {allPages.map((page) => (
               <Button key={page.name} component={Link} to={page.path} sx={{ my: 2, color: 'white', px: 2.25, mx: 1 }}>
                 {page.name}
               </Button>
