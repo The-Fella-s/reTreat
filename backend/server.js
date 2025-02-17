@@ -39,6 +39,10 @@ app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
   res.json({ message: 'Welcome to Admin Dashboard' });
 });
 
+const scheduleRoutes = require('./routes/scheduleRoutes');
+app.use('/api/schedules', scheduleRoutes);
+
+
 // Test Route
 app.get('/', (req, res) => res.send('API is running'));
 
