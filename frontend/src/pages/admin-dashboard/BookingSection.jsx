@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -8,6 +8,7 @@ import {
   Card,
   CardContent,
   CardMedia,
+  CardActions,
 } from '@mui/material';
 
 const BookingSection = () => {
@@ -21,6 +22,21 @@ const BookingSection = () => {
   });
 
   const [bookings, setBookings] = useState([]);
+  const [editIndex, setEditIndex] = useState(null); // Track which booking is being edited
+
+  // Load bookings from localStorage when component mounts
+  useEffect(() => {
+    const storedBookings = localStorage.getItem('bookings');
+    if (storedBookings) {
+      setBookings(JSON.parse(storedBookings));
+    }
+  }, []);
+
+  // Save bookings to localStorage
+  const saveBookings = (updatedBookings) => {
+    setBookings(updatedBookings);
+    localStorage.setItem('bookings', JSON.stringify(updatedBookings));
+  };
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -28,8 +44,8 @@ const BookingSection = () => {
     setNewBooking({ ...newBooking, [name]: value });
   };
 
-  // Handle adding a new booking
-  const handleAddBooking = () => {
+  // Handle adding or updating a booking
+  const handleSaveBooking = () => {
     if (
       newBooking.title &&
       newBooking.category &&
@@ -37,7 +53,18 @@ const BookingSection = () => {
       newBooking.price &&
       newBooking.duration
     ) {
-      setBookings((prevBookings) => [...prevBookings, newBooking]);
+      if (editIndex !== null) {
+        // Update existing booking
+        const updatedBookings = [...bookings];
+        updatedBookings[editIndex] = newBooking;
+        saveBookings(updatedBookings);
+        setEditIndex(null);
+      } else {
+        // Add new booking
+        const updatedBookings = [...bookings, newBooking];
+        saveBookings(updatedBookings);
+      }
+
       setNewBooking({
         title: '',
         category: '',
@@ -51,13 +78,25 @@ const BookingSection = () => {
     }
   };
 
+  // Handle deleting a booking
+  const handleDeleteBooking = (index) => {
+    const updatedBookings = bookings.filter((_, i) => i !== index);
+    saveBookings(updatedBookings);
+  };
+
+  // Handle editing a booking
+  const handleEditBooking = (index) => {
+    setNewBooking(bookings[index]); // Load existing booking data into form
+    setEditIndex(index);
+  };
+
   return (
     <Box sx={{ padding: 3 }}>
       <Typography variant="h4" gutterBottom>
         Booking Management
       </Typography>
 
-      {/* Form to Add New Booking */}
+      {/* Form to Add or Edit Booking */}
       <Box
         sx={{
           display: 'flex',
@@ -111,8 +150,8 @@ const BookingSection = () => {
           onChange={handleInputChange}
           fullWidth
         />
-        <Button variant="contained" onClick={handleAddBooking}>
-          Add Booking
+        <Button variant="contained" onClick={handleSaveBooking}>
+          {editIndex !== null ? 'Update Booking' : 'Add Booking'}
         </Button>
       </Box>
 
@@ -147,6 +186,14 @@ const BookingSection = () => {
                   Duration: {booking.duration}
                 </Typography>
               </CardContent>
+              <CardActions>
+                <Button size="small" onClick={() => handleEditBooking(index)}>
+                  Edit
+                </Button>
+                <Button size="small" color="error" onClick={() => handleDeleteBooking(index)}>
+                  Delete
+                </Button>
+              </CardActions>
             </Card>
           </Grid>
         ))}
