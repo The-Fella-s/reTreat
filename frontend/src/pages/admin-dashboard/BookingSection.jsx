@@ -44,16 +44,18 @@ const BookingSection = () => {
     try {
       const response = editIndex !== null
         ? await axios.put(`http://localhost:5000/api/appointments/${bookings[editIndex]._id}`, booking)
-        : await axios.post('http://localhost:5000/api/appointments', booking);
-
+        : await axios.post('http://localhost:5000/api/appointments/populate', { appointments: [booking] }); // Use '/populate' here
+  
       if (response.status === 200 || response.status === 201) {
         const updatedBookings = await axios.get('http://localhost:5000/api/appointments');
-        setBookings(updatedBookings.data);
+        setBookings(updatedBookings.data); // Update state with latest bookings
       }
     } catch (error) {
       console.error('Error saving booking:', error);
     }
   };
+  
+  
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -63,47 +65,60 @@ const BookingSection = () => {
 
   // Handle adding or updating a booking
   const handleSaveBooking = () => {
+    console.log('Button clicked'); // Added for debugging
+    
     if (
-      newBooking.name &&  
+      newBooking.name &&
       newBooking.category &&
       newBooking.description &&
       newBooking.pricing &&
       newBooking.duration
     ) {
+      console.log('Saving booking:', newBooking); // Log the booking data
+  
       saveBookingToBackend(newBooking);
-
+  
       // Reset form fields after saving
       setNewBooking({
-        name: '',  
+        name: '',
         category: '',
         description: '',
         pricing: '',
         duration: '',
         image: '',
       });
-
+  
       setEditIndex(null); // Reset edit index after saving
     } else {
       alert('*Please fill out required fields!');
     }
   };
+  
 
   // Handle deleting a booking
   const handleDeleteBooking = async (index) => {
-    try {
-      const bookingToDelete = bookings[index];
-      await axios.delete(`http://localhost:5000/api/appointments/${bookingToDelete._id}`);
-      const updatedBookings = bookings.filter((_, i) => i !== index);
-      setBookings(updatedBookings);
-    } catch (error) {
-      console.error('Error deleting booking:', error);
+    // Ask for confirmation before deleting
+    const confirmed = window.confirm('Are you sure you want to delete this booking?');
+  
+    if (confirmed) {
+      try {
+        const bookingToDelete = bookings[index];
+        await axios.delete(`http://localhost:5000/api/appointments/${bookingToDelete._id}`);
+        const updatedBookings = bookings.filter((_, i) => i !== index);
+        setBookings(updatedBookings); // Update the state with the latest bookings
+      } catch (error) {
+        console.error('Error deleting booking:', error);
+      }
+    } else {
+      console.log('Booking deletion canceled');
     }
   };
+  
 
   // Handle editing a booking
   const handleEditBooking = (index) => {
     setNewBooking(bookings[index]); // Load existing booking data into form
-    setEditIndex(index);
+    setEditIndex(index); // Set the edit index
   };
 
   return (
