@@ -14,6 +14,14 @@ const BookAppointment = () => {
   const [selectedCategory, setSelectedCategory] = useState('Body Treatments');
   const [isDataPopulated, setIsDataPopulated] = useState(false); // Track if data is populated
 
+  /*
+
+  DEPRECATED METHOD TO ADD/DELETE/MODIFY SERVICES 
+
+    - TRACKS CHANGES FROM Services.jsx AND CONNECTS TO FRONT AND BACK END TO UPDATE
+    - NOW USING BookingSection.jsx FROM THE ADMIN SIDE
+
+
   // Function to check and populate new data into MongoDB
   const handlePopulateData = async () => {
     try {
@@ -76,6 +84,7 @@ const BookAppointment = () => {
   const handleAppointmentBookConfirm = (appointmentData) => {
     navigate('/payment', { state: { appointmentData } });
   };
+  */
 
   return (
     <Box style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
