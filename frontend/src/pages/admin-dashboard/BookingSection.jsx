@@ -10,13 +10,14 @@ import {
   CardMedia,
   CardActions,
 } from '@mui/material';
+import axios from 'axios';
 
 const BookingSection = () => {
   const [newBooking, setNewBooking] = useState({
-    title: '',
+    name: '', 
     category: '',
     description: '',
-    price: '',
+    pricing: '',
     duration: '',
     image: '',
   });
@@ -24,18 +25,34 @@ const BookingSection = () => {
   const [bookings, setBookings] = useState([]);
   const [editIndex, setEditIndex] = useState(null); // Track which booking is being edited
 
-  // Load bookings from localStorage when component mounts
+  // Load bookings from the backend when the component mounts
   useEffect(() => {
-    const storedBookings = localStorage.getItem('bookings');
-    if (storedBookings) {
-      setBookings(JSON.parse(storedBookings));
-    }
+    const fetchBookings = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/appointments');
+        setBookings(response.data);
+      } catch (error) {
+        console.error('Error fetching bookings:', error);
+      }
+    };
+
+    fetchBookings();
   }, []);
 
-  // Save bookings to localStorage
-  const saveBookings = (updatedBookings) => {
-    setBookings(updatedBookings);
-    localStorage.setItem('bookings', JSON.stringify(updatedBookings));
+  // Save a new or updated booking to the backend
+  const saveBookingToBackend = async (booking) => {
+    try {
+      const response = editIndex !== null
+        ? await axios.put(`http://localhost:5000/api/appointments/${bookings[editIndex]._id}`, booking)
+        : await axios.post('http://localhost:5000/api/appointments', booking);
+
+      if (response.status === 200 || response.status === 201) {
+        const updatedBookings = await axios.get('http://localhost:5000/api/appointments');
+        setBookings(updatedBookings.data);
+      }
+    } catch (error) {
+      console.error('Error saving booking:', error);
+    }
   };
 
   // Handle input changes
@@ -47,41 +64,40 @@ const BookingSection = () => {
   // Handle adding or updating a booking
   const handleSaveBooking = () => {
     if (
-      newBooking.title &&
+      newBooking.name &&  
       newBooking.category &&
       newBooking.description &&
-      newBooking.price &&
+      newBooking.pricing &&
       newBooking.duration
     ) {
-      if (editIndex !== null) {
-        // Update existing booking
-        const updatedBookings = [...bookings];
-        updatedBookings[editIndex] = newBooking;
-        saveBookings(updatedBookings);
-        setEditIndex(null);
-      } else {
-        // Add new booking
-        const updatedBookings = [...bookings, newBooking];
-        saveBookings(updatedBookings);
-      }
+      saveBookingToBackend(newBooking);
 
+      // Reset form fields after saving
       setNewBooking({
-        title: '',
+        name: '',  
         category: '',
         description: '',
-        price: '',
+        pricing: '',
         duration: '',
         image: '',
-      }); // Reset form fields
+      });
+
+      setEditIndex(null); // Reset edit index after saving
     } else {
       alert('*Please fill out required fields!');
     }
   };
 
   // Handle deleting a booking
-  const handleDeleteBooking = (index) => {
-    const updatedBookings = bookings.filter((_, i) => i !== index);
-    saveBookings(updatedBookings);
+  const handleDeleteBooking = async (index) => {
+    try {
+      const bookingToDelete = bookings[index];
+      await axios.delete(`http://localhost:5000/api/appointments/${bookingToDelete._id}`);
+      const updatedBookings = bookings.filter((_, i) => i !== index);
+      setBookings(updatedBookings);
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+    }
   };
 
   // Handle editing a booking
@@ -107,9 +123,9 @@ const BookingSection = () => {
         }}
       >
         <TextField
-          label="Title*"
-          name="title"
-          value={newBooking.title}
+          label="Name*"  
+          name="name"    
+          value={newBooking.name}  
           onChange={handleInputChange}
           fullWidth
         />
@@ -131,8 +147,8 @@ const BookingSection = () => {
         />
         <TextField
           label="Price*"
-          name="price"
-          value={newBooking.price}
+          name="pricing"
+          value={newBooking.pricing}
           onChange={handleInputChange}
           fullWidth
         />
@@ -168,11 +184,11 @@ const BookingSection = () => {
                   component="img"
                   height="140"
                   image={booking.image}
-                  alt={booking.title}
+                  alt={booking.name}  
                 />
               )}
               <CardContent>
-                <Typography variant="h6">{booking.title}</Typography>
+                <Typography variant="h6">{booking.name}</Typography>  
                 <Typography variant="body2" color="text.secondary">
                   {booking.description}
                 </Typography>
@@ -180,7 +196,7 @@ const BookingSection = () => {
                   Category: {booking.category}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Price: {booking.price}
+                  Price: {booking.pricing}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Duration: {booking.duration}
