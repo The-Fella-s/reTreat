@@ -42,20 +42,24 @@ const BookingSection = () => {
   // Save a new or updated booking to the backend
   const saveBookingToBackend = async (booking) => {
     try {
-      const response = editIndex !== null
-        ? await axios.put(`http://localhost:5000/api/appointments/${bookings[editIndex]._id}`, booking)
-        : await axios.post('http://localhost:5000/api/appointments/populate', { appointments: [booking] }); // Use '/populate' here
-  
+      let response;
+      if (editIndex !== null) {
+        // If we're updating an existing booking
+        response = await axios.put(`http://localhost:5000/api/appointments/${bookings[editIndex]._id}`, booking);
+      } else {
+        // If we're adding a new booking
+        response = await axios.post('http://localhost:5000/api/appointments/populate', { appointments: [booking] });
+      }
+
       if (response.status === 200 || response.status === 201) {
+        // Fetch updated bookings after saving
         const updatedBookings = await axios.get('http://localhost:5000/api/appointments');
-        setBookings(updatedBookings.data); // Update state with latest bookings
+        setBookings(updatedBookings.data); // Update state with the latest bookings
       }
     } catch (error) {
       console.error('Error saving booking:', error);
     }
   };
-  
-  
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -65,8 +69,6 @@ const BookingSection = () => {
 
   // Handle adding or updating a booking
   const handleSaveBooking = () => {
-    console.log('Button clicked'); // Added for debugging
-    
     if (
       newBooking.name &&
       newBooking.category &&
@@ -74,10 +76,9 @@ const BookingSection = () => {
       newBooking.pricing &&
       newBooking.duration
     ) {
-      console.log('Saving booking:', newBooking); // Log the booking data
-  
+      // Save the new or updated booking
       saveBookingToBackend(newBooking);
-  
+
       // Reset form fields after saving
       setNewBooking({
         name: '',
@@ -87,19 +88,16 @@ const BookingSection = () => {
         duration: '',
         image: '',
       });
-  
+
       setEditIndex(null); // Reset edit index after saving
     } else {
       alert('*Please fill out required fields!');
     }
   };
-  
 
   // Handle deleting a booking
   const handleDeleteBooking = async (index) => {
-    // Ask for confirmation before deleting
     const confirmed = window.confirm('Are you sure you want to delete this booking?');
-  
     if (confirmed) {
       try {
         const bookingToDelete = bookings[index];
@@ -109,17 +107,21 @@ const BookingSection = () => {
       } catch (error) {
         console.error('Error deleting booking:', error);
       }
-    } else {
-      console.log('Booking deletion canceled');
     }
   };
-  
 
   // Handle editing a booking
   const handleEditBooking = (index) => {
     setNewBooking(bookings[index]); // Load existing booking data into form
     setEditIndex(index); // Set the edit index
+  
+    // Scroll to the top of the page
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth', // Smooth scrolling
+    });
   };
+  
 
   return (
     <Box sx={{ padding: 3 }}>
