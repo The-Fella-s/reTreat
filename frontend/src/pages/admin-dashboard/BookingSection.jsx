@@ -35,8 +35,7 @@ const BookingSection = () => {
       newBooking.category &&
       newBooking.description &&
       newBooking.price &&
-      newBooking.duration &&
-      newBooking.image
+      newBooking.duration
     ) {
       setBookings((prevBookings) => [...prevBookings, newBooking]);
       setNewBooking({
@@ -48,7 +47,7 @@ const BookingSection = () => {
         image: '',
       }); // Reset form fields
     } else {
-      alert('Please fill out all fields!');
+      alert('*Please fill out required fields!');
     }
   };
 
@@ -69,21 +68,21 @@ const BookingSection = () => {
         }}
       >
         <TextField
-          label="Title"
+          label="Title*"
           name="title"
           value={newBooking.title}
           onChange={handleInputChange}
           fullWidth
         />
         <TextField
-          label="Category"
+          label="Category*"
           name="category"
           value={newBooking.category}
           onChange={handleInputChange}
           fullWidth
         />
         <TextField
-          label="Description"
+          label="Description*"
           name="description"
           value={newBooking.description}
           onChange={handleInputChange}
@@ -92,14 +91,14 @@ const BookingSection = () => {
           rows={4}
         />
         <TextField
-          label="Price"
+          label="Price*"
           name="price"
           value={newBooking.price}
           onChange={handleInputChange}
           fullWidth
         />
         <TextField
-          label="Duration"
+          label="Duration*"
           name="duration"
           value={newBooking.duration}
           onChange={handleInputChange}
