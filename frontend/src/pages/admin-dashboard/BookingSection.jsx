@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Snackbar, Alert } from '@mui/material';
 import {
   Box,
   Typography,
@@ -67,35 +68,50 @@ const BookingSection = () => {
     setNewBooking({ ...newBooking, [name]: value });
   };
 
+  const [successMessage, setSuccessMessage] = useState(false);
+
   // Handle adding or updating a booking
   const handleSaveBooking = () => {
+    const price = parseFloat(newBooking.pricing);
+  
     if (
-      newBooking.name &&
-      newBooking.category &&
-      newBooking.description &&
-      newBooking.pricing &&
-      newBooking.duration
+      !newBooking.name ||
+      !newBooking.category ||
+      !newBooking.description ||
+      !newBooking.pricing ||
+      !newBooking.duration
     ) {
-      // Save the new or updated booking
-      saveBookingToBackend(newBooking);
-
-      // Reset form fields after saving
-      setNewBooking({
-        name: '',
-        category: '',
-        description: '',
-        pricing: '',
-        duration: '',
-        image: '',
-      });
-
-      setEditIndex(null); // Reset edit index after saving
-    } else {
       alert('*Please fill out required fields!');
+      return;
     }
+  
+    if (isNaN(price) || price <= 0) {
+      alert('*Price must be a positive number!');
+      return;
+    }
+  
+    // Save the new or updated booking
+    saveBookingToBackend(newBooking);
+  
+    // Success notification
+    setSuccessMessage(true);
+  
+    // Reset form fields after saving
+    setNewBooking({
+      name: '',
+      category: '',
+      description: '',
+      pricing: '',
+      duration: '',
+      image: '',
+    });
+  
+    setEditIndex(null); // Reset edit index after saving
   };
+  
 
   // Handle deleting a booking
+  const [deleteMessage, setDeleteMessage] = useState(false);
   const handleDeleteBooking = async (index) => {
     const confirmed = window.confirm('Are you sure you want to delete this booking?');
     if (confirmed) {
@@ -103,12 +119,16 @@ const BookingSection = () => {
         const bookingToDelete = bookings[index];
         await axios.delete(`http://localhost:5000/api/appointments/${bookingToDelete._id}`);
         const updatedBookings = bookings.filter((_, i) => i !== index);
-        setBookings(updatedBookings); // Update the state with the latest bookings
+        setBookings(updatedBookings); // Update state with the latest bookings
+
+        // Show success notification for deletion
+        setDeleteMessage(true);
       } catch (error) {
         console.error('Error deleting booking:', error);
       }
     }
   };
+
 
   // Handle editing a booking
   const handleEditBooking = (index) => {
@@ -187,6 +207,29 @@ const BookingSection = () => {
           {editIndex !== null ? 'Update Booking' : 'Add Booking'}
         </Button>
       </Box>
+
+      <Snackbar
+        open={successMessage}
+        autoHideDuration={3000}
+        onClose={() => setSuccessMessage(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setSuccessMessage(false)} severity="success">
+          Booking successfully added!
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={deleteMessage}
+        autoHideDuration={3000}
+        onClose={() => setDeleteMessage(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setDeleteMessage(false)} severity="error">
+          Booking successfully deleted!
+        </Alert>
+      </Snackbar>
+
 
       {/* Existing Bookings */}
       <Typography variant="h5" gutterBottom>
