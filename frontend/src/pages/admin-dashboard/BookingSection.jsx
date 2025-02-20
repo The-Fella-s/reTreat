@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Snackbar, Alert } from '@mui/material';
+import { MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+
 import {
   Box,
   Typography,
@@ -65,8 +67,20 @@ const BookingSection = () => {
   // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+  
+    if (name === "duration") {
+      // If value is in minutes, convert to hh:mm:ss format
+      const minutes = parseInt(value, 10);
+      if (!isNaN(minutes)) {
+        const formattedDuration = `0:${String(minutes).padStart(2, "0")}:00`;
+        setNewBooking({ ...newBooking, duration: formattedDuration });
+        return;
+      }
+    }
+  
     setNewBooking({ ...newBooking, [name]: value });
   };
+  
 
   const [successMessage, setSuccessMessage] = useState(false);
 
@@ -142,6 +156,8 @@ const BookingSection = () => {
     });
   };
   
+  // State for tracking manual duration input
+  const [isCustomDuration, setIsCustomDuration] = useState(false);
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -189,13 +205,46 @@ const BookingSection = () => {
           onChange={handleInputChange}
           fullWidth
         />
-        <TextField
-          label="Duration*"
-          name="duration"
-          value={newBooking.duration}
-          onChange={handleInputChange}
-          fullWidth
-        />
+        <FormControl fullWidth>
+          <InputLabel>Duration*</InputLabel>
+          <Select
+            name="duration"
+            value={isCustomDuration ? "custom" : newBooking.duration}
+            onChange={(e) => {
+              if (e.target.value === "custom") {
+                setIsCustomDuration(true);
+                setNewBooking({ ...newBooking, duration: "" }); // Reset duration when custom is selected
+              } else {
+                setIsCustomDuration(false);
+                setNewBooking({ ...newBooking, duration: e.target.value });
+              }
+            }}
+          >
+            {["10", "15", "30", "45", "60", "90", "120"].map((option, index) => (
+              <MenuItem key={index} value={`0:${String(option).padStart(2, "0")}:00`}>
+                {option} minutes
+              </MenuItem>
+            ))}
+            <MenuItem value="custom">Other (Enter Manually)</MenuItem>
+          </Select>
+        </FormControl>
+        {/* Show manual input only if "Other" is selected */}
+        {isCustomDuration && (
+          <TextField
+            label="Custom Duration (minutes)"
+            name="duration"
+            type="number"
+            value={newBooking.duration.replace("0:", "").replace(":00", "")} // Show only minutes in input
+            onChange={(e) => {
+              const minutes = parseInt(e.target.value, 10);
+              if (!isNaN(minutes) && minutes >= 0) {
+                const formattedDuration = `0:${String(minutes).padStart(2, "0")}:00`;
+                setNewBooking({ ...newBooking, duration: formattedDuration });
+              }
+            }}
+            fullWidth
+          />
+        )}
         <TextField
           label="Image URL"
           name="image"
