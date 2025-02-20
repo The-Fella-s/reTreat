@@ -182,13 +182,31 @@ const BookingSection = () => {
           onChange={handleInputChange}
           fullWidth
         />
-        <TextField
-          label="Category*"
+    <FormControl fullWidth>
+        <InputLabel>Category*</InputLabel>
+        <Select
           name="category"
           value={newBooking.category}
           onChange={handleInputChange}
-          fullWidth
-        />
+        >
+          {[
+            "Body Treatments",
+            "Facials",
+            "Nanochanneling Facials",
+            "Hydrafacials",
+            "Dermaplaning",
+            "Dermabrasion",
+            "Nail Care",
+            "Massages",
+            "Waxing",
+            "Add-Ons",
+          ].map((category, index) => (
+            <MenuItem key={index} value={category}>
+              {category}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
         <TextField
           label="Description*"
           name="description"
