@@ -217,12 +217,27 @@ const BookingSection = () => {
           rows={4}
         />
         <TextField
-          label="Price*"
-          name="pricing"
-          value={newBooking.pricing}
-          onChange={handleInputChange}
-          fullWidth
-        />
+            label="Price*"
+            name="pricing"
+            value={newBooking.pricing}
+            onChange={(e) => {
+              let value = e.target.value;
+
+              // Allow only numbers and a single decimal
+              value = value.replace(/[^0-9.]/g, '');
+
+              // Ensure only one decimal point
+              if ((value.match(/\./g) || []).length > 1) return;
+
+              // Limit to two decimal places
+              if (value.includes('.')) {
+                const [dollars, cents] = value.split('.');
+                value = `${dollars}.${cents.substring(0, 2)}`;
+              }
+              setNewBooking({ ...newBooking, pricing: value });
+            }}
+            fullWidth
+          />
         <FormControl fullWidth>
           <InputLabel>Duration*</InputLabel>
           <Select
