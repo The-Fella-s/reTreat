@@ -6,17 +6,17 @@ const socialMediaPosts = [
   {
     platform: 'Facebook',
     content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    link: 'https://facebook.com',
+    link: 'https://www.facebook.com/retreatroseville',
   },
   {
     platform: 'Twitter',
     content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    link: 'https://twitter.com',
+    link: 'https://twitter.com/',
   },
   {
     platform: 'Instagram',
     content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    link: 'https://instagram.com',
+    link: 'https://instagram.com/retreatroseville',
   },
 ];
 

@@ -9,8 +9,9 @@ import MenuSection from './MenuSection';
 import BookingSection from './BookingSection';
 import StatisticsSection from './StatisticsSection';
 import ThemeSection from './ThemeSection';
+import PropTypes from "prop-types";
 
-const AdminDashboard = () => {
+const AdminDashboard = ( {setTheme} ) => {
   const [selectedSection, setSelectedSection] = useState('statistics');
   const navigate = useNavigate();
 
@@ -103,11 +104,15 @@ const AdminDashboard = () => {
           <Route path="user" element={<UserSection />} />
           <Route path="menu" element={<MenuSection />} />
           <Route path="booking" element={<BookingSection />} />
-          <Route path="theme" element={<ThemeSection />} />
+          <Route path="theme" element={<ThemeSection setTheme={setTheme}/>} />
         </Routes>
       </Box>
     </Box>
   );
+};
+
+AdminDashboard.propTypes = {
+  setTheme: PropTypes.func.isRequired, // Function to set the theme
 };
 
 export default AdminDashboard;
