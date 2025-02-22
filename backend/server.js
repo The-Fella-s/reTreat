@@ -5,16 +5,27 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 const { protect, adminOnly } = require('./middleware/authMiddleware');
-const googleRoutes = require('./routes/googleRoutes'); // Import the router
+const googleRoutes = require('./routes/googleRoutes'); 
+const cors = require('cors');
 
 require('dotenv').config();
 
 const PORT = process.env.PORT || 5000;
 
+
+const corsOptions = {
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(router);
 
-//calling the route for my review api
+// Calling the route for the review API
 app.use('/api/places', googleRoutes); 
 
 // Create a new user (Regular User or Employee)
