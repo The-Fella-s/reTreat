@@ -47,7 +47,8 @@ const NavBar = () => {
     { name: 'Our Team', path: '/meet-the-team' },
     { name: 'Book Appointment', path: '/appointment' },
     { name: 'FAQ', path: '/faq' },
-    { name: 'Contact Us', path: '/contact-us' },
+    { name: 'About us', path: '/about-us'},
+    { name: 'Contact Us', path: '/contact-us' }
   ];
   
   const employeePages = user?.role === 'employee' ? [{ name: 'Manage Schedule', path: '/employee-schedule' }] : [];

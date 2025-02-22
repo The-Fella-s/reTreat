@@ -12,6 +12,7 @@ const client = new SquareClient({
     environment: SquareEnvironment.Sandbox, 
 });
 
+
 // Fetch Payment and Store in MongoDB (with Upsert to Prevent Duplicates)
 async function fetchPayment() {
     try {
@@ -30,7 +31,7 @@ async function fetchPayment() {
             throw new Error("amountMoney is missing in the payment object.");
         }
 
-        
+
         const amount = Number(response.payment.amountMoney.amount);
 
         
