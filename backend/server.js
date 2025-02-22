@@ -3,6 +3,10 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const { protect, adminOnly } = require('./middleware/authMiddleware');
+const cookieParser = require("cookie-parser");
+const passport = require("./config/passport"); // Import Passport config
+const cron = require("node-cron");
+const { refreshTokens } = require("./utilities/refreshToken");
 
 dotenv.config();
 
@@ -35,6 +39,9 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/instagram', instagramRoutes);
 
+// Initialize passport for Facebook API
+app.use(passport.initialize());
+
 // Admin Dashboard Route (Secured)
 app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
   res.json({ message: 'Welcome to Admin Dashboard' });
@@ -42,6 +49,12 @@ app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
 
 // Root Test Route
 app.get('/', (req, res) => res.send('API is running'));
+
+// Schedule token refresh every day at midnight (adjust as needed)
+cron.schedule("0 0 * * *", async () => {
+  console.log("Running scheduled token refresh...");
+  await refreshTokens();
+});
 
 // Start Server
 const PORT = process.env.PORT || 5000;
