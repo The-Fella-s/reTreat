@@ -55,6 +55,28 @@ router.post('/populate', async (req, res) => {
   }
 });
 
+// Update an appointment by its ID
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedAppointment = req.body;
+
+    const result = await Appointment.findByIdAndUpdate(id, updatedAppointment, {
+      new: true, // Return the updated appointment
+    });
+
+    if (!result) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+
+    res.status(200).json(result); // Return the updated appointment
+  } catch (error) {
+    console.error('Error updating appointment:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
 // Delete an appointment by its ID
 router.delete('/:id', async (req, res) => {
   try {
