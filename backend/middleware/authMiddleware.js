@@ -19,6 +19,8 @@ const protect = async (req, res, next) => {
     }
 
     req.user.role = user.role; // Ensure role is set
+    req.user.profile = user; // Attach full profile data to the request
+
     next();
   } catch (err) {
     res.status(401).json({ message: 'Invalid Token' });
@@ -43,4 +45,13 @@ const adminOnly = (req, res, next) => {
   }
 };
 
-module.exports = { protect, employeeOnly, adminOnly };
+// Restrict Access to Self-Only Profile Updates
+const selfOnly = (req, res, next) => {
+  if (req.user && req.user.id === req.params.id) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access Denied: You can only update your own profile' });
+  }
+};
+
+module.exports = { protect, employeeOnly, adminOnly, selfOnly };
