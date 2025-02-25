@@ -32,6 +32,7 @@ const appointmentRoutes = require('./routes/appointmentRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes');
 const paymentRoutes = require('./routes/paymentsRoutes');
 const instagramRoutes = require('./routes/instagramRoutes');
+const googleRoutes = require('./routes/googleRoutes'); 
 
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
@@ -39,6 +40,7 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/instagram', instagramRoutes);
+app.use('/api/places', googleRoutes); 
 
 // Initialize passport for Facebook API
 app.use(passport.initialize());

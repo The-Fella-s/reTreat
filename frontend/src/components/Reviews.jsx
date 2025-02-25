@@ -1,115 +1,120 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Typography, Avatar, Box, LinearProgress } from '@mui/material'; // Added LinearProgress
+import { Card, CardContent, Typography, Avatar, Box, LinearProgress, Grid } from '@mui/material';
 import { Star } from '@mui/icons-material';
 
-const reviews = [
-  {
-    name: 'Lauren',
-    date: 'June 20th, 2024',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...',
-    rating: 5,
-  },
-  {
-    name: 'Katya N',
-    date: 'August 15th, 2024',
-    content: 'The devil went down to georgia and he was looking for a soul to steal',
-    rating: 5,
-  },
-  {
-    name: 'Scott Thomas',
-    date: 'June 3rd, 2024',
-    content: 'he was in a bind because he was way behind and he was willing to make a deal',
-    rating: 5,
-  },
-];
-
-const ROTATION_INTERVAL = 5000; // Define rotation interval constant as 5000 milliseconds
+const ROTATION_INTERVAL = 3600000;
 
 const Reviews = () => {
-  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Progress bar update timer
-    const progressTimer = setInterval(() => {
-      setProgress((oldProgress) => {
-        if (oldProgress === 100) {
-          return 0;
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/places/reviews');
+        if (!response.ok) {
+          throw new Error('Failed to fetch reviews');
         }
-        return Math.min(oldProgress + (100 / (ROTATION_INTERVAL / 100)), 100);
-      });
-    }, 100);
+        const data = await response.json();
 
-    // Review rotation timer
+
+        const filteredReviews = (data.reviews || []).filter(review => review.rating === 5);
+        setReviews(filteredReviews);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  useEffect(() => {
+    if (reviews.length === 0) return;
+
+    const progressTimer = setInterval(() => {
+      setProgress((prev) => (prev === 100 ? 0 : Math.min(prev + (100 / (ROTATION_INTERVAL / 1000)), 100)));
+    }, 1000);
+
     const rotationTimer = setInterval(() => {
-      setCurrentReviewIndex((prevIndex) => 
-        prevIndex === reviews.length - 1 ? 0 : prevIndex + 1
-      );
-      setProgress(0); // Reset progress when review changes
+      setCurrentIndex((prevIndex) => (prevIndex + 3 >= reviews.length ? 0 : prevIndex + 3));
+      setProgress(0);
     }, ROTATION_INTERVAL);
 
     return () => {
       clearInterval(progressTimer);
       clearInterval(rotationTimer);
     };
-  }, []);
+  }, [reviews.length]);
 
-  const currentReview = reviews[currentReviewIndex];
+  if (loading) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+        <Typography variant="h4" gutterBottom align="center" sx={{ fontFamily: "Special Elite" }}>
+          Loading Reviews...
+        </Typography>
+        <LinearProgress />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+        <Typography variant="h4" gutterBottom align="center" sx={{ fontFamily: "Special Elite" }}>
+          Error Loading Reviews
+        </Typography>
+        <Typography color="error">{error}</Typography>
+      </div>
+    );
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+        <Typography variant="h4" gutterBottom align="center" sx={{ fontFamily: "Special Elite" }}>
+          No Reviews Available
+        </Typography>
+      </div>
+    );
+  }
+
+  const visibleReviews = reviews.slice(currentIndex, currentIndex + 3);
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <Typography variant="h4" gutterBottom align="center" sx = {{fontFamily: "Special Elite"}}>
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+      <Typography variant="h4" gutterBottom align="center" sx={{ fontFamily: "Special Elite" }}>
         Reviews
       </Typography>
-      <Card sx={{ minHeight: '200px', position: 'relative' }}> 
-        <CardContent>
-          <Box display="flex" alignItems="center">
-            <Avatar style={{ marginRight: '10px' }} />
-            <Box>
-              <Typography variant="h6" component="div">
-                {currentReview.name}
-              </Typography>
-              <Typography color="textSecondary">
-                {currentReview.date}
-              </Typography>
-            </Box>
-          </Box>
-          <Box display="flex" alignItems="center" marginTop={1}>
-            {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                style={{ 
-                  color: i < currentReview.rating ? '#FFD700' : '#D3D3D3'
-                }} 
-              />
-            ))}
-          </Box>
-          <Typography 
-            variant="body2" 
-            style={{ 
-              marginTop: '10px', 
-              textAlign: 'left',
-              minHeight: '80px'
-            }}
-          >
-            {currentReview.content}
-          </Typography>
-        </CardContent>
-        
-        <LinearProgress 
-          variant="determinate" 
-          value={progress} 
-          sx={{
-            position: 'absolute',
-            bottom: 0,
-            width: '100%',
-            height: '4px',
-            '& .MuiLinearProgress-bar': {
-              transition: 'none'
-            }
-          }}
-        />
-      </Card>
+      <Grid container spacing={2}>
+        {visibleReviews.map((review, idx) => (
+          <Grid item xs={12} sm={4} key={idx}>
+            <Card sx={{ minHeight: '250px', position: 'relative' }}>
+              <CardContent>
+                <Box display="flex" alignItems="center">
+                  <Avatar src={review.profile_photo_url} style={{ marginRight: '10px' }} />
+                  <Box>
+                    <Typography variant="h6">{review.author_name}</Typography>
+                  </Box>
+                </Box>
+                <Box display="flex" alignItems="center" marginTop={1}>
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} style={{ color: '#FFD700' }} />
+                  ))}
+                </Box>
+                <Typography variant="body2" style={{ marginTop: '10px', textAlign: 'left', minHeight: '80px' }}>
+                  {review.text}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </div>
   );
 };
