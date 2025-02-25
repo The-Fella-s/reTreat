@@ -27,11 +27,13 @@ const userRoutes = require('./routes/userRoutes');
 const themeRoutes = require('./routes/themeRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/schedules', scheduleRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Admin Dashboard Route (Secured)
 app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
