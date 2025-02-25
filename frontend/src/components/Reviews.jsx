@@ -100,13 +100,6 @@ const Reviews = () => {
                   <Avatar src={review.profile_photo_url} style={{ marginRight: '10px' }} />
                   <Box>
                     <Typography variant="h6">{review.author_name}</Typography>
-                    <Typography color="textSecondary">
-                      {new Date(review.time * 1000).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </Typography>
                   </Box>
                 </Box>
                 <Box display="flex" alignItems="center" marginTop={1}>
