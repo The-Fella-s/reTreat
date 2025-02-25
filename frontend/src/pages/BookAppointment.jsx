@@ -1,106 +1,115 @@
-import React, {useState} from 'react';
-import {Typography, Grid2, Button, Box} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Typography, Grid, Button, Box } from '@mui/material';
 import AppointmentCard from '../components/AppointmentCard.jsx';
-import {formatDuration} from '../utilities/formatDuration.js';
-import services from '../temporarydata/Services.jsx';
-import {useNavigate} from 'react-router-dom';
+import { formatDuration } from '../utilities/formatDuration.js';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const categories = ['Body Treatments', 'Facials', 'Nanochanneling Facials', 'Hydrafacials', 'Dermaplaning', 'Dermabrasion', 'Nail Care', 'Massages', 'Waxing', 'Add-Ons'];
 
 const BookAppointment = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [selectedCategory, setSelectedCategory] = useState('Body Treatments');
+  const [appointments, setAppointments] = useState([]);
 
-    const [selectedCategory, setSelectedCategory] = useState('Body Treatments');
+  // Function to fetch appointments from backend
+  const fetchAppointments = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/appointments');
+      setAppointments(response.data);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+    }
+  };
 
-    // Navigate to payment page and pass the data via state
-    const handleAppointmentBookConfirm = (appointmentData) => {
-        navigate('/payment', { state: { appointmentData } });
-    };
+  // Auto-fetch appointments on mount & refresh every 10 seconds
+  useEffect(() => {
+    fetchAppointments(); // Fetch immediately
+    const interval = setInterval(fetchAppointments, 10000); // Auto-refresh every 10 seconds
 
-    return (
+    return () => clearInterval(interval); // Cleanup when unmounting
+  }, []);
 
-        // Centers the whole page
-        <Box style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  const handleAppointmentBookConfirm = (appointmentData) => {
+    navigate('/payment', { state: { appointmentData } });
+  };
 
-            {/* Turns the title and category into a column */}
-            <Box>
+  return (
+    <Box style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box>
+        <Typography
+          variant="h3"
+          gutterBottom
+          align="center"
+          sx={{ fontWeight: 'bold', fontFamily: "Special Elite" }}
+          xs={12} sm={6} md={4} p={5}
+        >
+          Book Appointment
+        </Typography>
 
-                {/* Title */}
-                <Typography variant="h3" gutterBottom align="center" sx={{ fontWeight: 'bold',fontFamily: "Special Elite"}}  xs={12} sm={6} md={4} p={5}>
-                    Book Appointment
-                </Typography>
-
-                {/* Centers the categories and put spacing between them */}
-                <Grid2 container spacing={2} justifyContent="center" alignItems="center">
-                    {categories.map((category, index) => (
-
-                        // Add padding to the buttons
-                        <Grid2 item xs={12} sm={6} md={4} key={index}>
-
-                            {/* Button */}
-                            <Button
-                                variant="outlined"
-
-                                // Background color changes to blue when the category is selected
-                                // Text color changes to white when the category is selected
-                                style={{
-                                    padding: '10px',
-                                    textAlign: 'center',
-                                    backgroundColor: selectedCategory === category ? '#1976d2' : '', // Active button color
-                                    color: selectedCategory === category ? 'white' : '', // Text color for active button
-                                }}
-
-                                // Updates category to the current one
-                                onClick={() => setSelectedCategory(category)}
-                            >
-                                {category}
-                            </Button>
-                        </Grid2>
-                    ))}
-                </Grid2>
-
-                {/* Bottom padding */}
-                <Box p={5}>
-
-                    {/* Makes the cards stack horizontally and keep them centered */}
-                    <Grid2 container direction="row" sx={{
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}>
-
-                        {Object.values(services[0]).map((service, index) => {
-                            const description = service.description; // Get the array descriptions of the service
-                            const category = service.category; // Get the category of the service
-                            const duration = service.duration; // Get the duration of the service
-
-                            {/* Check if the category is selected */}
-                            if (category === selectedCategory) {
-                                return (
-                                    <Grid2 item sx={{p: 1.5}} key={index}>
-                                        <AppointmentCard
-                                            title={service.name}
-                                            description={description.map((line, lineIndex) => (
-                                                <span key={lineIndex}>
-                                                    {line}
-                                                    <br/> {/* Add line break after each line */}
-                                                </span>
-                                            ))}
-                                            pricing={service.pricing}
-                                            duration={formatDuration(duration)} // Set the duration of the service and format it
-                                            onAppointmentBookConfirm={() => handleAppointmentBookConfirm(service)} // Pass data to the payment page
-                                        />
-                                    </Grid2>
-                                );
-                            }
-
-                        })}
-                    </Grid2>
-
-                </Box>
-
-            </Box>
+        {/* Refresh Button */}
+        <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+          <Button variant="contained" onClick={fetchAppointments}>Refresh Appointments</Button>
         </Box>
-    );
-}
+
+        {/* Horizontal category buttons */}
+        <Box 
+          sx={{ 
+            display: "flex", 
+            flexWrap: "nowrap", 
+            overflowX: "auto", 
+            justifyContent: "center", 
+            gap: 2, 
+            p: 2 
+          }}
+        >
+          {categories.map((category, index) => (
+            <Button
+              key={index}
+              variant="outlined"
+              style={{
+                padding: '10px',
+                textAlign: 'center',
+                backgroundColor: selectedCategory === category ? '#1976d2' : '',
+                color: selectedCategory === category ? 'white' : '',
+                whiteSpace: "nowrap",
+              }}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
+            </Button>
+          ))}
+        </Box>
+
+        <Box p={5}>
+          <Grid container direction="row" sx={{ justifyContent: "center", alignItems: "center" }}>
+            {appointments
+              .filter(service => service.category === selectedCategory)
+              .map((service, index) => (
+                <Grid item sx={{ p: 1.5 }} key={index}>
+                  <AppointmentCard
+                    title={service.name}
+                    description={
+                      Array.isArray(service.description)
+                        ? service.description.map((line, lineIndex) => (
+                            <span key={lineIndex}>
+                              {line}
+                              <br />
+                            </span>
+                          ))
+                        : service.description
+                    }
+                    pricing={service.pricing}
+                    duration={formatDuration(service.duration)}
+                    onAppointmentBookConfirm={() => handleAppointmentBookConfirm(service)}
+                  />
+                </Grid>
+              ))}
+          </Grid>
+        </Box>
+      </Box>
+    </Box>
+  );
+};
 
 export default BookAppointment;

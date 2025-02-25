@@ -1,121 +1,67 @@
 const express = require('express');
-const app = express();
-const router = express.Router();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const User = require('./models/User');
-const { protect, adminOnly } = require('./middleware/authMiddleware');
-const googleRoutes = require('./routes/googleRoutes'); 
+const dotenv = require('dotenv');
 const cors = require('cors');
+const connectDB = require('./config/db');
+const { protect, adminOnly } = require('./middleware/authMiddleware');
+const cookieParser = require("cookie-parser");
+const passport = require("./config/passport"); // Import Passport config
+const cron = require("node-cron");
+const { refreshTokens } = require("./utilities/refreshToken");
 
-require('dotenv').config();
+dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+const app = express();
 
-
+// Improved CORS Configuration
 const corsOptions = {
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 };
 
-
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Allow preflight requests
+app.use(express.json()); // Middleware to parse JSON
+connectDB(); // Connect Database
 
-app.use(express.json());
-app.use(router);
+// Import and Register Routes
+const userRoutes = require('./routes/userRoutes');
+const themeRoutes = require('./routes/themeRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
+const scheduleRoutes = require('./routes/scheduleRoutes');
+const paymentRoutes = require('./routes/paymentsRoutes');
+const instagramRoutes = require('./routes/instagramRoutes');
 
-// Calling the route for the review API
-app.use('/api/places', googleRoutes); 
+app.use('/api/users', userRoutes);
+app.use('/api/themes', themeRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/instagram', instagramRoutes);
 
-// Create a new user (Regular User or Employee)
-router.post('/register', async (req, res) => {
-  const { email, password, name, phone, role } = req.body;
+// Initialize passport for Facebook API
+app.use(passport.initialize());
 
-  try {
-    if (!email || !password || !name) {
-      return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email already in use' });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-      name,
-      phone,
-      role: role || 'user', // Default role is 'user'
-    });
-
-    console.log('Saving user:', newUser); // Debugging log
-    await newUser.save();
-
-    res.status(201).json({ message: `New ${role || 'user'} registered successfully!` });
-
-  } catch (error) {
-    console.error('Registration error:', error.message);
-    res.status(500).json({ message: 'Server error' });
-  }
+// Admin Dashboard Route (Secured)
+app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
+  res.json({ message: 'Welcome to Admin Dashboard' });
 });
 
-// Authenticate user and return JWT
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
-    }
-
-    console.log('Login attempt:', { email, password }); // Log input
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      console.log('User not found');
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    console.log('User found:', user);
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      console.log('Invalid password');
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    console.log('Password matched!');
-
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
-
-    console.log('JWT generated:', token);
-
-    res.status(200).json({
-      token,
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-      message: 'Login successful',
-    });
-
-  } catch (error) {
-    console.error('Login error:', error.message);
-    res.status(500).json({ message: 'Server error' });
-  }
+// Square API test
+app.get('/api/square', (req, res) => {
+  res.json({message: "Square API is running and working"})
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+// Root Test Route
+app.get('/', (req, res) => res.send('API is running'));
+
+// Schedule token refresh every day at midnight (adjust as needed)
+cron.schedule("0 0 * * *", async () => {
+  console.log("Running scheduled token refresh...");
+  await refreshTokens();
 });
+
+// Start Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

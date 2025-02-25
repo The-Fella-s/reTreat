@@ -28,10 +28,10 @@ const Footer = () => {
                 CONNECT WITH US
               </Typography>
               <Box display="flex" justifyContent="center" gap={2}>
-                <IconButton color="inherit" href="https://www.facebook.com" target="_blank" aria-label="Facebook">
+                <IconButton color="inherit" href="https://www.facebook.com/retreatroseville" target="_blank" aria-label="Facebook">
                   <Facebook />
                 </IconButton>
-                <IconButton color="inherit" href="https://www.instagram.com" target="_blank" aria-label="Instagram">
+                <IconButton color="inherit" href="https://www.instagram.com/retreatroseville" target="_blank" aria-label="Instagram">
                   <Instagram />
                 </IconButton>
               </Box>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -12,146 +12,121 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Typography from '@mui/material/Typography';
+import { AuthContext } from '../context/AuthContext';
 import logo from '/src/assets/reTreatLogo.png';
+import Grow from '@mui/material/Grow';
+import Collapse from '@mui/material/Collapse';
 
-const pages = [
+const NavBar = () => {
+  const { user, logout } = useContext(AuthContext);
+  const [navAnchor, setNavAnchor] = useState(null);
+  const [userAnchor, setUserAnchor] = useState(null);
+  const [menuItemsVisible, setMenuItemsVisible] = useState([false, false, false]);
+  
+  const handleOpenNav = (event) => setNavAnchor(event.currentTarget);
+  const handleCloseNav = () => setNavAnchor(null);
+  const handleOpenUser = (event) => setUserAnchor(event.currentTarget);
+  const handleCloseUser = () => {
+    setMenuItemsVisible([false, false, false]);
+    setTimeout(() => setUserAnchor(null), 250);
+  };
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (userAnchor) {
+      setMenuItemsVisible([false, false, false]);
+      setTimeout(() => setMenuItemsVisible([true, false, false]), 50);
+      setTimeout(() => setMenuItemsVisible([true, true, false]), 100);
+      setTimeout(() => setMenuItemsVisible([true, true, true]), 150);
+    }
+  }, [userAnchor]);
+
+  const pages = [
     { name: 'Home', path: '/' },
     { name: 'Our Menu', path: '/menu' },
     { name: 'Our Team', path: '/meet-the-team' },
     { name: 'Book Appointment', path: '/appointment' },
     { name: 'FAQ', path: '/faq' },
+    { name: 'About us', path: '/about-us'},
     { name: 'Contact Us', path: '/contact-us' }
-];
+  ];
+  
+  const employeePages = user?.role === 'employee' ? [{ name: 'Manage Schedule', path: '/employee-schedule' }] : [];
+  
+  const allPages = [...pages, ...employeePages];
 
-const settings = ['Profile', 'Account', 'Appointments', 'Settings', 'Sign Out'];
+  return (
+    <AppBar position="static" color="secondary">
+      <Container maxWidth="false">
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box component={Link} to="/" sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', textDecoration: 'none', ml: 2, mr: 1 }}>
+            <img src={logo} alt="Logo" style={{ height: 40 }} />
+          </Box>
 
-function NavBar() {
-    const [navAnchor, setNavAnchor] = React.useState(null);
-    const [userAnchor, setUserAnchor] = React.useState(null);
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+            <IconButton size="large" aria-label="Current Users Account" aria-controls="menu-navbar" aria-haspopup="true" onClick={handleOpenNav} color='primary'>
+              <MenuIcon />
+            </IconButton>
+            <Menu id="menu-navbar2" anchorEl={navAnchor} anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} keepMounted transformOrigin={{ vertical: 'top', horizontal: 'left' }} open={Boolean(navAnchor)} onClose={handleCloseNav} sx={{ display: { xs: 'block', md: 'none' } }}>
+              {pages.map((page) => (
+                <MenuItem key={page.name} onClick={handleCloseNav} component={Link} to={page.path}>
+                  <Typography>{page.name}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
 
-    const handleOpenNav = (event) => {
-        setNavAnchor(event.currentTarget);
-    };
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center', flexGrow: 1, textAlign: 'center' }}>
+            {allPages.map((page) => (
+              <Button key={page.name} component={Link} to={page.path} sx={{ my: 2, color: 'white', px: 2.25, mx: 1 }}>
+                {page.name}
+              </Button>
+            ))}
+          </Box>
 
-    const handleCloseNav = () => {
-        setNavAnchor(null);
-    };
+          <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+            {user ? (
+              <>
+                <Tooltip title="Open Account Options">
+                  <IconButton onClick={handleOpenUser} sx={{ p: 0, mr: 2}}>
+                    <Avatar alt={user.name} src={user.profilePicture || ''} sx={{ width: 40, height: 40 }} />
+                  </IconButton>
+                </Tooltip>
+                <Menu sx={{ mt: '10px' }} id="menu-navbar" anchorEl={userAnchor} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} transformOrigin={{ vertical: 'top', horizontal: 'center' }} open={Boolean(userAnchor)} onClose={handleCloseUser}>
+                  <Collapse in={menuItemsVisible[0]} timeout={400}>
+                    <MenuItem onClick={() => navigate('/profile')}>
+                      <Typography>Profile</Typography>
+                    </MenuItem>
+                  </Collapse>
 
-    const handleOpenUser = (event) => {
-        setUserAnchor(event.currentTarget);
-    };
+                  <Collapse in={menuItemsVisible[1]} timeout={400}>
+                    <MenuItem onClick={() => navigate('/account-settings')}>
+                      <Typography>Account Settings</Typography>
+                    </MenuItem>
+                  </Collapse>
 
-    const handleCloseUser = () => {
-        setUserAnchor(null);
-    };
-
-    return (
-        <AppBar position="static" color = "secondary">
-            <Container maxWidth="lx1">
-                <Toolbar disableGutters>
-                    {/* Logo with Link to Home */}
-                    <Box
-                        component={Link}
-                        to="/"
-                        sx={{
-                            mr: 2,
-                            display: { xs: 'none', md: 'flex' },
-                            alignItems: 'center',
-                            textDecoration: 'none',
-                            
-                        }}
-                    >
-                        <img src={logo} alt="reTreat Salon&Spa Logo" style={{ height: 40 }} />
-                    </Box>
-
-                    {/* Mobile Menu Icon */}
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                        <IconButton
-                            size="large"
-                            aria-label="Current Users Account"
-                            aria-controls="menu-navbar"
-                            aria-haspopup="true"
-                            onClick={handleOpenNav}
-                            color="inherit"
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Menu
-                            id="menu-navbar"
-                            anchorEl={navAnchor}
-                            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                            keepMounted
-                            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                            open={Boolean(navAnchor)}
-                            onClose={handleCloseNav}
-                            sx={{ display: { xs: 'block', md: 'none' } }}
-                        >
-                            {pages.map((page) => (
-                                <MenuItem key={page.name} onClick={handleCloseNav} component={Link} to={page.path}>
-                                    <Typography sx={{ textAlign: 'center',  }}>{page.name}</Typography>
-                                </MenuItem>
-                            ))}
-                        </Menu>
-                    </Box>
-
-                    {/* Logo for Mobile View */}
-                    <Box
-                        component={Link}
-                        to="/"
-                        sx={{
-                            display: { xs: 'flex', md: 'none' },
-                            flexGrow: 50,
-                            justifyContent: 'left',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        <img src={logo} alt="reTreat Salon&Spa Logo" style={{ height: 40 }} />
-                    </Box>
-
-                    {/* Desktop Navigation Buttons, Aligned to the Right */}
-                    <Box sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end', flexGrow: 1 }}>
-                        {pages.map((page) => (
-                            <Button
-                                key={page.name}
-                                component={Link}
-                                to={page.path}
-                                onClick={handleCloseNav}
-                                sx={{ my: 2, color: 'white', display: 'grid', px: 2.25, /* fontFamily: "Special Elite"*/}} // Maybe switch font later, we'll ask
-                            >
-                                {page.name}
-                            </Button>
-                        ))}
-                    </Box>
-
-                    {/* User Avatar, Statically Positioned */}
-                    <Box sx={{ flexGrow: 0.02 }}>
-                        <Tooltip title="Open Account Options">
-                            <IconButton onClick={handleOpenUser} sx={{ p: 0 }}>
-                                <Avatar alt="Name Here" src="/src/assets/StockImage.jpg" />
-                            </IconButton>
-                        </Tooltip>
-                        <Menu
-                            sx={{ mt: '45px' }}
-                            id="menu-navbar"
-                            anchorEl={userAnchor}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right'
-                            }}
-                            open={Boolean(userAnchor)}
-                            onClose={handleCloseUser}
-                        >
-                            {settings.map((setting) => (
-                                <MenuItem key={setting} onClick={handleCloseUser}>
-                                    <Typography sx={{ textAlign: 'center', color: 'black' }}>{setting}</Typography>
-                                </MenuItem>
-                            ))}
-                        </Menu>
-                    </Box>
-                </Toolbar>
-            </Container>
-        </AppBar>
-    );
-}
+                  <Collapse in={menuItemsVisible[2]} timeout={400}>
+                    <MenuItem onClick={logout}>
+                      <Typography>Log Out</Typography>
+                    </MenuItem>
+                  </Collapse>
+                </Menu>
+              </>
+            ) : (
+              <Box>
+                <Button component={Link} to="/login" sx={{ color: 'white' }}>
+                  Login
+                </Button>
+                <Button component={Link} to="/register" sx={{ color: 'white' }}>
+                  Register
+                </Button>
+              </Box>
+            )}
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
+  );
+};
 
 export default NavBar;
