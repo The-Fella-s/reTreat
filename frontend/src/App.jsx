@@ -59,8 +59,8 @@ function App() {
                 <Route path="/" element={
                   <>
                     <Main />
-                    <Reviews />
                     <SocialMedia />
+                    <Reviews />
                     <ReadyToRelax />
                   </>
                 } />
