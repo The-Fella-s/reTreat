@@ -60,4 +60,4 @@ async function refreshTokens() {
     }
 }
 
-module.exports = { refreshTokens };
+module.exports = { refreshTokens, refreshTokensForUser };
