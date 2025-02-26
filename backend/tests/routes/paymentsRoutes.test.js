@@ -77,6 +77,6 @@ describe("Payment Routes Tests", () => {
 });
 
 afterAll(async () => {
-    await mongoose.connection.close(); // ✅ Ensure Mongoose disconnects
-    await new Promise(resolve => setTimeout(resolve, 500)); // ✅ Allow time for cleanup
+    await mongoose.connection.close(); 
+    await new Promise(resolve => setTimeout(resolve, 500));
 });
