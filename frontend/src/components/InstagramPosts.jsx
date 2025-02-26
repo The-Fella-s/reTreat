@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
@@ -7,13 +7,11 @@ const swipeConfidenceThreshold = 100;
 const swipePower = (offset, velocity) => Math.abs(offset) * velocity;
 
 const InstagramPosts = () => {
-
-    // Page is the current index
-    // Direction is the swipe direction, i.e. negative = backward, positive = forward.
     const [[page, direction], setPage] = useState([0, 0]);
     const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    // Fetch posts
     useEffect(() => {
         const fetchPosts = async () => {
             try {
@@ -24,17 +22,42 @@ const InstagramPosts = () => {
                 setPosts(res.data.data);
             } catch (err) {
                 console.error(err);
+                setError("Failed to fetch posts.");
+            } finally {
+                setLoading(false);
             }
         };
         fetchPosts();
     }, []);
 
+    // Loading state
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" mt={4}>
+                <CircularProgress data-testid="loading-spinner" />
+            </Box>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <Typography color="error" variant="h6" align="center" mt={4} data-testid="error-message">
+                {error}
+            </Typography>
+        );
+    }
+
+    // Empty posts state
     if (!posts.length) {
-        return <Typography>No posts available</Typography>;
+        return (
+            <Typography variant="h6" align="center" mt={4} data-testid="empty-message">
+                No posts available
+            </Typography>
+        );
     }
 
     const totalPosts = posts.length;
-    // Make index wrap around instead of going over
     const imageIndex = ((page % totalPosts) + totalPosts) % totalPosts;
     const prevIndex = (imageIndex - 1 + totalPosts) % totalPosts;
     const nextIndex = (imageIndex + 1) % totalPosts;
@@ -43,8 +66,7 @@ const InstagramPosts = () => {
         setPage([page + newDirection, newDirection]);
     };
 
-    // Spring animation for the center big image
-    const variants = {
+    const centerVariants = {
         enter: (direction) => ({
             x: direction > 0 ? 300 : -300,
             opacity: 0,
@@ -61,8 +83,7 @@ const InstagramPosts = () => {
         }),
     };
 
-    // Spring animation for the left and right smaller images
-    const smallCardVariants = {
+    const smallVariants = {
         enter: (direction) => ({
             x: direction > 0 ? 150 : -150,
             opacity: 0,
@@ -116,7 +137,7 @@ const InstagramPosts = () => {
                             src={posts[prevIndex]?.media_url}
                             alt="Previous"
                             custom={direction}
-                            variants={smallCardVariants}
+                            variants={smallVariants}
                             initial="enter"
                             animate="center"
                             exit="exit"
@@ -148,9 +169,10 @@ const InstagramPosts = () => {
                         <motion.img
                             key={page}
                             src={posts[imageIndex].media_url}
+                            data-testid="current-image"
                             alt="Current"
                             custom={direction}
-                            variants={variants}
+                            variants={centerVariants}
                             initial="enter"
                             animate="center"
                             exit="exit"
@@ -195,7 +217,7 @@ const InstagramPosts = () => {
                             src={posts[nextIndex]?.media_url}
                             alt="Next"
                             custom={direction}
-                            variants={smallCardVariants}
+                            variants={smallVariants}
                             initial="enter"
                             animate="center"
                             exit="exit"
