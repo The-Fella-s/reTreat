@@ -14,6 +14,7 @@ const client = new SquareClient({
 
 
 // Fetch Payment and Store in MongoDB (with Upsert to Prevent Duplicates)
+// We will need to pull payments from prod, not sandbox next sprint
 async function fetchPayment() {
     try {
         
