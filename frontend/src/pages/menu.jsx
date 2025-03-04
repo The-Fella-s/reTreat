@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Grid, Button } from '@mui/material';
+import { Box, Typography, Grid, Button, Container } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ItemCard from '../components/ItemCard';
@@ -42,7 +42,7 @@ function SubscriptionLounge() {
   const categories = ['All', 'Subscriptions', 'Lounge Access'];
 
   return (
-    <div>
+    <Container>
       <ToastContainer />
 
       {/* Header Section */}
@@ -71,7 +71,7 @@ function SubscriptionLounge() {
         {items
           .filter((item) => selectedCategory === 'All' || item.category === selectedCategory)
           .map((item, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
               <ItemCard
                 name={item.name}
                 description={item.description}
@@ -81,7 +81,7 @@ function SubscriptionLounge() {
             </Grid>
           ))}
       </Grid>
-    </div>
+    </Container>
   );
 }
 
