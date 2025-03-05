@@ -2,8 +2,11 @@ const request = require("supertest");
 const express = require("express");
 const mongoose = require("mongoose");
 const { SquareClient } = require("square");
-const Payment = require("../../models/Payments"); // Mocked model
+const Payment = require("../../models/Payments");
 const paymentRoutes = require("../../routes/paymentsRoutes");
+const { MongoMemoryServer } = require("mongodb-memory-server");
+
+let mongoServer;
 
 jest.mock("square", () => ({
     SquareClient: jest.fn().mockImplementation(() => ({
@@ -36,10 +39,9 @@ describe("Payment Routes Tests", () => {
     app = express();
     app.use(express.json());
     app.use("/payments", paymentRoutes);
-
+  
     // Connect to in-memory MongoDB
-    const { MongoMemoryServer } = require("mongodb-memory-server");
-    const mongoServer = await MongoMemoryServer.create();
+    mongoServer = await MongoMemoryServer.create();
     await mongoose.connect(mongoServer.getUri(), {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -47,8 +49,13 @@ describe("Payment Routes Tests", () => {
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
-  });
+  await mongoose.disconnect();
+  await mongoose.connection.close(); // Ensures all connections are closed
+
+  if (mongoServer) {
+    await mongoServer.stop(); // Properly stops the in-memory MongoDB
+  }
+});
 
   test("fetchPayment should store payment in MongoDB", async () => {
     // Mock Payment.findOneAndUpdate to simulate database behavior
