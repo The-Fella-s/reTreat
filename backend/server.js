@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path'); 
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -23,7 +24,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Allow preflight requests
 app.use(express.json()); // Middleware to parse JSON
-connectDB(); // Connect Database
+connectDB(); // Connect to the database
+
 
 // Import and Register Routes
 const userRoutes = require('./routes/userRoutes');
@@ -47,6 +49,10 @@ app.use('/api/places', googleRoutes);
 // Initialize passport for Facebook API
 app.use(passport.initialize());
 
+// Serve files from the 'uploads' folder safely
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
 // Admin Dashboard Route (Secured)
 app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
   res.json({ message: 'Welcome to Admin Dashboard' });
@@ -54,7 +60,7 @@ app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
 
 // Square API test
 app.get('/api/square', (req, res) => {
-  res.json({message: "Square API is running and working"})
+  res.json({ message: "Square API is running and working" });
 });
 
 // Root Test Route

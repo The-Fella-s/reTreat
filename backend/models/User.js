@@ -8,13 +8,17 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['user', 'employee', 'admin'], default: 'user' },
   createdAt: { type: Date, default: Date.now },
 
+  // Profile picture fields
+  profilePicture: { type: String },
+  profilePictureHash: { type: String },
+
   // Appointments (For Users & Employees)
   appointments: [
     {
       date: Date,
       time: String,
       service: String,
-      employee: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // References an Employee
+      employee: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     },
   ],
 
@@ -23,19 +27,19 @@ const userSchema = new mongoose.Schema({
     isAvailable: { type: Boolean, default: true },
     schedule: [
       {
-        day: String, // e.g., "Monday"
-        startTime: String, // e.g., "09:00 AM"
-        endTime: String, // e.g., "05:00 PM"
+        day: String,
+        startTime: String,
+        endTime: String,
       },
     ],
   },
 
-  // Admin-Specific Fields (Optional: Future Expansion)
+  // Admin-Specific Fields
   adminPermissions: {
     canEditUsers: { type: Boolean, default: true },
     canViewReports: { type: Boolean, default: true },
   },
 });
 
-// Export the model
-module.exports = mongoose.model('User', userSchema);
+// Prevent model overwrite if model already exists
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);
