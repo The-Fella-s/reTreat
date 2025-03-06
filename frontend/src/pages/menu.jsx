@@ -89,20 +89,16 @@ function SpaMenuPage() {
 
       {/* Cards Section */}
       <Grid container spacing={3} justifyContent="center" style={{ padding: '20px' }}>
-        {menuItems
-          .filter((item) => selectedCategory === 'All' || item.category === selectedCategory)
-          .map((item, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <ItemCard
-                name={item.name}
-                description={item.description}
-                price={item.price}
-                onPurchase={() => handleBook(item.name)}
-                buttonText="Book"
-                hideImage={true}
-              />
-            </Grid>
-          ))}
+        {menuItems.map((item, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <ItemCard
+              name={item.name}
+              description={item.description}
+              price={item.price}
+              onPurchase={() => handlePurchase(item.name)}
+            />
+          </Grid>
+        ))}
       </Grid>
     </Container>
   );
