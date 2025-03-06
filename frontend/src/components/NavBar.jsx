@@ -22,7 +22,8 @@ const NavBar = () => {
   const [navAnchor, setNavAnchor] = useState(null);
   const [userAnchor, setUserAnchor] = useState(null);
   const [menuItemsVisible, setMenuItemsVisible] = useState([false, false, false]);
-  
+  const navigate = useNavigate();
+
   const handleOpenNav = (event) => setNavAnchor(event.currentTarget);
   const handleCloseNav = () => setNavAnchor(null);
   const handleOpenUser = (event) => setUserAnchor(event.currentTarget);
@@ -30,8 +31,7 @@ const NavBar = () => {
     setMenuItemsVisible([false, false, false]);
     setTimeout(() => setUserAnchor(null), 250);
   };
-  const navigate = useNavigate();
-  
+
   useEffect(() => {
     if (userAnchor) {
       setMenuItemsVisible([false, false, false]);
@@ -47,13 +47,16 @@ const NavBar = () => {
     { name: 'Our Team', path: '/meet-the-team' },
     { name: 'Book Appointment', path: '/appointment' },
     { name: 'FAQ', path: '/faq' },
-    { name: 'About us', path: '/about-us'},
+    { name: 'About us', path: '/about-us' },
     { name: 'Contact Us', path: '/contact-us' }
   ];
-  
+
   const employeePages = user?.role === 'employee' ? [{ name: 'Manage Schedule', path: '/employee-schedule' }] : [];
-  
   const allPages = [...pages, ...employeePages];
+
+  const profileImageUrl = user && user.profilePicture 
+    ? `http://localhost:5000${user.profilePicture}?t=${Date.now()}`
+    : 'https://via.placeholder.com/120';
 
   return (
     <AppBar position="static" color="secondary">
@@ -64,10 +67,19 @@ const NavBar = () => {
           </Box>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton size="large" aria-label="Current Users Account" aria-controls="menu-navbar" aria-haspopup="true" onClick={handleOpenNav} color='primary'>
+            <IconButton size="large" aria-label="Current Users Account" aria-controls="menu-navbar" aria-haspopup="true" onClick={handleOpenNav} color="primary">
               <MenuIcon />
             </IconButton>
-            <Menu id="menu-navbar2" anchorEl={navAnchor} anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} keepMounted transformOrigin={{ vertical: 'top', horizontal: 'left' }} open={Boolean(navAnchor)} onClose={handleCloseNav} sx={{ display: { xs: 'block', md: 'none' } }}>
+            <Menu
+              id="menu-navbar2"
+              anchorEl={navAnchor}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+              keepMounted
+              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+              open={Boolean(navAnchor)}
+              onClose={handleCloseNav}
+              sx={{ display: { xs: 'block', md: 'none' } }}
+            >
               {pages.map((page) => (
                 <MenuItem key={page.name} onClick={handleCloseNav} component={Link} to={page.path}>
                   <Typography>{page.name}</Typography>
@@ -88,11 +100,19 @@ const NavBar = () => {
             {user ? (
               <>
                 <Tooltip title="Open Account Options">
-                  <IconButton onClick={handleOpenUser} sx={{ p: 0, mr: 2}}>
-                    <Avatar alt={user.name} src={user.profilePicture || ''} sx={{ width: 40, height: 40 }} />
+                  <IconButton onClick={handleOpenUser} sx={{ p: 0, mr: 2 }}>
+                    <Avatar alt={user.name} src={profileImageUrl} sx={{ width: 40, height: 40 }} />
                   </IconButton>
                 </Tooltip>
-                <Menu sx={{ mt: '10px' }} id="menu-navbar" anchorEl={userAnchor} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} transformOrigin={{ vertical: 'top', horizontal: 'center' }} open={Boolean(userAnchor)} onClose={handleCloseUser}>
+                <Menu
+                  sx={{ mt: '10px' }}
+                  id="menu-navbar"
+                  anchorEl={userAnchor}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+                  open={Boolean(userAnchor)}
+                  onClose={handleCloseUser}
+                >
                   <Collapse in={menuItemsVisible[0]} timeout={400}>
                     <MenuItem onClick={() => navigate('/profile')}>
                       <Typography>Profile</Typography>
