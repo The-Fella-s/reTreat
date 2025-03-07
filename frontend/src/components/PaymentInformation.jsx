@@ -21,8 +21,9 @@ const PaymentInformation = () => {
     const [cardholderName, setCardholderName] = useState("");
     const [cardNumber, setCardNumber] = useState("");
     const [expireMonth, setExpireMonth] = useState("");
-    const [expireDay, setExpireDay] = useState("");
+    const [expireYear, setExpireYear] = useState("");
     const [cvv, setCvv] = useState("");
+    const [errors, setErrors] = useState({});
 
     // Billing Information states
     const [addressLine1, setAddressLine1] = useState("");
@@ -48,6 +49,13 @@ const PaymentInformation = () => {
         setIsShippingSameAsBilling(event.target.checked);
     };
 
+    const [showCvv, setShowCvv] = useState(false);
+
+    // Toggle the visibility of the CVV field
+    const handleToggleCvv = () => {
+        setShowCvv((prevState) => !prevState);
+    };
+
     // Handler for "Go Back" button click
     const handleGoBack = () => {
         navigate(-1); // Navigate back to the previous page
@@ -64,7 +72,7 @@ const PaymentInformation = () => {
         console.log("Payment Information:");
         console.log(`Cardholder Name: ${cardholderName}`);
         console.log(`Card Number: ${cardNumber}`);
-        console.log(`Expire Date: ${expireMonth}/${expireDay}`);
+        console.log(`Expire Date: ${expireMonth}/${expireYear}`);
         console.log(`CVV: ${cvv}`);
 
         console.log("Billing Information:");
@@ -84,6 +92,22 @@ const PaymentInformation = () => {
             console.log(`Shipping ZIP Code: ${shippingZipCode}`);
             console.log(`Shipping Country: ${shippingCountry}`);
         }
+
+        let validationErrors = {};
+        
+        if (!cardholderName) validationErrors.cardholderName = "Cardholder Name is required";
+        if (!cardNumber.match(/^\d{16}$/)) validationErrors.cardNumber = "Card Number must be 16 digits";
+        if (!expireMonth.match(/^0?[1-9]|1[0-2]$/)) validationErrors.expireMonth = "Invalid Month";
+        if (!expireYear.match(/^0?[1-9]|[12][0-9]|3[01]$/)) validationErrors.expireYear = "Invalid Day";
+        if (!cvv.match(/^\d{3}$/)) validationErrors.cvv = "CVV must be 3 digits";
+        
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
+        setErrors({}); // Clear errors if valid
+        console.log("Payment validated, processing...");
 
         console.log("Additional Notes:");
         console.log(additionalNotes);
@@ -123,6 +147,8 @@ const PaymentInformation = () => {
                             variant="outlined"
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
+                            error={!!errors.firstName} 
+                            helperText={errors.firstName}
                         />
                         <TextField
                             fullWidth
@@ -130,6 +156,8 @@ const PaymentInformation = () => {
                             variant="outlined"
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
+                            error={!!errors.LastName} 
+                            helperText={errors.LastName}
                         />
                         <TextField
                             fullWidth
@@ -163,47 +191,79 @@ const PaymentInformation = () => {
                             variant="outlined"
                             value={cardholderName}
                             onChange={(e) => setCardholderName(e.target.value)}
+                            error={!!errors.cardholderName} // 
+                            helperText={errors.cardholderName}
                         />
                         <TextField
                             fullWidth
                             label="Card Number"
                             variant="outlined"
-                            type="number"
-                            inputProps={{ maxLength: 16 }}
+                            type="text" // Change to text instead of number
+                            inputProps={{ maxLength: 16, pattern: "[0-9]*" }}
                             value={cardNumber}
-                            onChange={(e) => setCardNumber(e.target.value)}
+                            onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, "");
+                                if (value.length <= 16) {
+                                    setCardNumber(value);
+                                }
+                            }}
+                            error={!!errors.cardNumber} 
+                            helperText={errors.cardNumber}
                         />
                         <Box gap={2} sx={{ display: "flex", flexDirection: "row" }}>
-                            <TextField
-                                fullWidth
-                                label="Expire Date (MM)"
-                                variant="outlined"
-                                placeholder="MM"
-                                type="number"
-                                inputProps={{ min: 1, max: 12, maxLength: 2 }}
-                                value={expireMonth}
-                                onChange={(e) => setExpireMonth(e.target.value)}
-                            />
-                            <TextField
-                                fullWidth
-                                label="Expire Date (DD)"
-                                variant="outlined"
-                                placeholder="DD"
-                                type="number"
-                                inputProps={{ min: 1, max: 31, maxLength: 2 }}
-                                value={expireDay}
-                                onChange={(e) => setExpireDay(e.target.value)}
-                            />
-                        </Box>
                         <TextField
                             fullWidth
-                            label="CVV"
+                            label="Expire Date (MM)"
                             variant="outlined"
-                            type="password"
-                            inputProps={{ maxLength: 3 }}
-                            value={cvv}
-                            onChange={(e) => setCvv(e.target.value)}
+                            placeholder="MM"
+                            type="text" // Change to text instead of number
+                            inputProps={{ maxLength: 2, pattern: "[0-9]*" }}
+                            value={expireMonth}
+                            onChange={(e) => {
+                                let value = e.target.value.replace(/\D/g, ""); 
+                                if (value.length > 2) return; 
+                                if (parseInt(value, 10) > 12) value = "12";
+                                setExpireMonth(value);
+                            }}
+                            error={!!errors.expireMonth}
+                            helperText={errors.expireMonth}
                         />
+
+                        <TextField
+                            fullWidth
+                            label="Expire Date (YY)"
+                            variant="outlined"
+                            placeholder="YY"
+                            type="text"
+                            inputProps={{ maxLength: 2, pattern: "[0-9]*" }}
+                            value={expireYear}
+                            onChange={(e) => {
+                                let value = e.target.value.replace(/\D/g, ""); 
+                                if (value.length > 2) return; 
+                                setExpireYear(value);
+                            }}
+                            error={!!errors.expireYear}
+                            helperText={errors.expireYear}
+                        />
+                        </Box>
+                        <TextField
+                        fullWidth
+                        label="CVV"
+                        variant="outlined"
+                        type={showCvv ? "text" : "password"} // Toggle between text and password
+                        inputProps={{ maxLength: 3 }}
+                        value={cvv}
+                        onChange={(e) => setCvv(e.target.value)}
+                        error={!!errors.cvv} 
+                        helperText={errors.cvv}
+                        InputProps={{
+                            endAdornment: (
+                                <Button onClick={handleToggleCvv} sx={{ cursor: "pointer" }}>
+                                    {showCvv ? "Hide" : "Show"}
+                                </Button>
+                            ),
+                        }}
+                    />
                     </Box>
                 </Box>
 
