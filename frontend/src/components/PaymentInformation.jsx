@@ -1,4 +1,4 @@
-import {Box, Button, Card, Checkbox, FormControlLabel, TextField, Typography, MenuItem, Select, InputLabel, FormControl} from "@mui/material";
+import {Box, Button, Card, Checkbox, FormControlLabel, TextField, Typography, MenuItem, Select, InputLabel, FormControl, Snackbar, Alert} from "@mui/material";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import HomeIcon from "@mui/icons-material/Home";
@@ -24,6 +24,8 @@ const PaymentInformation = () => {
     const [expireYear, setExpireYear] = useState("");
     const [cvv, setCvv] = useState("");
     const [errors, setErrors] = useState({});
+    const [successMessage, setSuccessMessage] = useState(false);
+
 
     // Billing Information states
     const [addressLine1, setAddressLine1] = useState("");
@@ -119,10 +121,22 @@ const PaymentInformation = () => {
         }
 
         setErrors({}); // Clear errors if valid
+
+        // Show success message and clear form
+        setSuccessMessage(true);
+
         console.log("Payment validated, processing...");
 
         console.log("Additional Notes:");
         console.log(additionalNotes);
+
+        setTimeout(() => {
+            navigate("/"); // Redirect to the home page
+        }, 1500);
+    };
+
+    const handleCloseSuccessMessage = () => {
+        setSuccessMessage(false);
     };
 
     return (
@@ -154,36 +168,40 @@ const PaymentInformation = () => {
                             </Typography>
                         </Box>
                         <TextField
-                fullWidth
-                label="First Name"
-                variant="outlined"
-                value={firstName}
-                onChange={(e) => handleChange("firstName", e.target.value)}
-                error={!!errors.firstName}
-                helperText={errors.firstName}
-                required
-            />
-            <TextField
-                fullWidth
-                label="Last Name"
-                variant="outlined"
-                value={lastName}
-                onChange={(e) => handleChange("lastName", e.target.value)}
-                error={!!errors.lastName}
-                helperText={errors.lastName}
-                required
-            />
-            <TextField
-                fullWidth
-                label="Phone Number"
-                variant="outlined"
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => handleChange("phoneNumber", e.target.value)}
-                error={!!errors.phoneNumber}
-                helperText={errors.phoneNumber}
-                required
-            />
+                            fullWidth
+                            label="First Name"
+                            variant="outlined"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)} // Directly set the state here
+                            error={!!errors.firstName}
+                            helperText={errors.firstName}
+                            required
+                        />
+
+                        <TextField
+                            fullWidth
+                            label="Last Name"
+                            variant="outlined"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)} // Directly set the state here
+                            error={!!errors.lastName}
+                            helperText={errors.lastName}
+                            required
+                        />
+                        <TextField
+                            fullWidth
+                            label="Phone Number"
+                            variant="outlined"
+                            type="tel"
+                            value={phoneNumber}
+                            onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ''); // Remove all non-digit characters
+                                setPhoneNumber(value); // Update the state with the cleaned value
+                            }}
+                            error={!!errors.phoneNumber}
+                            helperText={errors.phoneNumber}
+                            required
+                        />
                         <TextField
                             fullWidth
                             label="Email"
@@ -473,6 +491,32 @@ const PaymentInformation = () => {
                     >
                         Book Appointment
                     </Button>
+                    {/* Success Message */}
+                    <Snackbar
+                        open={successMessage}
+                        autoHideDuration={6000}
+                        onClose={handleCloseSuccessMessage}
+                        anchorOrigin={{ vertical: "top", horizontal: "center" }} // Center horizontally, top aligned vertically
+                        sx={{
+                            position: "fixed", // Fixed position to ensure it's placed correctly
+                            top: "50%", // Center vertically
+                            left: "50%", // Center horizontally
+                            transform: "translate(-50%, -50%)", // Adjust to truly center the Snackbar
+                        }}
+                    >
+                        <Alert
+                            onClose={handleCloseSuccessMessage}
+                            severity="success"
+                            sx={{
+                                fontSize: "1.5rem", // Increase font size
+                                padding: "16px", // Add extra padding
+                                minWidth: "400px", // Adjust width for the Snackbar
+                                textAlign: "center", // Center the text
+                            }}
+                        >
+                            Appointment successfully booked!
+                        </Alert>
+                    </Snackbar>
                 </Box>
             </Card>
         </>
