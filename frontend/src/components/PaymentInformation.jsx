@@ -1,4 +1,4 @@
-import {Box, Button, Card, Checkbox, FormControlLabel, TextField, Typography} from "@mui/material";
+import {Box, Button, Card, Checkbox, FormControlLabel, TextField, Typography, MenuItem, Select, InputLabel, FormControl} from "@mui/material";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import HomeIcon from "@mui/icons-material/Home";
@@ -40,6 +40,14 @@ const PaymentInformation = () => {
     const [shippingState, setShippingState] = useState("");
     const [shippingZipCode, setShippingZipCode] = useState("");
     const [shippingCountry, setShippingCountry] = useState("");
+
+    // List of states
+    const states = [
+        "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA",
+        "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+        "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT",
+        "VA", "WA", "WV", "WI", "WY"
+    ];
 
     // Additional Notes states
     const [additionalNotes, setAdditionalNotes] = useState("");
@@ -301,13 +309,21 @@ const PaymentInformation = () => {
                             value={city}
                             onChange={(e) => setCity(e.target.value)}
                         />
-                        <TextField
-                            fullWidth
-                            label="State"
-                            variant="outlined"
-                            value={state}
-                            onChange={(e) => setState(e.target.value)}
-                        />
+                   <FormControl fullWidth>
+                        <InputLabel>State</InputLabel>
+                            <Select
+                                label="State"
+                                value={state}
+                                onChange={(e) => setState(e.target.value)}
+                                fullWidth
+                            >
+                                {states.map((stateAbbr) => (
+                                    <MenuItem key={stateAbbr} value={stateAbbr}>
+                                        {stateAbbr}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                         <TextField
                             fullWidth
                             label="ZIP Code"
