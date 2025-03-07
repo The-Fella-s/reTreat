@@ -102,6 +102,10 @@ const PaymentInformation = () => {
         }
 
         let validationErrors = {};
+
+        if (!firstName) validationErrors.firstName = "First Name is required";
+        if (!lastName) validationErrors.lastName = "Last Name is required";
+        if (!phoneNumber) validationErrors.phoneNumber = "Phone Number is required";
         
         if (!cardholderName) validationErrors.cardholderName = "Cardholder Name is required";
         if (!cardNumber.match(/^\d{16}$/)) validationErrors.cardNumber = "Card Number must be 16 digits";
@@ -150,31 +154,36 @@ const PaymentInformation = () => {
                             </Typography>
                         </Box>
                         <TextField
-                            fullWidth
-                            label="First Name"
-                            variant="outlined"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
-                            error={!!errors.firstName} 
-                            helperText={errors.firstName}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Last Name"
-                            variant="outlined"
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
-                            error={!!errors.LastName} 
-                            helperText={errors.LastName}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Phone Number"
-                            variant="outlined"
-                            type="tel"
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                        />
+                fullWidth
+                label="First Name"
+                variant="outlined"
+                value={firstName}
+                onChange={(e) => handleChange("firstName", e.target.value)}
+                error={!!errors.firstName}
+                helperText={errors.firstName}
+                required
+            />
+            <TextField
+                fullWidth
+                label="Last Name"
+                variant="outlined"
+                value={lastName}
+                onChange={(e) => handleChange("lastName", e.target.value)}
+                error={!!errors.lastName}
+                helperText={errors.lastName}
+                required
+            />
+            <TextField
+                fullWidth
+                label="Phone Number"
+                variant="outlined"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => handleChange("phoneNumber", e.target.value)}
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber}
+                required
+            />
                         <TextField
                             fullWidth
                             label="Email"
