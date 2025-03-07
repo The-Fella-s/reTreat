@@ -392,13 +392,21 @@ const PaymentInformation = () => {
                                     value={shippingCity}
                                     onChange={(e) => setShippingCity(e.target.value)}
                                 />
-                                <TextField
-                                    fullWidth
-                                    label="State"
-                                    variant="outlined"
-                                    value={shippingState}
-                                    onChange={(e) => setShippingState(e.target.value)}
-                                />
+                                 <FormControl fullWidth>
+                                    <InputLabel>State</InputLabel>
+                                    <Select
+                                        label="State"
+                                        value={state}
+                                        onChange={(e) => setState(e.target.value)}
+                                        fullWidth
+                                    >
+                                        {states.map((stateAbbr) => (
+                                            <MenuItem key={stateAbbr} value={stateAbbr}>
+                                                {stateAbbr}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                                 <TextField
                                     fullWidth
                                     label="ZIP Code"
