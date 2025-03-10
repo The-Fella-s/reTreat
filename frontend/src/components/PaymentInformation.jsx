@@ -5,6 +5,11 @@ import HomeIcon from "@mui/icons-material/Home";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { useState } from "react";
 import {useNavigate} from "react-router-dom";
+import React from "react";
+import { ToastContainer, toast } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css'; 
+
+
 
 const PaymentInformation = () => {
     const navigate = useNavigate(); // Initialize navigate
@@ -114,9 +119,12 @@ const PaymentInformation = () => {
         if (!expireMonth.match(/^0?[1-9]|1[0-2]$/)) validationErrors.expireMonth = "Invalid Month";
         if (!expireYear.match(/^0?[1-9]|[12][0-9]|3[01]$/)) validationErrors.expireYear = "Invalid Day";
         if (!cvv.match(/^\d{3}$/)) validationErrors.cvv = "CVV must be 3 digits";
+
+        
         
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
+            alert("Please check your card information. There are some errors in your payment details.");
             return;
         }
 
@@ -129,6 +137,8 @@ const PaymentInformation = () => {
 
         console.log("Additional Notes:");
         console.log(additionalNotes);
+
+        toast.success('Appointment successfully booked!');
 
         setTimeout(() => {
             navigate("/"); // Redirect to the home page
@@ -491,32 +501,17 @@ const PaymentInformation = () => {
                     >
                         Book Appointment
                     </Button>
-                    {/* Success Message */}
-                    <Snackbar
-                        open={successMessage}
-                        autoHideDuration={6000}
-                        onClose={handleCloseSuccessMessage}
-                        anchorOrigin={{ vertical: "top", horizontal: "center" }} // Center horizontally, top aligned vertically
-                        sx={{
-                            position: "fixed", // Fixed position to ensure it's placed correctly
-                            top: "50%", // Center vertically
-                            left: "50%", // Center horizontally
-                            transform: "translate(-50%, -50%)", // Adjust to truly center the Snackbar
-                        }}
-                    >
-                        <Alert
-                            onClose={handleCloseSuccessMessage}
-                            severity="success"
-                            sx={{
-                                fontSize: "1.5rem", // Increase font size
-                                padding: "16px", // Add extra padding
-                                minWidth: "400px", // Adjust width for the Snackbar
-                                textAlign: "center", // Center the text
-                            }}
-                        >
-                            Appointment successfully booked!
-                        </Alert>
-                    </Snackbar>
+                    <ToastContainer
+                        position="top-center"
+                        autoClose={5000}
+                        hideProgressBar
+                        newestOnTop
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
                 </Box>
             </Card>
         </>
