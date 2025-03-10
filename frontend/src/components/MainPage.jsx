@@ -6,7 +6,7 @@ function MainPage() {
 		<Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
 			{/* Header Section */}
 			<Box sx={{ textAlign: "center", mb: 4}}>
-				<Typography variant = "h4" color = 'secondary'> Voted Best of the Best 3 Years in a Row! </Typography>
+				<Typography variant = "h4" color = 'secondary'> Voted Best of the Best 2 Years in a Row! </Typography>
 				<Typography variant="h2" sx={{ mb: 2 }}>
 					Welcome to reTreat Salon & Spa!
 					<Box

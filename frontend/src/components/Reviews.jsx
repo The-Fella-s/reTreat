@@ -87,14 +87,14 @@ const Reviews = () => {
   const visibleReviews = reviews.slice(currentIndex, currentIndex + 3);
 
   return (
-    <div style={{ padding: '20px', maxWidth: '2000px', margin: '0 auto' }}>
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       <Typography variant="h4" gutterBottom align="center" sx={{ fontFamily: "Special Elite" }}>
         Reviews
       </Typography>
       <Grid container spacing={2}>
         {visibleReviews.map((review, idx) => (
           <Grid item xs={12} sm={4} key={idx}>
-            <Card sx={{ minHeight: '225px', position: 'relative' }}>
+            <Card sx={{ minHeight: '250px', position: 'relative' }}>
               <CardContent>
                 <Box display="flex" alignItems="center">
                   <Avatar src={review.profile_photo_url} style={{ marginRight: '10px' }} />
