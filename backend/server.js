@@ -1,5 +1,5 @@
 const express = require('express');
-const path = require('path');
+const path = require('path'); 
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -26,6 +26,7 @@ app.options('*', cors(corsOptions)); // Allow preflight requests
 app.use(express.json()); // Middleware to parse JSON
 connectDB(); // Connect to the database
 
+
 // Import and Register Routes
 const userRoutes = require('./routes/userRoutes');
 const themeRoutes = require('./routes/themeRoutes');
@@ -36,7 +37,6 @@ const paymentRoutes = require('./routes/paymentsRoutes');
 const instagramRoutes = require('./routes/instagramRoutes');
 const googleRoutes = require('./routes/googleRoutes');
 const statisticsRoutes = require("./routes/statisticsRoutes");
-const customerRoutes = require('./routes/customerRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
@@ -47,9 +47,6 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/instagram', instagramRoutes);
 app.use('/api/places', googleRoutes);
 app.use("/api/statistics", statisticsRoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/statistics', statisticsRoutes);
-
 
 // Initialize passport for Facebook API
 app.use(passport.initialize());
