@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const multer = require('multer');
-const User = require('../models/user');
+const User = require('../models/User');
 const { protect, selfOnly } = require('../middleware/authMiddleware');
 
 // Generate JWT Token
@@ -73,12 +73,14 @@ router.post('/register', async (req, res) => {
       name,
       phone,
       role: role || 'user',
+      status: "New Registered User",
     });
 
     await newUser.save();
     console.log('REGISTER newUser:', newUser);
 
     const token = generateToken(newUser._id, newUser.role);
+
     res.status(201).json({
       message: `New ${role || 'user'} registered successfully!`,
       token,
@@ -89,6 +91,7 @@ router.post('/register', async (req, res) => {
         phone: newUser.phone,
         role: newUser.role,
         profilePicture: newUser.profilePicture || '',
+        status: newUsers.status,
       },
     });
   } catch (error) {
