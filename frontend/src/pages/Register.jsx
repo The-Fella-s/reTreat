@@ -49,6 +49,7 @@ const Register = () => {
 
             if (response.status === 201) {
                 toast.success("Registration successful!");
+                updateUniqueSignups();
                 setTimeout(() => {
                     navigate("/login");
                 }, 2000);
@@ -57,6 +58,14 @@ const Register = () => {
             console.error("Error during registration:", error);
             const errorMessage = error.response?.data?.message || "Something went wrong!";
             toast.error(errorMessage);
+        }
+    };
+
+    const updateUniqueSignups = async() => {
+        try{
+            await axios.post("http://localhost:5000/api/update-signups");
+        } catch (error) {
+            console.error("Error updating signup statistics:", error);
         }
     };
 

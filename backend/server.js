@@ -35,7 +35,8 @@ const scheduleRoutes = require('./routes/scheduleRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const paymentRoutes = require('./routes/paymentsRoutes');
 const instagramRoutes = require('./routes/instagramRoutes');
-const googleRoutes = require('./routes/googleRoutes'); 
+const googleRoutes = require('./routes/googleRoutes');
+const statisticsRoutes = require("./routes/statisticsRoutes");
 
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
@@ -44,7 +45,8 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/instagram', instagramRoutes);
-app.use('/api/places', googleRoutes); 
+app.use('/api/places', googleRoutes);
+app.use("/api/statistics", statisticsRoutes);
 
 // Initialize passport for Facebook API
 app.use(passport.initialize());
