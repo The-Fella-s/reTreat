@@ -5,6 +5,8 @@ import HomeIcon from "@mui/icons-material/Home";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { useState } from "react";
 import {useNavigate} from "react-router-dom";
+import React from "react";
+
 
 const PaymentInformation = () => {
     const navigate = useNavigate(); // Initialize navigate
@@ -510,6 +512,7 @@ const PaymentInformation = () => {
                         <Alert
                             onClose={handleCloseSuccessMessage}
                             severity="success"
+                            role="alert"
                             sx={{
                                 fontSize: "1.5rem", // Increase font size
                                 padding: "16px", // Add extra padding
