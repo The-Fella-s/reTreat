@@ -1,4 +1,3 @@
-// tests/customerRoutes.test.js
 process.env.SQUARE_ACCESS_TOKEN = 'fake-token';
 
 const request = require('supertest');
@@ -31,12 +30,7 @@ jest.mock('square', () => {
     };
 });
 
-// Override the authentication middleware to bypass auth for testing
-jest.mock('../../middleware/authMiddleware', () => ({
-    apiOnly: (req, res, next) => next(),
-}));
-
-// Explicitly mock the User model so its methods are Jest mock functions
+// Mock the User model so its methods are Jest mock functions
 jest.mock('../../models/User', () => {
     return {
         findOne: jest.fn(),
@@ -44,7 +38,7 @@ jest.mock('../../models/User', () => {
 });
 const User = require('../../models/User');
 
-// Now import the router that you want to test
+// Test the Customer routes
 const router = require('../../routes/customerRoutes');
 
 describe('Square Routes', () => {
@@ -60,14 +54,18 @@ describe('Square Routes', () => {
 
     describe('POST /create', () => {
         it('returns 400 if email body parameter is missing', async () => {
+            // Expect 400 status when the email body parameter is missing
             const res = await request(app).post('/create');
             expect(res.status).toBe(400);
             expect(res.body.error).toBe('Email body parameter is required');
         });
 
         it('returns 404 if user not found in database', async () => {
+            // Mock the user not being found in the database
             User.findOne.mockResolvedValue(null);
             const res = await request(app).post('/create').send({ email: 'test@example.com' });
+
+            // Expect 404 status when user is not found in the database
             expect(res.status).toBe(404);
             expect(res.body.error).toBe('User not found in database');
         });
@@ -85,32 +83,10 @@ describe('Square Routes', () => {
             const createdCustomer = { customer: { id: 'sq1011' } };
             mockSquareCustomers.create.mockResolvedValue(createdCustomer);
 
+            // Expect 201 status when a Square customer is created if none exists for the user
             const res = await request(app)
                 .post('/create')
-                .send({ email: 'test@example.com' });  // Ensure the email is sent in the body
-            expect(mockSquareCustomers.create).toHaveBeenCalled();
-            expect(fakeUser.squareId).toBe('sq1011');
-            expect(fakeUser.save).toHaveBeenCalled();
-            expect(res.status).toBe(201);
-            expect(res.body.message).toBe('User Square ID created');
-        });
-
-        it('creates a new Square customer if none exists and updates the user', async () => {
-            const fakeUser = {
-                email: 'test@example.com',
-                name: 'John Doe',
-                phone: '1234567890',
-                squareId: null,
-                save: jest.fn().mockResolvedValue(true),
-            };
-            User.findOne.mockResolvedValue(fakeUser);
-            mockSquareCustomers.search.mockResolvedValue({ customers: [] });
-            const createdCustomer = { customer: { id: 'sq1011' } };
-            mockSquareCustomers.create.mockResolvedValue(createdCustomer);
-
-            const res = await request(app)
-                .post('/create')
-                .send({ email: 'test@example.com' });  // Ensure the email is sent in the body
+                .send({ email: 'test@example.com' });
             expect(mockSquareCustomers.create).toHaveBeenCalled();
             expect(fakeUser.squareId).toBe('sq1011');
             expect(fakeUser.save).toHaveBeenCalled();
@@ -122,17 +98,21 @@ describe('Square Routes', () => {
 
     describe('DELETE /delete', () => {
         it('returns 400 if email body parameter is missing', async () => {
+            // Expect 400 status when the email body parameter is missing
             const res = await request(app).delete('/delete');
+
             expect(res.status).toBe(400);
             expect(res.body.error).toBe('Email body parameter is required');
         });
 
         it('returns 404 if user not found in database on delete', async () => {
-            User.findOne.mockResolvedValue(null);  // Mock user not found
+            // Mock the user not being found in the database
+            User.findOne.mockResolvedValue(null);
             const res = await request(app)
                 .delete('/delete')
-                .send({ email: 'test@example.com' }); // Send email in request body
+                .send({ email: 'test@example.com' });
 
+            // Expect 404 status when the user is not found in the database
             expect(res.status).toBe(404);
             expect(res.body.error).toBe('User not found in database');
         });
@@ -145,9 +125,9 @@ describe('Square Routes', () => {
 
             const res = await request(app)
                 .delete('/delete')
-                .send({ email: 'test@example.com' }); // Send email in request body
+                .send({ email: 'test@example.com' });
 
-            // Ensure this is called with the correct parameter
+            // Expect 200 status when customer is deleted successfully
             expect(mockSquareCustomers.delete).toHaveBeenCalledWith({ customerId: 'sq1213' });
             expect(res.status).toBe(200);
             expect(res.body.message).toBe('Customer deleted successfully');
@@ -158,16 +138,19 @@ describe('Square Routes', () => {
 
     describe('PUT /update', () => {
         it('returns 400 if email body parameter is missing', async () => {
+            // Expect 400 status when the email body parameter is missing
             const res = await request(app).put('/update');
             expect(res.status).toBe(400);
             expect(res.body.error).toBe('Email body parameter is required');
         });
 
         it('returns 404 if user is not found in database', async () => {
+            // Mock the user not being found in the database
             User.findOne.mockResolvedValue(null);
             const res = await request(app)
                 .put('/update')
                 .send({ email: 'test@example.com', name: 'Jane Doe', phone: '0987654321' });
+            // Expect 404 status when user is not found in the database
             expect(res.status).toBe(404);
             expect(res.body.error).toBe('User not found in database');
         });
@@ -187,7 +170,7 @@ describe('Square Routes', () => {
                 .put('/update')
                 .send({ email: 'test@example.com', name: 'Jane Doe', phone: '5555555555' });
 
-            // Update the user's name and phone correctly
+            // Expect the user's information to be updated
             expect(fakeUser.name).toBe('Jane Doe');
             expect(fakeUser.phone).toBe('5555555555');
             expect(fakeUser.save).toHaveBeenCalled();
@@ -210,6 +193,7 @@ describe('Square Routes', () => {
                 .put('/update')
                 .send({ email: 'test@example.com', name: 'Jane Doe', phone: '5555555555' });
 
+            // Expect the Square API not to be called if the user has no squareId
             expect(mockSquareCustomers.update).not.toHaveBeenCalled();
             expect(fakeUser.name).toBe('Jane Doe');
             expect(fakeUser.phone).toBe('5555555555');
@@ -226,10 +210,11 @@ describe('Square Routes', () => {
             mockSquareCustomers.list.mockResolvedValue(fakeListResponse);
 
             const res = await request(app).get('/list');
+            // Expect the Square customers list API to be called
             expect(mockSquareCustomers.list).toHaveBeenCalledWith({ count: true });
             expect(res.status).toBe(200);
 
-            // Adjust the comparison to match the structure of the response
+            // Compare the response structure with the expected data
             const responseData = JSON.parse(res.text);
             expect(responseData).toEqual(fakeListResponse);
         });
@@ -237,12 +222,14 @@ describe('Square Routes', () => {
 
     describe('GET /search', () => {
         it('returns 400 if email body parameter is missing', async () => {
+            // Expect 400 status when the email body parameter is missing
             const res = await request(app).get('/search');
             expect(res.status).toBe(400);
             expect(res.body.error).toBe('Email body parameter is required');
         });
 
         it('returns 404 if user not found in database', async () => {
+            // Mock the user not being found in the database
             User.findOne.mockResolvedValue(null);
             const res = await request(app).get('/search').send({ email: 'test@example.com' });
             expect(res.status).toBe(404);
@@ -253,6 +240,7 @@ describe('Square Routes', () => {
             const fakeUser = { email: 'test@example.com', squareId: 'sq123' };
             User.findOne.mockResolvedValue(fakeUser);
             const res = await request(app).get('/search').send({ email: 'test@example.com' });
+            // Expect squareId to be returned from the database
             expect(res.status).toBe(200);
             expect(res.body.squareId).toBe('sq123');
             expect(res.body.source).toBe('Database');
@@ -265,12 +253,13 @@ describe('Square Routes', () => {
             mockSquareCustomers.search.mockResolvedValue({ customers: fakeCustomers });
 
             const res = await request(app).get('/search').send({ email: 'test@example.com' });
+            // Expect Square API search to be called if user has no squareId
             expect(mockSquareCustomers.search).toHaveBeenCalledWith({
                 count: true,
                 query: { filter: { emailAddress: { exact: 'test@example.com' } } },
             });
             expect(res.status).toBe(200);
-            // The response was sent as a JSON string, so parse it to compare
+            // Compare the response structure with the expected data
             const responseData = JSON.parse(res.text);
             expect(responseData).toEqual(fakeCustomers);
         });

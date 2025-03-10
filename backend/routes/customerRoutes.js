@@ -13,8 +13,10 @@ const client = new SquareClient({
     userAgentDetail: "sample_app_node_subscription",
 });
 
+// Route to create a new Square customer
 router.post('/create', async (req, res, next) => {
     try {
+        // Query for email
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email body parameter is required' });
 
@@ -55,6 +57,7 @@ router.post('/create', async (req, res, next) => {
             phoneNumber: user.phone || '',
         };
 
+        // Create the new customer in Square
         const createResponse = await client.customers.create(customerData);
 
         // Save the newly created Square ID in the database
@@ -63,6 +66,7 @@ router.post('/create', async (req, res, next) => {
         res.status(201).json({ message: "User Square ID created" });
 
     } catch (error) {
+        // Handle errors
         if (error.response && error.response.data) {
             return res.status(error.response.status).json({ error: error.response.data.error });
         }
@@ -70,14 +74,18 @@ router.post('/create', async (req, res, next) => {
     }
 });
 
+// Route to delete a Square customer
 router.delete('/delete', async (req, res, next) => {
     try {
+        // Query for email
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email body parameter is required' });
 
+        // Search the database for a user with the given email
         const user = await User.findOne({ email });
         if (!user) return res.status(404).json({ error: 'User not found in database' });
 
+        // Search for the customer in Square
         const searchCustomersResponse = await client.customers.search({
             query: {
                 filter: {
@@ -89,9 +97,10 @@ router.delete('/delete', async (req, res, next) => {
         const customers = searchCustomersResponse.customers;
         if (!customers || customers.length === 0) return res.status(404).json({ error: 'Customer not found' });
 
+        // Get the customer ID from Square
         const customerId = customers[0].id;
 
-        // Fix: Ensure the delete mock is called with the correct parameter
+        // Delete the customer from Square
         const response = await client.customers.delete({ customerId });
         res.status(200).json({
             message: 'Customer deleted successfully',
@@ -99,6 +108,7 @@ router.delete('/delete', async (req, res, next) => {
         });
 
     } catch (error) {
+        // Handle Square API error
         if (error instanceof SquareError) {
             const status = error.response?.status || 500;
             res.status(status).json({ error: error.message });
@@ -108,9 +118,10 @@ router.delete('/delete', async (req, res, next) => {
     }
 });
 
-
+// Route to update a Square customer
 router.put('/update', async (req, res, next) => {
     try {
+        // Query for required parameters
         const { email, name, phone } = req.body;
         if (!email) {
             return res.status(400).json({ error: 'Email body parameter is required' });
@@ -122,11 +133,11 @@ router.put('/update', async (req, res, next) => {
             return res.status(404).json({ error: 'User not found in database' });
         }
 
-        // Update local database fields
+        // Update local database fields if provided
         if (name) user.name = name;
         if (phone) user.phone = phone;
 
-        // If user has a Square ID, update the user information in Square as well
+        // If the user has a Square ID, update the user information in Square as well
         if (user.squareId) {
             const updateData = {};
             if (name) {
@@ -137,6 +148,7 @@ router.put('/update', async (req, res, next) => {
             if (phone) updateData.phoneNumber = phone;
 
             try {
+                // Update customer in Square
                 await client.customers.update({
                     customerId: user.squareId,
                     givenName: updateData.givenName,
@@ -149,6 +161,7 @@ router.put('/update', async (req, res, next) => {
             }
         }
 
+        // Save the updated user to the database
         await user.save();
         res.status(200).json({ message: 'User information updated successfully in the database and SquareAPI', user });
     } catch (error) {
@@ -156,18 +169,23 @@ router.put('/update', async (req, res, next) => {
     }
 });
 
+// Route to search for a customer
 router.get('/search', async (req, res, next) => {
     try {
+        // Query for email
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email body parameter is required' });
 
+        // Search the database for a user with the given email
         const user = await User.findOne({ email });
         if (!user) return res.status(404).json({ error: 'User not found in database' });
 
+        // If the user has a Square ID, return it from the database
         if (user.squareId) {
             return res.status(200).json({ squareId: user.squareId, source: "Database" });
         }
 
+        // If no Square ID, search for the customer in Square
         const response = await client.customers.search({
             count: true,
             query: {
@@ -179,10 +197,12 @@ router.get('/search', async (req, res, next) => {
             },
         });
 
+        // Return the customer data
         const jsonResponse = JSON.stringify(response.customers, bigIntReplacer);
         res.set('Content-Type', 'application/json');
         res.status(200).send(jsonResponse);
     } catch (error) {
+        // Handle Square API error
         if (error instanceof SquareError) {
             const status = error.response?.status || 500;
             res.status(status).json({ error: error.message });
@@ -192,14 +212,17 @@ router.get('/search', async (req, res, next) => {
     }
 });
 
+// Route to list all customers
 router.get('/list', async (req, res, next) => {
     try {
+        // Get all customers from Square
         const response = await client.customers.list({ count: true });
         const jsonResponse = JSON.stringify({ data: response.data }, bigIntReplacer);
         res.set('Content-Type', 'application/json');
         res.status(200).send(jsonResponse);
     } catch (error) {
         console.error('Error:', error);  // Log the error for debugging
+        // Handle Square API error
         if (error instanceof SquareError) {
             const status = error.response?.status || 500;
             res.status(status).json({ error: error.message });
@@ -208,6 +231,5 @@ router.get('/list', async (req, res, next) => {
         }
     }
 });
-
 
 module.exports = router;
