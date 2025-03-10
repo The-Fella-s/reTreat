@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
     get: decrypt,
   },
 
+  // Profile picture fields
+  profilePicture: { type: String },
+  profilePictureHash: { type: String },
+
   // Appointments (For Users & Employees)
   appointments: [
     {
@@ -47,8 +51,5 @@ const userSchema = new mongoose.Schema({
   toObject: { getters: true }  // enable getters when converting to plain objects
 });
 
-// Check if the model already exists before defining it
-const User = mongoose.models.User || mongoose.model('User', userSchema);
-
-// Export the model
-module.exports = User;
+// Prevent model overwrite if model already exists
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);
