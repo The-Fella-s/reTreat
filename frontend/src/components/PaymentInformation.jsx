@@ -114,9 +114,12 @@ const PaymentInformation = () => {
         if (!expireMonth.match(/^0?[1-9]|1[0-2]$/)) validationErrors.expireMonth = "Invalid Month";
         if (!expireYear.match(/^0?[1-9]|[12][0-9]|3[01]$/)) validationErrors.expireYear = "Invalid Day";
         if (!cvv.match(/^\d{3}$/)) validationErrors.cvv = "CVV must be 3 digits";
+
+        
         
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
+            alert("Please check your card information. There are some errors in your payment details.");
             return;
         }
 
