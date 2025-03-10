@@ -6,6 +6,9 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { useState } from "react";
 import {useNavigate} from "react-router-dom";
 import React from "react";
+import { ToastContainer, toast } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css'; 
+
 
 
 const PaymentInformation = () => {
@@ -134,6 +137,8 @@ const PaymentInformation = () => {
 
         console.log("Additional Notes:");
         console.log(additionalNotes);
+
+        toast.success('Appointment successfully booked!');
 
         setTimeout(() => {
             navigate("/"); // Redirect to the home page
@@ -496,33 +501,17 @@ const PaymentInformation = () => {
                     >
                         Book Appointment
                     </Button>
-                    {/* Success Message */}
-                    <Snackbar
-                        open={successMessage}
-                        autoHideDuration={6000}
-                        onClose={handleCloseSuccessMessage}
-                        anchorOrigin={{ vertical: "top", horizontal: "center" }} // Center horizontally, top aligned vertically
-                        sx={{
-                            position: "fixed", // Fixed position to ensure it's placed correctly
-                            top: "50%", // Center vertically
-                            left: "50%", // Center horizontally
-                            transform: "translate(-50%, -50%)", // Adjust to truly center the Snackbar
-                        }}
-                    >
-                        <Alert
-                            onClose={handleCloseSuccessMessage}
-                            severity="success"
-                            role="alert"
-                            sx={{
-                                fontSize: "1.5rem", // Increase font size
-                                padding: "16px", // Add extra padding
-                                minWidth: "400px", // Adjust width for the Snackbar
-                                textAlign: "center", // Center the text
-                            }}
-                        >
-                            Appointment successfully booked!
-                        </Alert>
-                    </Snackbar>
+                    <ToastContainer
+                        position="top-center"
+                        autoClose={5000}
+                        hideProgressBar
+                        newestOnTop
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
                 </Box>
             </Card>
         </>
