@@ -140,8 +140,8 @@ router.post('/login', async (req, res) => {
 router.get('/me', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
-      .select('-password')
-      .populate('appointments');
+        .select('-password')
+        .populate('appointments');
     console.log('GET /me user:', user);
 
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -153,80 +153,80 @@ router.get('/me', protect, async (req, res) => {
 });
 
 router.put(
-  '/update-profile/:id',
-  protect,
-  selfOnly,
-  upload.single('profilePicture'),
-  multerErrorHandler,
-  async (req, res) => {
-    console.log('UPDATE-PROFILE route hit for userID:', req.params.id);
-    const { name, phone, email } = req.body;
+    '/update-profile/:id',
+    protect,
+    selfOnly,
+    upload.single('profilePicture'),
+    multerErrorHandler,
+    async (req, res) => {
+      console.log('UPDATE-PROFILE route hit for userID:', req.params.id);
+      const { name, phone, email } = req.body;
 
-    try {
-      const user = await User.findById(req.params.id);
-      console.log('UPDATE-PROFILE: user found:', user);
+      try {
+        const user = await User.findById(req.params.id);
+        console.log('UPDATE-PROFILE: user found:', user);
 
-      if (!user) return res.status(404).json({ message: 'User not found' });
+        if (!user) return res.status(404).json({ message: 'User not found' });
 
-      // Update text fields
-      user.name = name || user.name;
-      user.phone = phone || user.phone;
-      user.email = email || user.email;
+        // Update text fields
+        user.name = name || user.name;
+        user.phone = phone || user.phone;
+        user.email = email || user.email;
 
-      if (req.file) {
-        // Build the new file's full path
-        const newFilePath = path.join(__dirname, '..', 'uploads', req.file.filename);
-        // Compute MD5 hash of the new file
-        const fileBuffer = fs.readFileSync(newFilePath);
-        const newFileHash = crypto.createHash('md5').update(fileBuffer).digest('hex');
+        if (req.file) {
+          // Build the new file's full path
+          const newFilePath = path.join(__dirname, '..', 'uploads', req.file.filename);
+          // Compute MD5 hash of the new file
+          const fileBuffer = fs.readFileSync(newFilePath);
+          const newFileHash = crypto.createHash('md5').update(fileBuffer).digest('hex');
 
-        console.log('UPDATE-PROFILE: new file hash:', newFileHash);
+          console.log('UPDATE-PROFILE: new file hash:', newFileHash);
 
-        if (user.profilePicture) {
-          // There's an existing file
-          if (user.profilePictureHash && user.profilePictureHash === newFileHash) {
-            // Duplicate file: remove the newly uploaded file
-            console.log('UPDATE-PROFILE: new file is a duplicate; removing it');
-            fs.unlinkSync(newFilePath);
-          } else {
-            // Different file: remove old file if it exists
-            const oldFilePath = path.join(__dirname, '..', user.profilePicture);
-            console.log('UPDATE-PROFILE: removing old file if exists:', oldFilePath);
-            if (fs.existsSync(oldFilePath)) {
-              fs.unlinkSync(oldFilePath);
+          if (user.profilePicture) {
+            // There's an existing file
+            if (user.profilePictureHash && user.profilePictureHash === newFileHash) {
+              // Duplicate file: remove the newly uploaded file
+              console.log('UPDATE-PROFILE: new file is a duplicate; removing it');
+              fs.unlinkSync(newFilePath);
+            } else {
+              // Different file: remove old file if it exists
+              const oldFilePath = path.join(__dirname, '..', user.profilePicture);
+              console.log('UPDATE-PROFILE: removing old file if exists:', oldFilePath);
+              if (fs.existsSync(oldFilePath)) {
+                fs.unlinkSync(oldFilePath);
+              }
+              // Update the user record
+              user.profilePicture = `/uploads/${req.file.filename}`;
+              user.profilePictureHash = newFileHash;
+              console.log('UPDATE-PROFILE: set new file path & hash');
             }
-            // Update the user record
+          } else {
+            // No existing profile picture
+            console.log('UPDATE-PROFILE: user has no existing profile picture; setting new one');
             user.profilePicture = `/uploads/${req.file.filename}`;
             user.profilePictureHash = newFileHash;
-            console.log('UPDATE-PROFILE: set new file path & hash');
           }
-        } else {
-          // No existing profile picture
-          console.log('UPDATE-PROFILE: user has no existing profile picture; setting new one');
-          user.profilePicture = `/uploads/${req.file.filename}`;
-          user.profilePictureHash = newFileHash;
         }
+
+        console.log('UPDATE-PROFILE: BEFORE save:', user);
+        const updatedUser = await user.save();
+        console.log('UPDATE-PROFILE: AFTER save:', updatedUser);
+
+        res.status(200).json({
+          message: 'Profile updated successfully',
+          user: {
+            id: updatedUser._id,
+            email: updatedUser.email,
+            name: updatedUser.name,
+            phone: updatedUser.phone,
+            profilePicture: updatedUser.profilePicture || '',
+          },
+        });
+      } catch (error) {
+        console.error('❌ Error updating profile:', error);
+        res.status(500).json({ message: 'Server error' });
       }
-
-      console.log('UPDATE-PROFILE: BEFORE save:', user);
-      const updatedUser = await user.save();
-      console.log('UPDATE-PROFILE: AFTER save:', updatedUser);
-
-      res.status(200).json({
-        message: 'Profile updated successfully',
-        user: {
-          id: updatedUser._id,
-          email: updatedUser.email,
-          name: updatedUser.name,
-          phone: updatedUser.phone,
-          profilePicture: updatedUser.profilePicture || '',
-        },
-      });
-    } catch (error) {
-      console.error('❌ Error updating profile:', error);
-      res.status(500).json({ message: 'Server error' });
     }
-  }
 );
 
 module.exports = router;
