@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { encrypt, decrypt }  = require('../utilities/encryption')
 
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
@@ -7,10 +8,12 @@ const userSchema = new mongoose.Schema({
   phone: { type: String },
   role: { type: String, enum: ['user', 'employee', 'admin'], default: 'user' },
   createdAt: { type: Date, default: Date.now },
-
-  // Profile picture fields
-  profilePicture: { type: String },
-  profilePictureHash: { type: String },
+  squareId: {
+    type: String,
+    unique: true,
+    set: encrypt,
+    get: decrypt,
+  },
 
   // Appointments (For Users & Employees)
   appointments: [
@@ -39,7 +42,13 @@ const userSchema = new mongoose.Schema({
     canEditUsers: { type: Boolean, default: true },
     canViewReports: { type: Boolean, default: true },
   },
+}, {
+  toJSON: { getters: true },   // enable getters when converting to JSON
+  toObject: { getters: true }  // enable getters when converting to plain objects
 });
 
-// Prevent model overwrite if model already exists
-module.exports = mongoose.models.User || mongoose.model('User', userSchema);
+// Check if the model already exists before defining it
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+// Export the model
+module.exports = User;
