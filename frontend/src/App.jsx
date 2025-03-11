@@ -1,9 +1,9 @@
-import EmployeeSchedule from './pages/EmployeeSchedule.jsx';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import './App.css';
 import Footer from './components/Footer';
 import Contact from './components/ContactUs';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import FAQ from './pages/FAQ.jsx';
 import Reviews from './components/Reviews';
 import SocialMedia from './components/SocialMedia';
@@ -12,7 +12,7 @@ import Login from './pages/Login';
 import NavBar from './components/NavBar';
 import Register from './pages/Register.jsx';
 import MeetTheTeam from './pages/MeetTheTeam.jsx';
-import BookAppointment from "./pages/BookAppointment.jsx";
+import BookAppointment from './pages/BookAppointment.jsx';
 import Profile from './components/Profile.jsx';
 import Menu from './pages/Menu.jsx';
 import { ToastContainer } from 'react-toastify';
@@ -22,19 +22,30 @@ import { ThemeProvider } from '@mui/material/styles';
 import defaultTheme from './components/Theme.jsx';
 import Main from './components/MainPage.jsx';
 import AdminDashboard from './pages/admin-dashboard/AdminDashboard.jsx';
-import { createCustomTheme } from "./utilities/themeUtils.js";
-import axios from "axios";
-import { Box } from "@mui/material";
-import AuthProvider from "./context/AuthContext.jsx";
-import AboutUs from "./pages/AboutUs.jsx";
+import { createCustomTheme } from './utilities/themeUtils.js';
+import { Box } from '@mui/material';
+import AuthProvider from './context/AuthContext.jsx';
+import AboutUs from './pages/AboutUs.jsx';
+import EmployeeSchedule from './pages/EmployeeSchedule.jsx';
+
+function HomePageTracker() {
+  const location = useLocation();
+  const hasTrackedVisit = useRef(false);
+
+  useEffect(() => {
+    if (location.pathname === '/' && !hasTrackedVisit.current) {
+      hasTrackedVisit.current = true;
+      axios.post('http://localhost:5000/api/website-visits/track')
+        .catch(error => console.error("Error tracking visits:", error));
+    }
+  }, [location]);
+
+  return null; // This component does not render anything
+}
 
 function App() {
-
-  // Use null as the initial state to indicate that the theme hasn't been loaded yet
   const [theme, setTheme] = useState(defaultTheme);
 
-  // Pulls the active theme from the endpoint
-  // If no active theme or backend, uses built in theme file
   useEffect(() => {
     axios.get('http://localhost:5000/api/themes/active')
       .then(response => {
@@ -42,15 +53,14 @@ function App() {
           setTheme(createCustomTheme(response.data));
         }
       })
-      .catch(error => {
-        console.error("Error fetching theme:", error);
-      });
+      .catch(error => console.error("Error fetching theme:", error));
   }, []);
 
   return (
     <Router>
       <AuthProvider>
         <ThemeProvider theme={theme}>
+          <HomePageTracker /> {/* This only tracks visits when on the home page */}
           <Box className="app-container">
             <NavBar />
             <Box className="main-content">
