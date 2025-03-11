@@ -135,7 +135,6 @@ router.delete("/delete", async (req, res) => {
 
     // Check if the squareId is valid
     const customerId = user.squareId;
-    console.log(customerId);
     if (!customerId) return res.status(404).json({ error: 'User does not have a Square account' });
 
     // Delete the first card
