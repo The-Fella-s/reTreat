@@ -14,6 +14,12 @@ const userSchema = new mongoose.Schema({
     set: encrypt,
     get: decrypt,
   },
+  cardId: {
+    type: String,
+    unique: true,
+    set: encrypt,
+    get: decrypt,
+  },
 
   // Profile picture fields
   profilePicture: { type: String },
