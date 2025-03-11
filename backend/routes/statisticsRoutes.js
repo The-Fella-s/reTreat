@@ -5,7 +5,7 @@ const Statistics = require("../models/Statistics");
 
 router.get("./fetch", async (req, res) => {
     try {
-        await fetchStatistics();
+        const users = await fetchStatistics();
         res.status(200).json({ message: "Statistics fetched" });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -14,13 +14,14 @@ router.get("./fetch", async (req, res) => {
 
 async function fetchStatistics() {
     try {
-        // Fetch statistics
+        const totalUsers = await User.countDocuments(); 
+        return totalUsers;
     } catch (error) {
         console.error("Error fetching statistics:", error);
         throw error;
     }
+     
 
-    const totalUsers = await User.countDocuments(); 
 }   
 
 // Function to get the current day of the week
