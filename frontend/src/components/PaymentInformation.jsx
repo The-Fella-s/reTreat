@@ -1,20 +1,16 @@
-import {Box, Button, Card, Checkbox, FormControlLabel, TextField, Typography, MenuItem, Select, InputLabel, FormControl, Snackbar, Alert} from "@mui/material";
+import {Box, Button, Card, TextField, Typography, MenuItem, Select, InputLabel, FormControl} from "@mui/material";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import HomeIcon from "@mui/icons-material/Home";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { useState } from "react";
 import {useNavigate} from "react-router-dom";
-import React from "react";
-import { ToastContainer, toast } from 'react-toastify'; 
-import 'react-toastify/dist/ReactToastify.css'; 
-
-
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import extractErrorMessage from "../utilities/error.js";
 
 const PaymentInformation = () => {
     const navigate = useNavigate(); // Initialize navigate
-
-    const [isShippingSameAsBilling, setIsShippingSameAsBilling] = useState(false);
 
     // User Information states
     const [firstName, setFirstName] = useState("");
@@ -29,8 +25,6 @@ const PaymentInformation = () => {
     const [expireYear, setExpireYear] = useState("");
     const [cvv, setCvv] = useState("");
     const [errors, setErrors] = useState({});
-    const [successMessage, setSuccessMessage] = useState(false);
-
 
     // Billing Information states
     const [addressLine1, setAddressLine1] = useState("");
@@ -39,14 +33,6 @@ const PaymentInformation = () => {
     const [state, setState] = useState("");
     const [zipCode, setZipCode] = useState("");
     const [country, setCountry] = useState("");
-
-    // Shipping Information states
-    const [shippingAddressLine1, setShippingAddressLine1] = useState("");
-    const [shippingAddressLine2, setShippingAddressLine2] = useState("");
-    const [shippingCity, setShippingCity] = useState("");
-    const [shippingState, setShippingState] = useState("");
-    const [shippingZipCode, setShippingZipCode] = useState("");
-    const [shippingCountry, setShippingCountry] = useState("");
 
     // List of states
     const states = [
@@ -58,11 +44,6 @@ const PaymentInformation = () => {
 
     // Additional Notes states
     const [additionalNotes, setAdditionalNotes] = useState("");
-
-    // Handler for checkbox change
-    const handleCheckboxChange = (event) => {
-        setIsShippingSameAsBilling(event.target.checked);
-    };
 
     const [showCvv, setShowCvv] = useState(false);
 
@@ -77,37 +58,7 @@ const PaymentInformation = () => {
     };
 
     // Handler for "Book Appointment" button click
-    const handleBookAppointment = () => {
-        console.log("User Information:");
-        console.log(`First Name: ${firstName}`);
-        console.log(`Last Name: ${lastName}`);
-        console.log(`Phone Number: ${phoneNumber}`);
-        console.log(`Email: ${email}`);
-
-        console.log("Payment Information:");
-        console.log(`Cardholder Name: ${cardholderName}`);
-        console.log(`Card Number: ${cardNumber}`);
-        console.log(`Expire Date: ${expireMonth}/${expireYear}`);
-        console.log(`CVV: ${cvv}`);
-
-        console.log("Billing Information:");
-        console.log(`Address Line 1: ${addressLine1}`);
-        console.log(`Address Line 2: ${addressLine2}`);
-        console.log(`City: ${city}`);
-        console.log(`State: ${state}`);
-        console.log(`ZIP Code: ${zipCode}`);
-        console.log(`Country: ${country}`);
-
-        if (!isShippingSameAsBilling) {
-            console.log("Shipping Information:");
-            console.log(`Shipping Address Line 1: ${shippingAddressLine1}`);
-            console.log(`Shipping Address Line 2: ${shippingAddressLine2}`);
-            console.log(`Shipping City: ${shippingCity}`);
-            console.log(`Shipping State: ${shippingState}`);
-            console.log(`Shipping ZIP Code: ${shippingZipCode}`);
-            console.log(`Shipping Country: ${shippingCountry}`);
-        }
-
+    const handleBookAppointment = async () => {
         let validationErrors = {};
 
         if (!firstName) validationErrors.firstName = "First Name is required";
@@ -120,33 +71,78 @@ const PaymentInformation = () => {
         if (!expireYear.match(/^0?[1-9]|[12][0-9]|3[01]$/)) validationErrors.expireYear = "Invalid Day";
         if (!cvv.match(/^\d{3}$/)) validationErrors.cvv = "CVV must be 3 digits";
 
-        
-        
+        // Billing Information validations
+        if (!addressLine1) validationErrors.addressLine1 = "Address Line 1 is required";
+        if (!city) validationErrors.city = "City is required";
+        if (!state) validationErrors.state = "State is required";
+        if (!zipCode) validationErrors.zipCode = "Zip Code is required";
+        if (!country) validationErrors.country = "Country is required";
+
+        // If there are any validation errors, update the state and exit early
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
-            alert("Please check your card information. There are some errors in your payment details.");
+            return;
+        }
+
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
             return;
         }
 
         setErrors({}); // Clear errors if valid
 
-        // Show success message and clear form
-        setSuccessMessage(true);
+        try {
+            const cardData = {
+                email: email,
+                cardholderName: cardholderName,
+                cardNumber: cardNumber,
+                expMonth: expireMonth,
+                expYear: expireYear,
+                cvv: cvv,
+                addressLine1: addressLine1,
+                addressLine2: addressLine2,
+                administrativeDistrictLevel1: state,
+                country: country,
+                firstName: firstName,
+                lastName: lastName,
+                locality: city,
+                postalCode: zipCode,
+            };
 
-        console.log("Payment validated, processing...");
+            let cardId;
+            try {
+                const retrieveCard = await axios.get('http://localhost:5000/api/cards/retrieve', {
+                    params: { email }
+                });
+                if (retrieveCard.data.card.id) cardId = retrieveCard.data.card.id;
 
-        console.log("Additional Notes:");
-        console.log(additionalNotes);
+            } catch (error) {
+                if (error.response?.status === 404) {  // Corrected status check
+                    try {
+                        const response = await axios.post('http://localhost:5000/api/cards/create', cardData);
+                        if (response.data) {
+                            cardId = response.data.id;
+                        }
+                    } catch (createError) {
+                        const extracted = extractErrorMessage(createError);
+                        setErrors({ general: extracted });
+                        toast.error(extracted);
+                    }
+                }
+            }
 
-        toast.success('Appointment successfully booked!');
+            if (cardId != null) {
+                toast.success("Appointment successfully booked!");
+                setTimeout(() => {
+                    // navigate("/"); // Redirect after success
+                }, 1500);
+            }
 
-        setTimeout(() => {
-            navigate("/"); // Redirect to the home page
-        }, 1500);
-    };
-
-    const handleCloseSuccessMessage = () => {
-        setSuccessMessage(false);
+        } catch (error) {
+            const extracted = extractErrorMessage(error);
+            setErrors({ general: extracted });
+            toast.error(extracted);
+        }
     };
 
     return (
@@ -236,7 +232,7 @@ const PaymentInformation = () => {
                             variant="outlined"
                             value={cardholderName}
                             onChange={(e) => setCardholderName(e.target.value)}
-                            error={!!errors.cardholderName} // 
+                            error={!!errors.cardholderName} //
                             helperText={errors.cardholderName}
                         />
                         <TextField
@@ -252,63 +248,63 @@ const PaymentInformation = () => {
                                     setCardNumber(value);
                                 }
                             }}
-                            error={!!errors.cardNumber} 
+                            error={!!errors.cardNumber}
                             helperText={errors.cardNumber}
                         />
                         <Box gap={2} sx={{ display: "flex", flexDirection: "row" }}>
-                        <TextField
-                            fullWidth
-                            label="Expire Date (MM)"
-                            variant="outlined"
-                            placeholder="MM"
-                            type="text" // Change to text instead of number
-                            inputProps={{ maxLength: 2, pattern: "[0-9]*" }}
-                            value={expireMonth}
-                            onChange={(e) => {
-                                let value = e.target.value.replace(/\D/g, ""); 
-                                if (value.length > 2) return; 
-                                if (parseInt(value, 10) > 12) value = "12";
-                                setExpireMonth(value);
-                            }}
-                            error={!!errors.expireMonth}
-                            helperText={errors.expireMonth}
-                        />
+                            <TextField
+                                fullWidth
+                                label="Expire Date (MM)"
+                                variant="outlined"
+                                placeholder="MM"
+                                type="text" // Change to text instead of number
+                                inputProps={{ maxLength: 2, pattern: "[0-9]*" }}
+                                value={expireMonth}
+                                onChange={(e) => {
+                                    let value = e.target.value.replace(/\D/g, "");
+                                    if (value.length > 2) return;
+                                    if (parseInt(value, 10) > 12) value = "12";
+                                    setExpireMonth(value);
+                                }}
+                                error={!!errors.expireMonth}
+                                helperText={errors.expireMonth}
+                            />
 
-                        <TextField
-                            fullWidth
-                            label="Expire Date (YY)"
-                            variant="outlined"
-                            placeholder="YY"
-                            type="text"
-                            inputProps={{ maxLength: 2, pattern: "[0-9]*" }}
-                            value={expireYear}
-                            onChange={(e) => {
-                                let value = e.target.value.replace(/\D/g, ""); 
-                                if (value.length > 2) return; 
-                                setExpireYear(value);
-                            }}
-                            error={!!errors.expireYear}
-                            helperText={errors.expireYear}
-                        />
+                            <TextField
+                                fullWidth
+                                label="Expire Date (YY)"
+                                variant="outlined"
+                                placeholder="YY"
+                                type="text"
+                                inputProps={{ maxLength: 2, pattern: "[0-9]*" }}
+                                value={expireYear}
+                                onChange={(e) => {
+                                    let value = e.target.value.replace(/\D/g, "");
+                                    if (value.length > 2) return;
+                                    setExpireYear(value);
+                                }}
+                                error={!!errors.expireYear}
+                                helperText={errors.expireYear}
+                            />
                         </Box>
                         <TextField
-                        fullWidth
-                        label="CVV"
-                        variant="outlined"
-                        type={showCvv ? "text" : "password"} // Toggle between text and password
-                        inputProps={{ maxLength: 3 }}
-                        value={cvv}
-                        onChange={(e) => setCvv(e.target.value)}
-                        error={!!errors.cvv} 
-                        helperText={errors.cvv}
-                        InputProps={{
-                            endAdornment: (
-                                <Button onClick={handleToggleCvv} sx={{ cursor: "pointer" }}>
-                                    {showCvv ? "Hide" : "Show"}
-                                </Button>
-                            ),
-                        }}
-                    />
+                            fullWidth
+                            label="CVV"
+                            variant="outlined"
+                            type={showCvv ? "text" : "password"} // Toggle between text and password
+                            inputProps={{ maxLength: 3 }}
+                            value={cvv}
+                            onChange={(e) => setCvv(e.target.value)}
+                            error={!!errors.cvv}
+                            helperText={errors.cvv}
+                            InputProps={{
+                                endAdornment: (
+                                    <Button onClick={handleToggleCvv} sx={{ cursor: "pointer" }}>
+                                        {showCvv ? "Hide" : "Show"}
+                                    </Button>
+                                ),
+                            }}
+                        />
                     </Box>
                 </Box>
 
@@ -328,6 +324,9 @@ const PaymentInformation = () => {
                             variant="outlined"
                             value={addressLine1}
                             onChange={(e) => setAddressLine1(e.target.value)}
+                            error={!!errors.addressLine1}
+                            helperText={errors.addressLine1}
+                            required
                         />
                         <TextField
                             fullWidth
@@ -345,14 +344,16 @@ const PaymentInformation = () => {
                             variant="outlined"
                             value={city}
                             onChange={(e) => setCity(e.target.value)}
+                            error={!!errors.city}
+                            helperText={errors.city}
+                            required
                         />
-                   <FormControl fullWidth>
-                        <InputLabel>State</InputLabel>
+                        <FormControl fullWidth error={!!errors.state} required>
+                            <InputLabel>State</InputLabel>
                             <Select
                                 label="State"
                                 value={state}
                                 onChange={(e) => setState(e.target.value)}
-                                fullWidth
                             >
                                 {states.map((stateAbbr) => (
                                     <MenuItem key={stateAbbr} value={stateAbbr}>
@@ -360,6 +361,11 @@ const PaymentInformation = () => {
                                     </MenuItem>
                                 ))}
                             </Select>
+                            {errors.state && (
+                                <Typography variant="caption" color="error">
+                                    {errors.state}
+                                </Typography>
+                            )}
                         </FormControl>
                         <TextField
                             fullWidth
@@ -369,6 +375,9 @@ const PaymentInformation = () => {
                             inputProps={{ maxLength: 5 }}
                             value={zipCode}
                             onChange={(e) => setZipCode(e.target.value)}
+                            error={!!errors.zipCode}
+                            helperText={errors.zipCode}
+                            required
                         />
                     </Box>
                     <Box sx={{ marginTop: 2 }}>
@@ -378,93 +387,11 @@ const PaymentInformation = () => {
                             variant="outlined"
                             value={country}
                             onChange={(e) => setCountry(e.target.value)}
+                            error={!!errors.country}
+                            helperText={errors.country}
+                            required
                         />
                     </Box>
-                </Box>
-
-                {/* Shipping Information */}
-                <Box sx={{ marginTop: 4 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <LocalShippingIcon />
-                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                            Shipping Information
-                        </Typography>
-                        {/* Checkbox for "Same as Billing" */}
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={isShippingSameAsBilling}
-                                    onChange={handleCheckboxChange}
-                                    color="primary"
-                                />
-                            }
-                            label="Same as Billing Information"
-                        />
-                    </Box>
-
-                    {/* Conditionally render Shipping Information fields */}
-                    {!isShippingSameAsBilling && (
-                        <>
-                            <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2, marginTop: 2 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Address Line 1"
-                                    variant="outlined"
-                                    value={shippingAddressLine1}
-                                    onChange={(e) => setShippingAddressLine1(e.target.value)}
-                                />
-                                <TextField
-                                    fullWidth
-                                    label="Address Line 2"
-                                    variant="outlined"
-                                    value={shippingAddressLine2}
-                                    onChange={(e) => setShippingAddressLine2(e.target.value)}
-                                />
-                            </Box>
-                            <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2, marginTop: 2 }}>
-                                <TextField
-                                    fullWidth
-                                    label="City"
-                                    variant="outlined"
-                                    value={shippingCity}
-                                    onChange={(e) => setShippingCity(e.target.value)}
-                                />
-                                 <FormControl fullWidth>
-                                    <InputLabel>State</InputLabel>
-                                    <Select
-                                        label="State"
-                                        value={state}
-                                        onChange={(e) => setState(e.target.value)}
-                                        fullWidth
-                                    >
-                                        {states.map((stateAbbr) => (
-                                            <MenuItem key={stateAbbr} value={stateAbbr}>
-                                                {stateAbbr}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                                <TextField
-                                    fullWidth
-                                    label="ZIP Code"
-                                    variant="outlined"
-                                    type="number"
-                                    inputProps={{ maxLength: 5 }}
-                                    value={shippingZipCode}
-                                    onChange={(e) => setShippingZipCode(e.target.value)}
-                                />
-                            </Box>
-                            <Box sx={{ marginTop: 2 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Country"
-                                    variant="outlined"
-                                    value={shippingCountry}
-                                    onChange={(e) => setShippingCountry(e.target.value)}
-                                />
-                            </Box>
-                        </>
-                    )}
                 </Box>
 
                 {/* Additional Notes */}
