@@ -91,7 +91,7 @@ router.post('/register', async (req, res) => {
         phone: newUser.phone,
         role: newUser.role,
         profilePicture: newUser.profilePicture || '',
-        status: newUsers.status,
+        status: newUser.status,
       },
     });
   } catch (error) {
