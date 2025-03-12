@@ -40,6 +40,7 @@ const Register = () => {
         }
 
         try {
+            // Register user
             const response = await axios.post("http://localhost:5000/api/users/register", {
                 email,
                 password,
@@ -49,6 +50,10 @@ const Register = () => {
 
             if (response.status === 201) {
                 toast.success("Registration successful!");
+
+                // Update signup statistics after successful registration
+                await updateUniqueSignups();
+
                 setTimeout(() => {
                     navigate("/login");
                 }, 2000);
@@ -57,6 +62,16 @@ const Register = () => {
             console.error("Error during registration:", error);
             const errorMessage = error.response?.data?.message || "Something went wrong!";
             toast.error(errorMessage);
+        }
+    };
+
+    // Track signup in statistics
+    const updateUniqueSignups = async () => {
+        try {
+            await axios.post("http://localhost:5000/api/statistics/update-signups");
+            console.log("Signup count updated!");
+        } catch (error) {
+            console.error("Error updating signup statistics:", error);
         }
     };
 
