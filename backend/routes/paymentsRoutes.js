@@ -1,63 +1,79 @@
-const express = require('express');
-const { SquareClient, SquareEnvironment } = require("square");
-const mongoose = require('mongoose');
-const Payment = require('../models/Payments'); // Import MongoDB model
-require('dotenv').config();
-
+const express = require("express");
 const router = express.Router();
+const { SquareClient, SquareEnvironment } = require("square");
+require("dotenv").config();
+const { bigIntReplacer } = require("../utilities/helpers/replacer"); // Import BigInt handler
 
 // Initialize Square Client
 const client = new SquareClient({
-    token: process.env.SQUARE_ACCESS_TOKEN,
-    environment: SquareEnvironment.Sandbox, 
+    token: process.env.SQUARE_ACCESS_TOKEN, // Correct token initialization
+    environment: SquareEnvironment.Sandbox, // Change to Production if needed
 });
 
-// Fetch Payment and Store in MongoDB (with Upsert to Prevent Duplicates)
-async function fetchPayment() {
+// Route to List All Payments
+router.get('/list', async (req, res, next) => {
     try {
-        const response = await client.payments.get({
-            paymentId: "vnOzcMmWINoriZGHllmYHNhHWbUZY",
+        // Get all payments from Square
+        const response = await client.payments.list({ count: true });
+        const jsonResponse = JSON.stringify({ data: response.data }, bigIntReplacer);
+        res.set('Content-Type', 'application/json');
+        res.status(200).send(jsonResponse);
+    } catch (error) {
+        console.error('Error:', error);  // Log the error for debugging
+        // Handle Square API error
+        if (error instanceof SquareError) {
+            const status = error.response?.status || 500;
+            res.status(status).json({ error: error.message });
+        } else {
+            next(error);
+        }
+    }
+});
+
+// Route to create a payment
+router.post('/pay', async (req, res) => {
+    try {
+        const { amount, currency, sourceId, customerId } = req.body;
+
+        // Validate required fields
+        if (!amount || !currency || !sourceId || !customerId) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+
+        // Create the payment using Square API
+        const response = await client.payments.create({
+            idempotencyKey: new Date().getTime().toString(), // Using current timestamp as a unique idempotency key
+            amountMoney: {
+                amount: BigInt(amount), // Make sure the amount is in the smallest currency unit (e.g., cents)
+                currency,
+            },
+            sourceId, // Card nonce from frontend
+            autocomplete: true, // Auto-complete the payment
+            customerId,
+            locationId: process.env.SQUARE_LOCATION_ID, // Your Square location ID
+            referenceId: `REF-${Date.now()}`,
+            note: "Payment processed via API",
         });
 
-        console.log("Fetched Payment:", response);
-
-        if (!response.payment) {
-            throw new Error("Payment object is missing from Square API response.");
+        // If payment is successful, send the response
+        if (response.result.payment) {
+            const jsonResponse = JSON.stringify({ data: response.result.payment }, bigIntReplacer);
+            res.set("Content-Type", "application/json");
+            res.status(200).send(jsonResponse);
+        } else {
+            throw new Error("Payment creation failed.");
         }
 
-        if (!response.payment.amountMoney) {
-            throw new Error("amountMoney is missing in the payment object.");
+    } catch (error) {
+        console.error('Error processing payment:', error);
+
+        // Handle Square API error
+        if (error instanceof SquareError) {
+            const status = error.response?.status || 500;
+            res.status(status).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: "Internal server error" });
         }
-
-        const amount = Number(response.payment.amountMoney.amount);
-
-        const paymentData = await Payment.findOneAndUpdate(
-            { paymentId: response.payment.id }, // Search by paymentId
-            {
-                status: response.payment.status,
-                amount: amount / 100, // Convert cents to dollars
-                currency: response.payment.amountMoney.currency,
-            },
-            { upsert: true, new: true } // Prevents duplicate inserts
-        );
-
-        console.log("Payment stored or updated in MongoDB:", paymentData);
-
-        return paymentData; // Return for testing purposes
-
-    } catch (error) {
-        console.error("Error fetching or saving payment:", error);
-        throw error; // Ensure the error is thrown for proper error handling
-    }
-}
-
-// Expose `fetchPayment` via an API endpoint
-router.get("/fetch", async (req, res) => {
-    try {
-        await fetchPayment(); // Call the function
-        res.status(200).json({ message: "Payment fetched and stored" });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
     }
 });
 
