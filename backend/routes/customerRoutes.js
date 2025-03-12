@@ -173,7 +173,7 @@ router.put('/update', async (req, res, next) => {
 router.get('/search', async (req, res, next) => {
     try {
         // Query for email
-        const { email } = req.body;
+        const { email } = req.query;
         if (!email) return res.status(400).json({ error: 'Email body parameter is required' });
 
         // Search the database for a user with the given email

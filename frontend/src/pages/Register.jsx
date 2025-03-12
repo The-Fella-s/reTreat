@@ -51,6 +51,11 @@ const Register = () => {
             if (response.status === 201) {
                 toast.success("Registration successful!");
 
+                // Create a Square account when they first register
+                await axios.post("http://localhost:5000/api/customers/create", {
+                    email,
+                });
+
                 // Update signup statistics after successful registration
                 await updateUniqueSignups();
 

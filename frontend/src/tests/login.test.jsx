@@ -21,7 +21,7 @@ describe('Login Page', () => {
     jest.clearAllMocks();
   });
 
-  it('handles successful login', async () => {
+  it('handles successful login and calls customer create endpoint when logging in is successful', async () => {
     const mockUser = { name: 'Test User', role: 'employee' };
     axios.post.mockResolvedValueOnce({ data: { token: 'test-token', user: mockUser } });
 
@@ -41,6 +41,12 @@ describe('Login Page', () => {
       expect(mockLogin).toHaveBeenCalledWith({ user: mockUser, token: 'test-token' });
       expect(mockNavigate).toHaveBeenCalledWith('/');
     });
+
+    expect(axios.post).toHaveBeenNthCalledWith(
+        2,
+        "http://localhost:5000/api/customers/create",
+        { email: 'test@test.com' }
+    );
   });
 
   it('handles failed login', async () => {

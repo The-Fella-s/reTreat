@@ -51,7 +51,12 @@ function Login() {
         localStorage.setItem('token', res.data.token); // Store token
         localStorage.setItem('user', JSON.stringify(res.data.user)); // Store user properly
         login({ user: res.data.user, token: res.data.token }); // Update context
-  
+
+        // Create a Square account when they log in in case a Square account is not created for them
+        await axios.post("http://localhost:5000/api/customers/create", {
+          email,
+        });
+
         toast.success('Login successful!');
         navigate('/'); // Redirect to home
       } else {

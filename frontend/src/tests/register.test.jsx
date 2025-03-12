@@ -35,7 +35,7 @@ describe("Register Component", () => {
     ).toBeInTheDocument();
   });
 
-  it("submits form with valid data", async () => {
+  it("submits form with valid data and calls customer create endpoint when registration is successful", async () => {
     axios.post.mockResolvedValueOnce({ status: 201 });
 
     renderWithRouter(<Register />);
@@ -66,6 +66,14 @@ describe("Register Component", () => {
           name: "Jane Doe",
           phone: "5555555555",
         }
+      );
+    });
+
+    // Then verify that the customer creation endpoint was called
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith(
+          "http://localhost:5000/api/customers/create",
+          { email: "jane@example.com" }
       );
     });
   });
