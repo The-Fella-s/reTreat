@@ -27,6 +27,7 @@ import { Box } from '@mui/material';
 import AuthProvider from './context/AuthContext.jsx';
 import AboutUs from './pages/AboutUs.jsx';
 import EmployeeSchedule from './pages/EmployeeSchedule.jsx';
+import Cart from './pages/Cart.jsx';
 
 function HomePageTracker() {
   const location = useLocation();
@@ -86,6 +87,7 @@ function App() {
                 <Route path="/admin-dashboard/*" element={<AdminDashboard setTheme={setTheme} />} />
                 <Route path="/about-us" element={<AboutUs />} />
                 <Route path="/employee-schedule" element={<EmployeeSchedule />} />
+                <Route path="/cart" element={<Cart />} />
               </Routes>
             </Box>
             <Footer />

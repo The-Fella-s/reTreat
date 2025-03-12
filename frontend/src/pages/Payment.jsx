@@ -1,9 +1,11 @@
-import { useLocation } from 'react-router-dom';
+import { data, useLocation } from 'react-router-dom';
 import AppointmentCardDetailsOnly from '../components/AppointmentCardDetailsOnly.jsx';
+import AppointmentCard from '../components/AppointmentCard.jsx';
 import {Box, Grid2} from '@mui/material';
 import TotalPaymentCard from '../components/TotalPaymentCard.jsx';
 import CalendarAndAvailableHours from '../components/CalendarAndAvailableHours.jsx';
 import PaymentInformation from "../components/PaymentInformation.jsx";
+import { CartProvider } from '../context/CartContext.jsx';
 
 const Payment = () => {
     const { state } = useLocation();
@@ -42,6 +44,7 @@ const Payment = () => {
                             description={appointmentData.description}
                             pricing={appointmentData.pricing}
                             duration={appointmentData.duration}
+                            onAppointmentBookConfirm={(data) => console.log(data)}
                             sx={{ height: 'auto' }}
                         />
                     </Grid2>
@@ -93,7 +96,9 @@ const Payment = () => {
                             order: { xs: 1, md: 2 },
                         }}
                     >
+                    <CartProvider>
                         <PaymentInformation/>
+                    </CartProvider>
                     </Box>
 
                 </Grid2>

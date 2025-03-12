@@ -16,6 +16,8 @@ import { AuthContext } from '../context/AuthContext';
 import logo from '/src/assets/reTreatLogo.png';
 import Grow from '@mui/material/Grow';
 import Collapse from '@mui/material/Collapse';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import Badge from '@mui/material/Badge';
 
 const NavBar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -99,6 +101,12 @@ const NavBar = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
             {user ? (
               <>
+                <IconButton onClick={() => navigate('/cart')} sx={{ color: 'white', mr: 2 }}>
+                  <Badge>
+                    <ShoppingCartIcon />
+                  </Badge>
+                </IconButton>
+
                 <Tooltip title="Open Account Options">
                   <IconButton onClick={handleOpenUser} sx={{ p: 0, mr: 2 }}>
                     <Avatar alt={user.name} src={profileImageUrl} sx={{ width: 40, height: 40 }} />
