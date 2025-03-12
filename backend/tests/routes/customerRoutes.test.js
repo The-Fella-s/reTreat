@@ -231,7 +231,7 @@ describe('Square Routes', () => {
         it('returns 404 if user not found in database', async () => {
             // Mock the user not being found in the database
             User.findOne.mockResolvedValue(null);
-            const res = await request(app).get('/search').send({ email: 'test@example.com' });
+            const res = await request(app).get('/search').query({ email: 'test@example.com' });
             expect(res.status).toBe(404);
             expect(res.body.error).toBe('User not found in database');
         });
@@ -239,7 +239,7 @@ describe('Square Routes', () => {
         it('returns squareId from database if user exists with squareId', async () => {
             const fakeUser = { email: 'test@example.com', squareId: 'sq123' };
             User.findOne.mockResolvedValue(fakeUser);
-            const res = await request(app).get('/search').send({ email: 'test@example.com' });
+            const res = await request(app).get('/search').query({ email: 'test@example.com' });
             // Expect squareId to be returned from the database
             expect(res.status).toBe(200);
             expect(res.body.squareId).toBe('sq123');
@@ -252,7 +252,7 @@ describe('Square Routes', () => {
             const fakeCustomers = [{ id: 'sq456' }];
             mockSquareCustomers.search.mockResolvedValue({ customers: fakeCustomers });
 
-            const res = await request(app).get('/search').send({ email: 'test@example.com' });
+            const res = await request(app).get('/search').query({ email: 'test@example.com' });
             // Expect Square API search to be called if user has no squareId
             expect(mockSquareCustomers.search).toHaveBeenCalledWith({
                 count: true,
