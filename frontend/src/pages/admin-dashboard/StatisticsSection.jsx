@@ -3,6 +3,7 @@ import {Typography,  Box} from '@mui/material';
 // import VisitsCard from "../../components/VisitsCard";
 import SignupsCard from "../../components/SignupsCard";
 import WebsiteVisitsCard from "../../components/WebsiteVisitsCard";
+import TotalUsersCard from '../../components/TotalUsersCard';
 
 
 const StatisticsSection = () => {
@@ -10,6 +11,7 @@ const StatisticsSection = () => {
  <Typography variant="h5" sx={{ fontWeight: 'bold' }}  xs={12} sm={6} md={4} p={5}>
                     Admin Dashboard
         <Box sx={styles.columnContainer}>
+        <TotalUsersCard sx ={styles.item} />
         <SignupsCard sx ={styles.item} />
         <WebsiteVisitsCard sx = {styles.item} />
 
