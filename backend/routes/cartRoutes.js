@@ -9,8 +9,12 @@ const router = express.Router();
 
 // Middleware to validate item data
 const validateItemData = (req, res, next) => {
-    const { productId, name, quantity, price } = req.body;
+    const { productId: productId, name, quantity, price } = req.body;
     if (!productId || !name || !quantity || !price) {
+        console.log(productId);
+        console.log(name);
+        console.log(quantity);
+        console.log(price);
         return res.status(400).json({ message: 'Missing required fields: productId, name, quantity, price' });
     }
     if (quantity < 1) {
