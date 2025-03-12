@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { Box } from "@mui/material";
 import { Line } from "react-chartjs-2";
 import axios from "axios";
 
