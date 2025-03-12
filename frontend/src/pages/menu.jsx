@@ -55,14 +55,14 @@ function SpaMenuPage() {
       {/* Cards Section - Fixed Filtering */}
       <Grid container spacing={3} justifyContent="center" style={{ padding: '20px' }}>
         {menuItems
-          .filter(item => selectedCategory === 'All' || item.category === selectedCategory) // ✅ Restored Filtering
+          .filter(item => selectedCategory === 'All' || item.category === selectedCategory) // Restored Filtering
           .map((item, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
               <ItemCard
                 name={item.name}
                 description={item.description}
                 price={item.price}
-                onPurchase={() => handleBook(item.name)} // ✅ Redirects to /appointment
+                onPurchase={() => handleBook(item.name)} // Redirects to /appointment
               />
             </Grid>
           ))}
