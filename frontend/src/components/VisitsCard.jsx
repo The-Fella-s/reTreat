@@ -29,7 +29,6 @@ ChartJS.register(
 
 const VisitsCard = () => {
     const options ={};
-    const data = {};
     return ( <Card>
         <CardContent>
             <Typography variant = "cardTitle">

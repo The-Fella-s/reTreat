@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import {Typography, Grid2, Button, Box} from '@mui/material';
-import VisitsCard from "../../components/VisitsCard";
+import {Typography,  Box} from '@mui/material';
+// import VisitsCard from "../../components/VisitsCard";
 import SignupsCard from "../../components/SignupsCard";
 import WebsiteVisitsCard from "../../components/WebsiteVisitsCard";
 
