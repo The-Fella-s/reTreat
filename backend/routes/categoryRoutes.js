@@ -82,6 +82,53 @@ async function deleteCategory(name) {
     }
 }
 
+async function updateCategory(name, newName) {
+    try {
+        let mongoResponse = await Category.findOne({ name: name });
+        if (!mongoResponse) {
+            return "Category not found in database. Ensure it exists before trying to update.";
+        }
+
+        let { squareId } = mongoResponse;
+        if (!squareId) {
+            return "Category not found in Square. Ensure it exists before trying to update.";
+        }
+
+        const retrieveResponse = await client.catalog.object.get({ objectId: squareId });
+        if (!retrieveResponse || !retrieveResponse.object) {
+            return "Failed to retrieve category from Square.";
+        }
+        const currentVersion = retrieveResponse.object.version;
+
+        const upsertResponse = await client.catalog.object.upsert({
+            idempotencyKey: generateIdempotencyKey(),
+            object: {
+                type: "CATEGORY",
+                id: squareId,
+                version: currentVersion,  // IMPORTANT: include the latest version
+                categoryData: {
+                    name: newName,
+                },
+                presentAtAllLocations: true,
+            },
+        });
+
+        if (upsertResponse) {
+            // Update the squareId in Mongo if necessary
+            mongoResponse.name = newName;
+            mongoResponse.squareId = upsertResponse.catalogObject.id;
+            await mongoResponse.save();
+            return upsertResponse;
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Error: ", error);
+        throw error; // Optionally rethrow or handle the error as needed
+    }
+}
+
+
 router.post('/create', async (req, res) => {
     try {
         const { name } = req.body;
@@ -137,6 +184,49 @@ router.delete('/delete', async (req, res) => {
         });
     } catch (error) {
         console.error('Error deleting category:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.put('/update', async (req, res) => {
+    try {
+        const { name } = req.query;
+        const { name: newName } = req.body;
+
+        if (!name || !newName) {
+            return res.status(400).json({ error: 'Both current and new category names are required' });
+        }
+
+        const updatedCategory = await updateCategory(name, newName);
+
+        if (!updatedCategory) {
+            return res.status(404).json({ error: 'Failed to update category. Ensure it exists.' });
+        }
+
+        res.status(200).json({
+            message: 'Category updated successfully',
+            data: JSON.parse(JSON.stringify(updatedCategory, bigIntReplacer)),
+        });
+    } catch (error) {
+        console.error('Error updating category:', error);
+        res.status(500).json({ error: 'Failed to update category' });
+    }
+});
+
+router.get('/list', async (req, res) => {
+    try {
+        const response = await client.catalog.search({
+            objectTypes: [
+                "CATEGORY",
+            ]
+        });
+
+        res.status(200).json({
+            message: 'Category obtained successfully',
+            data: JSON.parse(JSON.stringify(response, bigIntReplacer)),
+        });
+    } catch (error) {
+        console.error('Error getting category:', error);
         res.status(500).json({ error: error.message });
     }
 });
