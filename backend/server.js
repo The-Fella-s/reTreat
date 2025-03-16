@@ -39,6 +39,7 @@ const statisticsRoutes = require("./routes/statisticsRoutes");
 const customerRoutes = require('./routes/customerRoutes');
 const cardRoutes = require('./routes/cardRoutes');
 const websiteVisitRoutes = require('./routes/websiteVisitRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
@@ -52,7 +53,7 @@ app.use("/api/statistics", statisticsRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/cards/', cardRoutes);
 app.use('/api/website-visits',websiteVisitRoutes);
-
+app.use('/api/categories', categoryRoutes);
 
 // Initialize passport for Facebook API
 app.use(passport.initialize());
