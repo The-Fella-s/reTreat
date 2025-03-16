@@ -1,8 +1,8 @@
 // Reset the modules so the mocks are applied before any modules are loaded
 jest.resetModules();
 
-// Start mocking the catalog endpoints
-const mockCatalog = {
+// Start mocking the catalog category endpoints
+const mockCatalogCategory = {
     search: jest.fn(),
     get: jest.fn(),
     delete: jest.fn(),
@@ -10,7 +10,7 @@ const mockCatalog = {
 };
 
 // Mock the Square Client and API
-const mockSquareClientInstance = { catalog: mockCatalog };
+const mockSquareClientInstance = { catalog: mockCatalogCategory };
 
 jest.mock('square', () => ({
     SquareClient: jest.fn().mockImplementation(() => mockSquareClientInstance),
@@ -47,7 +47,7 @@ app.use('/api/categories', router);
 describe('Category Routes', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        Object.values(mockCatalog).forEach((fn) => fn.mockReset());
+        Object.values(mockCatalogCategory).forEach((fn) => fn.mockReset());
     });
 
     // POST /create
@@ -212,17 +212,17 @@ describe('Category Routes', () => {
     describe('GET /list', () => {
         it('should list categories and return 200', async () => {
             const fakeListResponse = { objects: [{ id: 'cat1' }, { id: 'cat2' }] };
-            mockCatalog.search.mockResolvedValue(fakeListResponse);
+            mockCatalogCategory.search.mockResolvedValue(fakeListResponse);
 
             const res = await request(app).get('/api/categories/list');
-            expect(mockCatalog.search).toHaveBeenCalledWith({ objectTypes: ['CATEGORY'] });
+            expect(mockCatalogCategory.search).toHaveBeenCalledWith({ objectTypes: ['CATEGORY'] });
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty('message', 'Categories obtained successfully');
             expect(res.body.data).toEqual(fakeListResponse);
         });
 
         it('should return 500 if catalog.search throws an error', async () => {
-            mockCatalog.search.mockRejectedValue(new Error('List error'));
+            mockCatalogCategory.search.mockRejectedValue(new Error('List error'));
             const res = await request(app).get('/api/categories/list');
             expect(res.statusCode).toBe(500);
             expect(res.body).toHaveProperty('error', 'List error');
