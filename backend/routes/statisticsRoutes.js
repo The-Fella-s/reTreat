@@ -1,12 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const Statistics = require("../models/Statistics");
+const User = require("../models/User");
 
 
-router.get("./fetch", async (req, res) => {
+router.get("/fetch", async (req, res) => {
     try {
-        const users = await fetchStatistics();
-        res.status(200).json({ message: "Statistics fetched" });
+        const users = await User.countDocuments(); /*await fetchStatistics();*/
+        res.json({ totalUsers: users });
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -14,8 +16,9 @@ router.get("./fetch", async (req, res) => {
 
 async function fetchStatistics() {
     try {
+
         const totalUsers = await User.countDocuments(); 
-        return totalUsers;
+        return { totalUsers };
     } catch (error) {
         console.error("Error fetching statistics:", error);
         throw error;
