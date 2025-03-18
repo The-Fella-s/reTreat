@@ -1,25 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-
-// Dummy data for employees
-const employeesData = [
-  { firstName: 'John', lastName: 'Doe', address: '123 Main St', phone: '555-1234', schedule: 'Mon-Fri: 9 AM - 5 PM' },
-  { firstName: 'Jane', lastName: 'Smith', address: '456 Oak Ave', phone: '555-5678', schedule: 'Mon-Wed: 8 AM - 4 PM' },
-  { firstName: 'Mike', lastName: 'Johnson', address: '789 Pine Rd', phone: '555-9101', schedule: 'Tue-Sat: 10 AM - 6 PM' },
-];
+import axios from 'axios';
 
 const EmployeeSection = () => {
-  const [employees, setEmployees] = useState(employeesData);
+  const [employees, setEmployees] = useState([]); // Employee state
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [editedEmployee, setEditedEmployee] = useState({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [newEmployee, setNewEmployee] = useState({
     firstName: '',
     lastName: '',
     address: '',
     phone: '',
-    schedule: ''
+    schedule: '',
+    email: ''
   });
+
+  // Fetch data from backend when the component loads
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/employees');
+        setEmployees(response.data); // Update the state with data from the backend
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      }
+    };
+    fetchEmployees();
+  }, []); // Empty dependency array means this will run only once when the component mounts
 
   const handleEdit = (employee) => {
     setEditingEmployee(employee);
@@ -38,24 +47,40 @@ const EmployeeSection = () => {
   };
 
   const handleOpenDialog = () => {
-    setNewEmployee({ firstName: '', lastName: '', address: '', phone: '', schedule: '' });
+    setNewEmployee({ firstName: '', lastName: '', address: '', phone: '', schedule: '', email: '' });
     setIsDialogOpen(true);
   };
 
   const handleCloseDialog = () => setIsDialogOpen(false);
 
-  const handleAddEmployee = () => {
-    setEmployees([...employees, newEmployee]);
-    setIsDialogOpen(false);
-  };
-
   const handleNewEmployeeChange = (e) => {
     setNewEmployee({ ...newEmployee, [e.target.name]: e.target.value });
   };
 
-  const handleDelete = (index) => {
-    const updatedEmployees = employees.filter((_, i) => i !== index);
-    setEmployees(updatedEmployees);
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/employees/${id}`);
+      setEmployees(employees.filter((employee) => employee._id !== id));
+    } catch (error) {
+      console.error('Error deleting employee:', error);
+    }
+  };
+
+  const handleAddEmployee = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/employees', newEmployee);
+      setEmployees((prevEmployees) => [...prevEmployees, response.data]);
+      setIsDialogOpen(false);
+      setErrorMessage('');
+      setNewEmployee({ firstName: '', lastName: '', address: '', phone: '', schedule: '', email: '' });
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        setErrorMessage(error.response.data.message);
+      } else {
+        setErrorMessage('An unknown error occurred. Please try again.');
+      }
+      console.error('Error adding employee:', error);
+    }
   };
 
   return (
@@ -68,6 +93,12 @@ const EmployeeSection = () => {
         Add Employee
       </Button>
 
+      {errorMessage && (
+        <Typography color="error" variant="body2" style={{ marginTop: '10px' }}>
+          {errorMessage}
+        </Typography>
+      )}
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -76,23 +107,25 @@ const EmployeeSection = () => {
               <TableCell>Last Name</TableCell>
               <TableCell>Address</TableCell>
               <TableCell>Phone</TableCell>
+              <TableCell>Email</TableCell>
               <TableCell>Schedule</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {employees.map((employee, idx) => (
-              <TableRow key={idx}>
+            {employees.map((employee) => (
+              <TableRow key={employee._id}>
                 <TableCell>{employee.firstName}</TableCell>
                 <TableCell>{employee.lastName}</TableCell>
                 <TableCell>{employee.address}</TableCell>
                 <TableCell>{employee.phone}</TableCell>
+                <TableCell>{employee.email}</TableCell>
                 <TableCell>{employee.schedule}</TableCell>
                 <TableCell>
                   <Button variant="contained" color="primary" onClick={() => handleEdit(employee)} sx={{ mr: 1 }}>
                     Edit
                   </Button>
-                  <Button variant="contained" color="secondary" onClick={() => handleDelete(idx)}>
+                  <Button variant="contained" color="secondary" onClick={() => handleDelete(employee._id)}>
                     Delete
                   </Button>
                 </TableCell>
@@ -125,6 +158,7 @@ const EmployeeSection = () => {
           <TextField fullWidth margin="dense" name="address" label="Address" value={newEmployee.address} onChange={handleNewEmployeeChange} />
           <TextField fullWidth margin="dense" name="phone" label="Phone" value={newEmployee.phone} onChange={handleNewEmployeeChange} />
           <TextField fullWidth margin="dense" name="schedule" label="Schedule" value={newEmployee.schedule} onChange={handleNewEmployeeChange} />
+          <TextField fullWidth margin="dense" name="email" label="Email" value={newEmployee.email} onChange={handleNewEmployeeChange} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="secondary">Cancel</Button>
