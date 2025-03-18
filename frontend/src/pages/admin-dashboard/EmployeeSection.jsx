@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField } from '@mui/material';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 // Dummy data for employees
 const employeesData = [
@@ -12,6 +12,14 @@ const EmployeeSection = () => {
   const [employees, setEmployees] = useState(employeesData);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [editedEmployee, setEditedEmployee] = useState({});
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newEmployee, setNewEmployee] = useState({
+    firstName: '',
+    lastName: '',
+    address: '',
+    phone: '',
+    schedule: ''
+  });
 
   const handleEdit = (employee) => {
     setEditingEmployee(employee);
@@ -19,10 +27,7 @@ const EmployeeSection = () => {
   };
 
   const handleSave = () => {
-    const updatedEmployees = employees.map((e) =>
-      e === editingEmployee ? editedEmployee : e
-    );
-    setEmployees(updatedEmployees);
+    setEmployees(employees.map((e) => (e === editingEmployee ? editedEmployee : e)));
     setEditingEmployee(null);
   };
 
@@ -32,11 +37,36 @@ const EmployeeSection = () => {
     setEditedEmployee({ ...editedEmployee, [e.target.name]: e.target.value });
   };
 
+  const handleOpenDialog = () => {
+    setNewEmployee({ firstName: '', lastName: '', address: '', phone: '', schedule: '' });
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => setIsDialogOpen(false);
+
+  const handleAddEmployee = () => {
+    setEmployees([...employees, newEmployee]);
+    setIsDialogOpen(false);
+  };
+
+  const handleNewEmployeeChange = (e) => {
+    setNewEmployee({ ...newEmployee, [e.target.name]: e.target.value });
+  };
+
+  const handleDelete = (index) => {
+    const updatedEmployees = employees.filter((_, i) => i !== index);
+    setEmployees(updatedEmployees);
+  };
+
   return (
     <Box sx={{ padding: 3 }}>
       <Typography variant="h4" gutterBottom>
         Employee Information
       </Typography>
+
+      <Button variant="contained" color="primary" onClick={handleOpenDialog} sx={{ mb: 2 }}>
+        Add Employee
+      </Button>
 
       <TableContainer component={Paper}>
         <Table>
@@ -59,7 +89,12 @@ const EmployeeSection = () => {
                 <TableCell>{employee.phone}</TableCell>
                 <TableCell>{employee.schedule}</TableCell>
                 <TableCell>
-                  <Button variant="contained" onClick={() => handleEdit(employee)}>Edit</Button>
+                  <Button variant="contained" color="primary" onClick={() => handleEdit(employee)} sx={{ mr: 1 }}>
+                    Edit
+                  </Button>
+                  <Button variant="contained" color="secondary" onClick={() => handleDelete(idx)}>
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -81,6 +116,21 @@ const EmployeeSection = () => {
           </Box>
         </Box>
       )}
+
+      <Dialog open={isDialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle>Add New Employee</DialogTitle>
+        <DialogContent>
+          <TextField fullWidth margin="dense" name="firstName" label="First Name" value={newEmployee.firstName} onChange={handleNewEmployeeChange} />
+          <TextField fullWidth margin="dense" name="lastName" label="Last Name" value={newEmployee.lastName} onChange={handleNewEmployeeChange} />
+          <TextField fullWidth margin="dense" name="address" label="Address" value={newEmployee.address} onChange={handleNewEmployeeChange} />
+          <TextField fullWidth margin="dense" name="phone" label="Phone" value={newEmployee.phone} onChange={handleNewEmployeeChange} />
+          <TextField fullWidth margin="dense" name="schedule" label="Schedule" value={newEmployee.schedule} onChange={handleNewEmployeeChange} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="secondary">Cancel</Button>
+          <Button onClick={handleAddEmployee} color="primary" variant="contained">Add</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
