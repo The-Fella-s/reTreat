@@ -10,6 +10,7 @@ const {
     deleteCategory,
     updateCategory,
 } = require('../utilities/helpers/categoryHelpers');
+const Category = require("../models/Category");
 
 const client = new SquareClient({
     token: process.env.SQUARE_ACCESS_TOKEN,
@@ -88,14 +89,26 @@ router.put('/update', async (req, res) => {
     }
 });
 
+// Allows you to get the category list whether it is from Square or from the database
 router.get('/list', async (req, res) => {
     try {
-        const response = await client.catalog.search({
-            objectTypes: ["CATEGORY"],
-        });
+        const source = req.query.source;
+        if (!source) res.status(400).json({ error: 'Source is required'});
+        if (!["square", "database", "mongo", "mongodb"].includes(source)) res.status(400).json({ error: 'Source must be either from Square or the database' });
+
+        let response;
+
+        if (source === "square") {
+            response = await client.catalog.search({
+                objectTypes: ["CATEGORY"],
+            });
+        } else {
+            response = await Category.find();
+        }
 
         res.status(200).json({
             message: 'Categories obtained successfully',
+            source: source,
             data: JSON.parse(JSON.stringify(response, bigIntReplacer)),
         });
     } catch (error) {

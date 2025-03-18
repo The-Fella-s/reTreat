@@ -29,7 +29,7 @@ connectDB(); // Connect to the database
 // Import and Register Routes
 const userRoutes = require('./routes/userRoutes');
 const themeRoutes = require('./routes/themeRoutes');
-const appointmentRoutes = require('./routes/appointmentRoutes');
+const serviceRoutes = require('./routes/servicesRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const paymentRoutes = require('./routes/paymentsRoutes');
@@ -44,7 +44,8 @@ const catalogRoutes = require('./routes/catalogRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
-app.use('/api/appointments', appointmentRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/appointments', serviceRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/payments', paymentRoutes);
