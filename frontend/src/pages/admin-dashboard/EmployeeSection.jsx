@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, InputLabel, FormControl, Checkbox, FormGroup, FormControlLabel } from '@mui/material';
 import axios from 'axios';
 
 const EmployeeSection = () => {
@@ -13,7 +13,7 @@ const EmployeeSection = () => {
     lastName: '',
     address: '',
     phone: '',
-    schedule: '',
+    schedule: { days: [], startTime: '', endTime: '' },
     email: ''
   });
 
@@ -31,30 +31,116 @@ const EmployeeSection = () => {
   }, []); // Empty dependency array means this will run only once when the component mounts
 
   const handleEdit = (employee) => {
+    // Ensure the schedule has a valid structure when editing
     setEditingEmployee(employee);
-    setEditedEmployee({ ...employee });
+    setEditedEmployee({
+      ...employee,
+      schedule: {
+        ...employee.schedule,
+        days: employee.schedule.days || [], // Ensure days is always an array
+        startTime: employee.schedule.startTime || '',
+        endTime: employee.schedule.endTime || '',
+      },
+    });
   };
+  
 
-  const handleSave = () => {
-    setEmployees(employees.map((e) => (e === editingEmployee ? editedEmployee : e)));
-    setEditingEmployee(null);
+  const handleSave = async () => {
+    try {
+      // Send the updated employee data to the backend
+      await axios.put(`http://localhost:5000/api/employees/${editingEmployee._id}`, editedEmployee);
+  
+      // Update the local state after a successful update
+      setEmployees(employees.map((e) => (e._id === editingEmployee._id ? editedEmployee : e)));
+      setEditingEmployee(null); // Close the editing form
+    } catch (error) {
+      console.error('Error updating employee:', error);
+      // Optionally, you can set an error message to notify the user
+      setErrorMessage('Failed to update employee. Please try again.');
+    }
   };
+  
 
   const handleCancel = () => setEditingEmployee(null);
 
-  const handleChange = (e) => {
-    setEditedEmployee({ ...editedEmployee, [e.target.name]: e.target.value });
+  const handleScheduleDayChange = (day) => {
+    const days = [...editedEmployee.schedule.days];
+    
+    // Check if the day is already selected
+    if (days.includes(day)) {
+      // Remove the day from the schedule
+      const index = days.indexOf(day);
+      days.splice(index, 1);
+    } else {
+      // Add the day to the schedule
+      days.push(day);
+    }
+    
+    // Update the schedule with the new days array
+    setEditedEmployee({
+      ...editedEmployee,
+      schedule: { ...editedEmployee.schedule, days },
+    });
   };
+  
+
+  const handleScheduleTimeChange = (e, field) => {
+    const value = e.target.value;
+    setEditedEmployee({
+      ...editedEmployee,
+      schedule: {
+        ...editedEmployee.schedule,
+        [field]: value,
+      },
+    });
+  };
+  
+  
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'schedule') {
+      const schedule = JSON.parse(value); // Ensure schedule is an object when editing
+      setEditedEmployee({ ...editedEmployee, schedule });
+    } else {
+      setEditedEmployee({ ...editedEmployee, [name]: value });
+    }
+  };
+  
 
   const handleOpenDialog = () => {
-    setNewEmployee({ firstName: '', lastName: '', address: '', phone: '', schedule: '', email: '' });
+    setNewEmployee({
+      firstName: '',
+      lastName: '',
+      address: '',
+      phone: '',
+      schedule: { days: [], startTime: '', endTime: '' },
+      email: ''
+    });
     setIsDialogOpen(true);
   };
 
   const handleCloseDialog = () => setIsDialogOpen(false);
 
   const handleNewEmployeeChange = (e) => {
-    setNewEmployee({ ...newEmployee, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'schedule') {
+      const schedule = JSON.parse(value);  // Assuming input is in JSON format
+      setNewEmployee({ ...newEmployee, schedule });
+    } else {
+      setNewEmployee({ ...newEmployee, [name]: value });
+    }
+  };
+  
+
+  const handleDaysChange = (e) => {
+    const { value } = e.target;
+    setNewEmployee({ ...newEmployee, schedule: { ...newEmployee.schedule, days: value } });
+  };
+
+  const handleTimeChange = (e) => {
+    const { name, value } = e.target;
+    setNewEmployee({ ...newEmployee, schedule: { ...newEmployee.schedule, [name]: value } });
   };
 
   const handleDelete = async (id) => {
@@ -72,7 +158,14 @@ const EmployeeSection = () => {
       setEmployees((prevEmployees) => [...prevEmployees, response.data]);
       setIsDialogOpen(false);
       setErrorMessage('');
-      setNewEmployee({ firstName: '', lastName: '', address: '', phone: '', schedule: '', email: '' });
+      setNewEmployee({
+        firstName: '',
+        lastName: '',
+        address: '',
+        phone: '',
+        schedule: { days: [], startTime: '', endTime: '' },
+        email: ''
+      });
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
         setErrorMessage(error.response.data.message);
@@ -81,6 +174,11 @@ const EmployeeSection = () => {
       }
       console.error('Error adding employee:', error);
     }
+  };
+
+  const renderSchedulePreview = (schedule) => {
+    const days = schedule.days.join(', ');
+    return `${days}: ${schedule.startTime} - ${schedule.endTime}`;
   };
 
   return (
@@ -120,7 +218,7 @@ const EmployeeSection = () => {
                 <TableCell>{employee.address}</TableCell>
                 <TableCell>{employee.phone}</TableCell>
                 <TableCell>{employee.email}</TableCell>
-                <TableCell>{employee.schedule}</TableCell>
+                <TableCell>{renderSchedulePreview(employee.schedule)}</TableCell>
                 <TableCell>
                   <Button variant="contained" color="primary" onClick={() => handleEdit(employee)} sx={{ mr: 1 }}>
                     Edit
@@ -136,20 +234,62 @@ const EmployeeSection = () => {
       </TableContainer>
 
       {editingEmployee && (
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="h5">Edit Employee</Typography>
-          <TextField name="firstName" label="First Name" value={editedEmployee.firstName} onChange={handleChange} sx={{ mr: 2 }} />
-          <TextField name="lastName" label="Last Name" value={editedEmployee.lastName} onChange={handleChange} sx={{ mr: 2 }} />
-          <TextField name="address" label="Address" value={editedEmployee.address} onChange={handleChange} sx={{ mr: 2 }} />
-          <TextField name="phone" label="Phone" value={editedEmployee.phone} onChange={handleChange} sx={{ mr: 2 }} />
-          <TextField name="schedule" label="Schedule" value={editedEmployee.schedule} onChange={handleChange} sx={{ mr: 2 }} />
-          <Box sx={{ mt: 2 }}>
-            <Button variant="contained" onClick={handleSave}>Save</Button>
-            <Button variant="outlined" onClick={handleCancel} sx={{ ml: 2 }}>Cancel</Button>
-          </Box>
-        </Box>
-      )}
+  <Box sx={{ mt: 3 }}>
+    <Typography variant="h5">Edit Employee</Typography>
+      <TextField
+        name="firstName" label="First Name" value={editedEmployee.firstName} onChange={handleChange} sx={{ mr: 2 }}
+      />
+      <TextField
+        name="lastName" label="Last Name" value={editedEmployee.lastName} onChange={handleChange} sx={{ mr: 2 }}
+      />
+      <TextField
+        name="address" label="Address" value={editedEmployee.address} onChange={handleChange} sx={{ mr: 2 }}
+      />
+      <TextField
+        name="phone" label="Phone" value={editedEmployee.phone} onChange={handleChange} sx={{ mr: 2 }}
+      />
 
+    {/* Schedule Input with checkboxes and time pickers */}
+    <Typography variant="body1" sx={{ mt: 2 }}>Schedule</Typography>
+
+    {/* Days checkboxes */}
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 2 }}>
+      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+        <Box key={day} sx={{ mr: 2, mb: 2 }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={editedEmployee.schedule.days.includes(day)}
+              onChange={() => handleScheduleDayChange(day)}
+            />
+            {day}
+          </label>
+        </Box>
+      ))}
+    </Box>
+
+    {/* Time pickers for Start and End Time */}
+    <TextField
+      name="scheduleStartTime" label="Start Time" type="time" value={editedEmployee.schedule.startTime} onChange={(e) => handleScheduleTimeChange(e, 'startTime')} sx={{ mr: 2 }}
+      InputLabelProps={{
+        shrink: true,
+      }}
+    />
+    
+    <TextField
+      name="scheduleEndTime" label="End Time" type="time" value={editedEmployee.schedule.endTime} onChange={(e) => handleScheduleTimeChange(e, 'endTime')}
+      sx={{ mr: 2 }}
+      InputLabelProps={{
+        shrink: true,
+      }}
+    />
+
+    <Box sx={{ mt: 2 }}>
+      <Button variant="contained" onClick={handleSave}>Save</Button>
+      <Button variant="outlined" onClick={handleCancel} sx={{ ml: 2 }}>Cancel</Button>
+    </Box>
+  </Box>
+)}
       <Dialog open={isDialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>Add New Employee</DialogTitle>
         <DialogContent>
@@ -157,7 +297,29 @@ const EmployeeSection = () => {
           <TextField fullWidth margin="dense" name="lastName" label="Last Name" value={newEmployee.lastName} onChange={handleNewEmployeeChange} />
           <TextField fullWidth margin="dense" name="address" label="Address" value={newEmployee.address} onChange={handleNewEmployeeChange} />
           <TextField fullWidth margin="dense" name="phone" label="Phone" value={newEmployee.phone} onChange={handleNewEmployeeChange} />
-          <TextField fullWidth margin="dense" name="schedule" label="Schedule" value={newEmployee.schedule} onChange={handleNewEmployeeChange} />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Days</InputLabel>
+            <Select
+              multiple
+              value={newEmployee.schedule.days}
+              onChange={handleDaysChange}
+              label="Days"
+              renderValue={(selected) => selected.join(', ')}
+            >
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                <MenuItem key={day} value={day}>
+                  <Checkbox checked={newEmployee.schedule.days.includes(day)} />
+                  {day}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            fullWidth margin="dense" label="Start Time" type="time" name="startTime" value={newEmployee.schedule.startTime} onChange={handleTimeChange}
+          />
+          <TextField
+            fullWidth margin="dense" label="End Time" type="time" name="endTime" value={newEmployee.schedule.endTime} onChange={handleTimeChange}
+          />
           <TextField fullWidth margin="dense" name="email" label="Email" value={newEmployee.email} onChange={handleNewEmployeeChange} />
         </DialogContent>
         <DialogActions>
