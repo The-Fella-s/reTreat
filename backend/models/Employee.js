@@ -1,14 +1,24 @@
 const mongoose = require('mongoose');
 
+const customShiftSchema = new mongoose.Schema({
+  day: { type: String, required: true },
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },
+});
+
 const employeeSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  address: { type: String, required: true },
-  phone: { type: String, required: true },
-  schedule: { type: String, required: true },
-  email: { type: String, unique: true, required: true }  
+  firstName: String,
+  lastName: String,
+  address: String,
+  phone: String,
+  email: String,
+  schedule: {
+    days: { type: [String], required: true },
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
+    customShifts: { type: [customShiftSchema], default: [] },
+  },
 });
 
 const Employee = mongoose.model('Employee', employeeSchema);
-
 module.exports = Employee;
