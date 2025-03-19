@@ -13,7 +13,7 @@ const EmployeeSection = () => {
     lastName: '',
     address: '',
     phone: '',
-    schedule: { days: [], startTime: '', endTime: '' },
+    schedule: { days: [], startTime: '', endTime: '', customShifts: [] },
     email: ''
   });
 
@@ -40,26 +40,25 @@ const EmployeeSection = () => {
         days: employee.schedule.days || [], // Ensure days is always an array
         startTime: employee.schedule.startTime || '',
         endTime: employee.schedule.endTime || '',
+        customShifts: employee.schedule.customShifts || [] 
       },
     });
   };
-  
 
   const handleSave = async () => {
     try {
       // Send the updated employee data to the backend
       await axios.put(`http://localhost:5000/api/employees/${editingEmployee._id}`, editedEmployee);
-  
+
       // Update the local state after a successful update
       setEmployees(employees.map((e) => (e._id === editingEmployee._id ? editedEmployee : e)));
       setEditingEmployee(null); // Close the editing form
     } catch (error) {
       console.error('Error updating employee:', error);
-      // Optionally, you can set an error message to notify the user
+      // Set an error message to notify the user
       setErrorMessage('Failed to update employee. Please try again.');
     }
   };
-  
 
   const handleCancel = () => setEditingEmployee(null);
 
@@ -82,7 +81,6 @@ const EmployeeSection = () => {
       schedule: { ...editedEmployee.schedule, days },
     });
   };
-  
 
   const handleScheduleTimeChange = (e, field) => {
     const value = e.target.value;
@@ -95,8 +93,6 @@ const EmployeeSection = () => {
     });
   };
   
-  
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'schedule') {
@@ -107,14 +103,13 @@ const EmployeeSection = () => {
     }
   };
   
-
   const handleOpenDialog = () => {
     setNewEmployee({
       firstName: '',
       lastName: '',
       address: '',
       phone: '',
-      schedule: { days: [], startTime: '', endTime: '' },
+      schedule: { days: [], startTime: '', endTime: '', customShifts: [] },
       email: ''
     });
     setIsDialogOpen(true);
@@ -132,7 +127,6 @@ const EmployeeSection = () => {
     }
   };
   
-
   const handleDaysChange = (e) => {
     const { value } = e.target;
     setNewEmployee({ ...newEmployee, schedule: { ...newEmployee.schedule, days: value } });
@@ -163,7 +157,7 @@ const EmployeeSection = () => {
         lastName: '',
         address: '',
         phone: '',
-        schedule: { days: [], startTime: '', endTime: '' },
+        schedule: { days: [], startTime: '', endTime: '', customShifts: [] },
         email: ''
       });
     } catch (error) {
@@ -178,7 +172,11 @@ const EmployeeSection = () => {
 
   const renderSchedulePreview = (schedule) => {
     const days = schedule.days.join(', ');
-    return `${days}: ${schedule.startTime} - ${schedule.endTime}`;
+    let preview = `${days}: ${schedule.startTime} - ${schedule.endTime}`;
+    if (schedule.customShifts && schedule.customShifts.length > 0) {
+      preview += ' | Custom: ' + schedule.customShifts.map(shift => `${shift.day}: ${shift.startTime} - ${shift.endTime}`).join(', ');
+    }
+    return preview;
   };
 
   return (
@@ -234,62 +232,146 @@ const EmployeeSection = () => {
       </TableContainer>
 
       {editingEmployee && (
-  <Box sx={{ mt: 3 }}>
-    <Typography variant="h5">Edit Employee</Typography>
-      <TextField
-        name="firstName" label="First Name" value={editedEmployee.firstName} onChange={handleChange} sx={{ mr: 2 }}
-      />
-      <TextField
-        name="lastName" label="Last Name" value={editedEmployee.lastName} onChange={handleChange} sx={{ mr: 2 }}
-      />
-      <TextField
-        name="address" label="Address" value={editedEmployee.address} onChange={handleChange} sx={{ mr: 2 }}
-      />
-      <TextField
-        name="phone" label="Phone" value={editedEmployee.phone} onChange={handleChange} sx={{ mr: 2 }}
-      />
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h5">Edit Employee</Typography>
+          <TextField
+            name="firstName" label="First Name" value={editedEmployee.firstName} onChange={handleChange} sx={{ mr: 2 }}
+          />
+          <TextField
+            name="lastName" label="Last Name" value={editedEmployee.lastName} onChange={handleChange} sx={{ mr: 2 }}
+          />
+          <TextField
+            name="address" label="Address" value={editedEmployee.address} onChange={handleChange} sx={{ mr: 2 }}
+          />
+          <TextField
+            name="phone" label="Phone" value={editedEmployee.phone} onChange={handleChange} sx={{ mr: 2 }}
+          />
+          <TextField
+            name="email" label="Email" value={editedEmployee.email} onChange={handleChange} sx={{ mr: 2 }}
+          />
 
-    {/* Schedule Input with checkboxes and time pickers */}
-    <Typography variant="body1" sx={{ mt: 2 }}>Schedule</Typography>
+          {/* Schedule Input with checkboxes and time pickers */}
+          <Typography variant="body1" sx={{ mt: 2 }}>Schedule</Typography>
 
-    {/* Days checkboxes */}
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 2 }}>
-      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-        <Box key={day} sx={{ mr: 2, mb: 2 }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={editedEmployee.schedule.days.includes(day)}
-              onChange={() => handleScheduleDayChange(day)}
-            />
-            {day}
-          </label>
+          {/* Days checkboxes */}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 2 }}>
+            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+              <Box key={day} sx={{ mr: 2, mb: 2 }}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={editedEmployee.schedule.days.includes(day)}
+                    onChange={() => handleScheduleDayChange(day)}
+                  />
+                  {day}
+                </label>
+              </Box>
+            ))}
+          </Box>
+
+          {/* Time pickers for Start and End Time */}
+          <TextField
+            name="scheduleStartTime" label="Start Time" type="time" value={editedEmployee.schedule.startTime} onChange={(e) => handleScheduleTimeChange(e, 'startTime')} sx={{ mr: 2 }}
+            InputLabelProps={{ shrink: true }}
+          />
+
+          <TextField
+            name="scheduleEndTime" label="End Time" type="time" value={editedEmployee.schedule.endTime} onChange={(e) => handleScheduleTimeChange(e, 'endTime')}
+            sx={{ mr: 2 }}
+            InputLabelProps={{ shrink: true }}
+          />
+
+          {/* Custom Shift Section */}
+          <Typography variant="body1" sx={{ mt: 2 }}>Custom Shifts</Typography>
+          {editedEmployee.schedule.customShifts && editedEmployee.schedule.customShifts.map((shift, index) => (
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <FormControl sx={{ mr: 2, minWidth: 120 }}>
+                <InputLabel>Day</InputLabel>
+                <Select
+                  value={shift.day || ''}
+                  label="Day"
+                  onChange={(e) => {
+                    const updatedShifts = [...editedEmployee.schedule.customShifts];
+                    updatedShifts[index].day = e.target.value;
+                    setEditedEmployee({
+                      ...editedEmployee,
+                      schedule: { ...editedEmployee.schedule, customShifts: updatedShifts }
+                    });
+                  }}
+                >
+                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                    <MenuItem key={day} value={day}>{day}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                type="time"
+                value={shift.startTime}
+                onChange={(e) => {
+                  const updatedShifts = [...editedEmployee.schedule.customShifts];
+                  updatedShifts[index].startTime = e.target.value;
+                  setEditedEmployee({
+                    ...editedEmployee,
+                    schedule: { ...editedEmployee.schedule, customShifts: updatedShifts }
+                  });
+                }}
+                sx={{ mr: 2 }}
+              />
+              <TextField
+                type="time"
+                value={shift.endTime}
+                onChange={(e) => {
+                  const updatedShifts = [...editedEmployee.schedule.customShifts];
+                  updatedShifts[index].endTime = e.target.value;
+                  setEditedEmployee({
+                    ...editedEmployee,
+                    schedule: { ...editedEmployee.schedule, customShifts: updatedShifts }
+                  });
+                }}
+                sx={{ mr: 2 }}
+              />
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => {
+                  const updatedShifts = [...editedEmployee.schedule.customShifts];
+                  updatedShifts.splice(index, 1);
+                  setEditedEmployee({
+                    ...editedEmployee,
+                    schedule: { ...editedEmployee.schedule, customShifts: updatedShifts }
+                  });
+                }}
+              >
+                Remove
+              </Button>
+            </Box>
+          ))}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              setEditedEmployee({
+                ...editedEmployee,
+                schedule: {
+                  ...editedEmployee.schedule,
+                  customShifts: editedEmployee.schedule.customShifts
+                    ? [...editedEmployee.schedule.customShifts, { day: '', startTime: '', endTime: '' }]
+                    : [{ day: '', startTime: '', endTime: '' }]
+                }
+              });
+            }}
+            sx={{ mt: 2 }}
+          >
+            Add Custom Time
+          </Button>
+
+          <Box sx={{ mt: 2 }}>
+            <Button variant="contained" onClick={handleSave}>Save</Button>
+            <Button variant="outlined" onClick={handleCancel} sx={{ ml: 2 }}>Cancel</Button>
+          </Box>
         </Box>
-      ))}
-    </Box>
+      )}
 
-    {/* Time pickers for Start and End Time */}
-    <TextField
-      name="scheduleStartTime" label="Start Time" type="time" value={editedEmployee.schedule.startTime} onChange={(e) => handleScheduleTimeChange(e, 'startTime')} sx={{ mr: 2 }}
-      InputLabelProps={{
-        shrink: true,
-      }}
-    />
-    
-    <TextField
-      name="scheduleEndTime" label="End Time" type="time" value={editedEmployee.schedule.endTime} onChange={(e) => handleScheduleTimeChange(e, 'endTime')}
-      sx={{ mr: 2 }}
-      InputLabelProps={{
-        shrink: true,
-      }}
-    />
-
-    <Box sx={{ mt: 2 }}>
-      <Button variant="contained" onClick={handleSave}>Save</Button>
-      <Button variant="outlined" onClick={handleCancel} sx={{ ml: 2 }}>Cancel</Button>
-    </Box>
-  </Box>
-)}
       <Dialog open={isDialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>Add New Employee</DialogTitle>
         <DialogContent>
@@ -315,10 +397,22 @@ const EmployeeSection = () => {
             </Select>
           </FormControl>
           <TextField
-            fullWidth margin="dense" label="Start Time" type="time" name="startTime" value={newEmployee.schedule.startTime} onChange={handleTimeChange}
+            fullWidth
+            margin="dense"
+            label="Start Time"
+            type="time"
+            name="startTime"
+            value={newEmployee.schedule.startTime}
+            onChange={handleTimeChange}
           />
           <TextField
-            fullWidth margin="dense" label="End Time" type="time" name="endTime" value={newEmployee.schedule.endTime} onChange={handleTimeChange}
+            fullWidth
+            margin="dense"
+            label="End Time"
+            type="time"
+            name="endTime"
+            value={newEmployee.schedule.endTime}
+            onChange={handleTimeChange}
           />
           <TextField fullWidth margin="dense" name="email" label="Email" value={newEmployee.email} onChange={handleNewEmployeeChange} />
         </DialogContent>
