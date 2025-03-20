@@ -1,11 +1,11 @@
-import { data, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import AppointmentCardDetailsOnly from '../components/AppointmentCardDetailsOnly.jsx';
-import AppointmentCard from '../components/AppointmentCard.jsx';
 import {Box, Grid2} from '@mui/material';
 import TotalPaymentCard from '../components/TotalPaymentCard.jsx';
 import CalendarAndAvailableHours from '../components/CalendarAndAvailableHours.jsx';
 import PaymentInformation from "../components/PaymentInformation.jsx";
 import { CartProvider } from '../context/CartContext.jsx';
+import {getServiceImageUrl} from "../utilities/image.js";
 
 const Payment = () => {
     const { state } = useLocation();
@@ -44,6 +44,7 @@ const Payment = () => {
                             description={appointmentData.description}
                             pricing={appointmentData.pricing}
                             duration={appointmentData.duration}
+                            image={getServiceImageUrl(appointmentData.servicePicture)}
                             onAppointmentBookConfirm={(data) => console.log(data)}
                             sx={{ height: 'auto' }}
                         />
@@ -60,7 +61,7 @@ const Payment = () => {
                             gridColumn: { xs: 'span 0', md: 'span 6' }, // Does not occupy grid space on mobile
                         }}
                         alt='Appointment picture'
-                        src='https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2'
+                        src={getServiceImageUrl(appointmentData.servicePicture) || "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"}
                     />
 
                     {/* Total Payment Card - sticky on desktop for visibility during scrolling */}

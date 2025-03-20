@@ -8,27 +8,24 @@ import { Box, CardMedia, Dialog, DialogTitle, DialogContent, DialogActions } fro
 import StockImage from '../assets/StockImage.jpg';
 import PropTypes from 'prop-types';
 
-const AppointmentCard = ({ title, description, pricing, duration, onAppointmentBookConfirm }) => {
+const AppointmentCard = ({ title, description, pricing, duration, image, onAppointmentBookConfirm }) => {
     const [openDialog, setOpenDialog] = React.useState(false);
 
-    // Function to handle opening the dialog
     const handleOpenDialog = () => {
         setOpenDialog(true);
     };
 
-    // Function to handle closing the dialog
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
 
-    // Handles the button clicks
     const handleClick = () => {
-        console.log(title);
-        console.log(description);
-        console.log(pricing);
-        console.log(duration);
-        onAppointmentBookConfirm({ title, description, pricing, duration });  // Send data to the parent
+        console.log(title, description, pricing, duration);
+        onAppointmentBookConfirm({ title, description, pricing, duration });
     };
+
+    // Use the passed image or fall back to the stock image.
+    const imageUrl = image || StockImage;
 
     return (
         // Card component that has a fixed width and height
@@ -36,20 +33,9 @@ const AppointmentCard = ({ title, description, pricing, duration, onAppointmentB
             {/* Image with a fixed height */}
             <CardMedia
                 sx={{ height: 140 }}
-                image={StockImage}
+                image={imageUrl}
             />
-
-            {/* Box component that has a fixed height for the title and description */}
-            <Box
-                sx={{
-                    height: 150,
-                    display: '-webkit-box',
-                    overflow: 'hidden',
-                    WebkitBoxOrient: 'vertical',
-                    WebkitLineClamp: 6, // Limit to 6 lines
-                    textOverflow: 'ellipsis', // Show ellipsis for overflowing text
-                }}
-            >
+            <Box sx={{ height: 150 }}>
                 <CardContent>
                     {/* Title */}
                     <Typography gutterBottom variant="h7" component="div" sx={{ fontWeight: "bold" }}>
@@ -61,6 +47,13 @@ const AppointmentCard = ({ title, description, pricing, duration, onAppointmentB
                         variant="body2"
                         sx={{
                             color: 'text.secondary',
+                            whiteSpace: 'pre-wrap',
+                            overflowWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            display: '-webkit-box',
+                            overflow: 'hidden',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 4,
                         }}
                     >
                         {description}
@@ -70,20 +63,10 @@ const AppointmentCard = ({ title, description, pricing, duration, onAppointmentB
 
             {/* Padding between description and buttons */}
             <Box sx={{ p: 1 }}></Box>
-
-            {/* Read More button that opens up a popup and shows the full information */}
-            <CardActions sx={{
-                justifyContent: "flex-end",
-                display: "flex",
-            }}>
+            <CardActions sx={{ justifyContent: "flex-end", display: "flex" }}>
                 <Button variant="outlined" size="small" fullWidth onClick={handleOpenDialog}>Read more</Button>
             </CardActions>
-
-            {/* Center the buttons evenly with space between */}
-            <CardActions sx={{
-                justifyContent: "space-between",
-                alignItems: "center",
-            }}>
+            <CardActions sx={{ justifyContent: "space-between", alignItems: "center" }}>
                 <Button size="small">${pricing}</Button>
                 <Button size="small">{duration}</Button>
                 <Button variant="outlined" size="small" onClick={handleClick}>Book</Button>
@@ -103,14 +86,16 @@ const AppointmentCard = ({ title, description, pricing, duration, onAppointmentB
             </Dialog>
         </Card>
     );
-}
+};
 
 // PropTypes for the AppointmentCard component
 AppointmentCard.propTypes = {
     title: PropTypes.string.isRequired,
-    description: PropTypes.array,
+    description: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     pricing: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     duration: PropTypes.string.isRequired,
+    image: PropTypes.string, // New image prop
+    onAppointmentBookConfirm: PropTypes.func.isRequired,
 };
 
 export default AppointmentCard;

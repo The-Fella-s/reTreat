@@ -3,7 +3,8 @@ import { Box, Typography, Grid2 } from '@mui/material';
 import axios from 'axios';
 import AppointmentCardAdminEdit from '../../components/AppointmentCardAdminEdit.jsx';
 import ComboBox from '../../components/BookingInputForm.jsx';
-import {convertToTimeWords} from "../../utilities/conversion.js";
+import { convertToTimeWords } from "../../utilities/conversion.js";
+import { getServiceImageUrl } from "../../utilities/image.js";
 
 const BookingSection = () => {
     const [services, setServices] = useState({
@@ -14,27 +15,6 @@ const BookingSection = () => {
         duration: '',
         servicePicture: '',
     });
-
-    const getServiceImageUrl = useCallback((imagePath) => {
-        if (!imagePath) return '';
-
-        // If imagePath is not a string (e.g., it's a File), generate a temporary URL.
-        if (typeof imagePath !== 'string') {
-            return URL.createObjectURL(imagePath);
-        }
-
-        // If the imagePath is a blob or data URL (from file preview), return it directly.
-        if (imagePath.startsWith('blob:') || imagePath.startsWith('data:')) {
-            return imagePath;
-        }
-
-        // Return the localhost file
-        return `http://localhost:5000${
-            imagePath.startsWith('/uploads/services/')
-                ? imagePath
-                : `/uploads/services/${imagePath}`
-        }`;
-    }, []);
 
     const [categories, setCategories] = useState([]);
     const [serviceList, setServiceList] = useState([]);

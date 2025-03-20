@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {Typography, Grid, Button, Box, Grid2} from '@mui/material';
+import { Grid2, Typography, Button, Box } from '@mui/material';
 import AppointmentCard from '../components/AppointmentCard.jsx';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { convertToTimeWords } from "../utilities/conversion.js";
+import { getServiceImageUrl } from "../utilities/image.js";
 
 const BookAppointment = () => {
     const navigate = useNavigate();
@@ -41,8 +42,8 @@ const BookAppointment = () => {
 
     // Auto-fetch services and categories on mount
     useEffect(() => {
-        fetchServices(); // Fetch services immediately
-        fetchCategories(); // Fetch categories immediately
+        fetchServices();
+        fetchCategories();
     }, []);
 
     const handleAppointmentBookConfirm = (appointmentData) => {
@@ -81,14 +82,13 @@ const BookAppointment = () => {
                     ))}
                 </Grid2>
 
-
                 <Box p={5}>
                     <Grid2
                         container
                         spacing={2}
                         justifyContent="center"
                         alignItems="center"
-                        direction={{ xs: "column", sm: "row" }} // Stacked on mobile, row on small+
+                        direction={{ xs: "column", sm: "row" }}
                     >
                         {appointments
                             .filter(service => (service.category?.name || service.category) === selectedCategory)
@@ -96,18 +96,11 @@ const BookAppointment = () => {
                                 <Grid2 item xs={12} sm={6} md={4} sx={{ p: 1.5 }} key={index}>
                                     <AppointmentCard
                                         title={service.name}
-                                        description={
-                                            Array.isArray(service.description)
-                                                ? service.description.map((line, lineIndex) => (
-                                                    <span key={lineIndex}>
-                      {line}
-                                                        <br />
-                    </span>
-                                                ))
-                                                : service.description
-                                        }
+                                        description={service.description}
                                         pricing={service.pricing}
                                         duration={convertToTimeWords(service.duration)}
+                                        // Pass the image by converting the servicePicture to a URL if available
+                                        image={getServiceImageUrl(service.servicePicture)}
                                         onAppointmentBookConfirm={() => handleAppointmentBookConfirm(service)}
                                     />
                                 </Grid2>
