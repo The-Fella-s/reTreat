@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-
 import dayjs from 'dayjs';
+import axios from 'axios';
 
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-
 import Grid2 from '@mui/material/Grid2';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -14,201 +13,195 @@ import { DayCalendarSkeleton } from '@mui/x-date-pickers/DayCalendarSkeleton';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 
-import appointment from '../temporarydata/Appointment.jsx';
 import { formatTimeToAmPm } from '../utilities/formatTime.js';
 
-// Extracts the dates to be highlighted on Calendar
-const extractHighlightedDates = (date) => {
-    const year = date.year();
-    const month = date.month() + 1; // DayJS month is 0-indexed
-    const highlightedDates = [];
+// Given a selected day and the employees list, generate an array of objects.
+// Each object contains a time slot (in 30 min increments) and an array of employee names available at that slot.
+const getAvailableTimeSlotsForDay = (selectedDate, employees) => {
+  const weekday = selectedDate.format('dddd');
+  const dateStr = selectedDate.format('YYYY-MM-DD');
+  const slotMapping = {}; // key: slot string, value: array of employee names
 
-    appointment.forEach(({ appointments }) => {
-        appointments.forEach(({ date }) => {
-            const [appointmentYear, appointmentMonth, appointmentDay] = date.split("-").map(Number);
-            if (appointmentYear === year && appointmentMonth === month) {
-                highlightedDates.push(appointmentDay);
+  employees.forEach(emp => {
+    if (emp.schedule) {
+      const fullName = `${emp.firstName} ${emp.lastName}`;
+      // Process default schedule if applicable
+      if (emp.schedule.days && emp.schedule.days.includes(weekday)) {
+        let startTime = dayjs(`${dateStr} ${emp.schedule.startTime}`, 'YYYY-MM-DD HH:mm');
+        const endTime = dayjs(`${dateStr} ${emp.schedule.endTime}`, 'YYYY-MM-DD HH:mm');
+        while (startTime.isBefore(endTime)) {
+          const slot = startTime.format('h:mm A');
+          if (!slotMapping[slot]) {
+            slotMapping[slot] = [];
+          }
+          if (!slotMapping[slot].includes(fullName)) {
+            slotMapping[slot].push(fullName);
+          }
+          startTime = startTime.add(30, 'minute');
+        }
+      }
+      // Process custom shifts if any for this weekday
+      if (emp.schedule.customShifts && emp.schedule.customShifts.length > 0) {
+        emp.schedule.customShifts.forEach(shift => {
+          if (shift.day === weekday) {
+            let startTime = dayjs(`${dateStr} ${shift.startTime}`, 'YYYY-MM-DD HH:mm');
+            const endTime = dayjs(`${dateStr} ${shift.endTime}`, 'YYYY-MM-DD HH:mm');
+            while (startTime.isBefore(endTime)) {
+              const slot = startTime.format('h:mm A');
+              if (!slotMapping[slot]) {
+                slotMapping[slot] = [];
+              }
+              if (!slotMapping[slot].includes(fullName)) {
+                slotMapping[slot].push(fullName);
+              }
+              startTime = startTime.add(30, 'minute');
             }
+          }
         });
-    });
-
-    return highlightedDates;
-};
-
-// Extract individual available hours for a specific selected date
-const getIndividualAvailableHours = (selectedDate) => {
-    const formattedDate = selectedDate.format('YYYY-MM-DD');
-
-    // Find the appointment for the selected date
-    const appointmentData = appointment.flatMap(({ appointments }) => appointments);
-    const appointmentForDate = appointmentData.find(({ date }) => date === formattedDate);
-
-    // Extract individual hours from availability if the appointment exists
-    if (appointmentForDate && appointmentForDate.employee && appointmentForDate.employee.availability) {
-        const individualHours = [];
-        appointmentForDate.employee.availability.forEach((time) => {
-            // Format times to 12-hour AM/PM format
-            individualHours.push(formatTimeToAmPm(time));
-        });
-        return individualHours;
+      }
     }
+  });
 
-    // Return an empty array if no hours are available
-    return [];
+  // Convert mapping into an array of objects and sort by time
+  const slotsArray = Object.keys(slotMapping).map(slot => ({
+    time: slot,
+    employees: slotMapping[slot]
+  }));
+
+  slotsArray.sort((a, b) => dayjs(a.time, 'h:mm A').diff(dayjs(b.time, 'h:mm A')));
+  return slotsArray;
 };
 
-// Simulate fetching the highlighted dates based on the JSON data
-const fetchHighlightedDays = (date, { signal }) => {
-    return new Promise((resolve, reject) => {
-        const daysToHighlight = extractHighlightedDates(date);
+// Custom day component that disables days with no availability.
+// It receives a set of available weekdays (e.g., Monday, Tuesday, etc.)
+const ServerDay = ({ availableWeekdays, day, outsideCurrentMonth, onSelect, ...other }) => {
+  const weekday = day.format('dddd');
+  const isAvailable = availableWeekdays.has(weekday);
+  const handleClick = () => {
+    if (isAvailable && !outsideCurrentMonth) {
+      onSelect(day);
+    }
+  };
 
-        const timeout = setTimeout(() => {
-            resolve({ daysToHighlight });
-        }, 500);
-
-        signal.onabort = () => {
-            clearTimeout(timeout);
-            reject(new DOMException('aborted', 'AbortError'));
-        };
-    });
-};
-
-// Day component to show highlighted days with an ❗
-const ServerDay = ({ highlightedDays = [], day, outsideCurrentMonth, onSelect, ...other }) => {
-    const isSelected = !outsideCurrentMonth && highlightedDays.includes(day.date());
-
-    const handleClick = () => {
-        onSelect(day); // Explicitly call the onSelect handler when a day is clicked
-    };
-
-    return (
-        <Badge key={day.toString()} overlap="circular" badgeContent={isSelected ? '❗' : undefined}>
-            <PickersDay
-                {...other}
-                outsideCurrentMonth={outsideCurrentMonth}
-                day={day}
-                onClick={handleClick} // Trigger the click handler
-            />
-        </Badge>
-    );
+  return (
+    <PickersDay
+      {...other}
+      disabled={!isAvailable || outsideCurrentMonth}
+      day={day}
+      onClick={handleClick}
+    />
+  );
 };
 
 export default function DateCalendarServerRequest() {
-    const requestAbortController = useRef(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [highlightedDays, setHighlightedDays] = useState([]);
-    const [selectedDay, setSelectedDay] = useState(null);
-    const [availableHours, setAvailableHours] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [availableHours, setAvailableHours] = useState([]); // Now an array of {time, employees}
+  const requestAbortController = useRef(null);
+  const initialValue = dayjs('2024-11-01');
 
-    const initialValue = dayjs('2024-11-01');
+  // Fetch employees (with schedules) from backend
+  useEffect(() => {
+    setIsLoading(true);
+    axios.get('http://localhost:5000/api/employees')
+      .then(response => {
+        setEmployees(response.data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching employees:', error);
+        setIsLoading(false);
+      });
+  }, []);
 
-    // Fetch the highlighted days from JSON data
-    const fetchDays = (date) => {
-        const controller = new AbortController();
-        fetchHighlightedDays(date, { signal: controller.signal })
-            .then(({ daysToHighlight }) => {
-                setHighlightedDays(daysToHighlight);
-                setIsLoading(false);
-            })
-            .catch((error) => {
-                if (error.name !== 'AbortError') console.error(error);
-            });
+  // Determine which weekdays have any availability by checking every employee.
+  const availableWeekdays = new Set();
+  employees.forEach(emp => {
+    if (emp.schedule) {
+      if (emp.schedule.days) {
+        emp.schedule.days.forEach(day => availableWeekdays.add(day));
+      }
+      if (emp.schedule.customShifts) {
+        emp.schedule.customShifts.forEach(shift => availableWeekdays.add(shift.day));
+      }
+    }
+  });
 
-        requestAbortController.current = controller;
-    };
+  const handleMonthChange = (date) => {
+    // Additional logic if needed.
+  };
 
-    useEffect(() => {
-        setIsLoading(true);
-        fetchDays(initialValue);
+  // When a day is selected, generate available time slots (with employee names)
+  const handleDaySelect = (day) => {
+    setSelectedDay(day);
+    const slots = getAvailableTimeSlotsForDay(day, employees);
+    setAvailableHours(slots);
+  };
 
-        return () => requestAbortController.current?.abort();
-    }, []);
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Grid2 container direction="column" alignItems="center">
+        {/* Calendar Component */}
+        <DateCalendar
+          defaultValue={initialValue}
+          loading={isLoading}
+          onMonthChange={handleMonthChange}
+          renderLoading={() => <DayCalendarSkeleton />}
+          slots={{
+            day: (props) => (
+              <ServerDay
+                {...props}
+                availableWeekdays={availableWeekdays}
+                onSelect={handleDaySelect}
+              />
+            ),
+          }}
+          sx={{ width: '300px', height: '300px' }}
+        />
 
-    // Handles clicking on the months, and then changes the days
-    const handleMonthChange = (date) => {
-        requestAbortController.current?.abort();
-        setIsLoading(true);
-        setHighlightedDays([]);
-        fetchDays(date);
-    };
-
-    // Handles changing the highlighted days and available hours
-    const handleDaySelect = (day) => {
-        const hours = getIndividualAvailableHours(day);
-        setAvailableHours(hours);
-        setSelectedDay(day);
-    };
-
-    return (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Grid2 container direction="column" alignItems="center">
-
-                {/* The calendar */}
-                <DateCalendar
-                    defaultValue={initialValue}
-                    loading={isLoading}
-                    onMonthChange={handleMonthChange}
-                    renderLoading={() => <DayCalendarSkeleton />}
-                    slots={{
-                        day: (props) => <ServerDay {...props} onSelect={handleDaySelect} />,
-                    }}
-                    slotProps={{
-                        day: {
-                            highlightedDays,
-                        },
-                    }}
-                    sx={{ width: '300px', height: '300px' }}
-                />
-
-                {/* Shows available hours if there is more than one available hour */}
-                {selectedDay && availableHours.length > 0 && (
-                    <Grid2
-                        sx={{
-                            marginTop: '20px',
-                            display: 'flex',
-                            flexDirection: 'column',  // Stack the items vertically
-                            alignItems: 'center',     // Center everything horizontally
-                            justifyContent: 'center', // Center everything vertically (if necessary)
-                        }}
-                    >
-                        <Typography variant="h7">
-                            Available Hours on {selectedDay.format("MMMM DD, YYYY")}:
-                        </Typography>
-
-                        {/* Center the buttons and put them into two columns with spacing between */}
-                        <Grid2
-                            container
-                            spacing={1}
-                            sx={{
-                                marginTop: '10px',
-                                maxWidth: '200px',
-                                justifyContent: 'center',  // Center buttons horizontally
-                                alignItems: 'center',      // Center buttons vertically
-                                display: 'grid',           // Use grid layout
-                                gridTemplateColumns: 'repeat(2, 1fr)', // Two columns layout
-                                gap: '8px',                // Space between items
-                            }}
-                        >
-
-                            {/* Loops available hours and put them on buttons */}
-                            {availableHours.map((hour, index) => (
-                                <Button
-                                    key={`${hour}-${index}`}
-                                    sx={{
-                                        width: '100px',  // Fixed width
-                                        height: '30px',  // Fixed height
-                                        textAlign: 'center',
-                                    }}
-                                    variant="outlined"
-                                >
-                                    <Typography variant="caption">{hour}</Typography>
-                                </Button>
-                            ))}
-                        </Grid2>
-                    </Grid2>
-                )}
-
-            </Grid2>
-        </LocalizationProvider>
-    );
+        {/* Display available hours if any */}
+        {selectedDay && availableHours.length > 0 && (
+          <Grid2
+            container
+            spacing={2}
+            sx={{
+              marginTop: '20px',
+              maxWidth: '400px',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="h7">
+              Available Hours on {selectedDay.format("MMMM DD, YYYY")}:
+            </Typography>
+            {availableHours.map((slotObj, index) => (
+              <Button
+                key={`${slotObj.time}-${index}`}
+                variant="outlined"
+                sx={{
+                  width: '150px',
+                  minHeight: '80px',
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  padding: '8px'
+                }}
+              >
+                <Typography variant="caption" sx={{ mb: 1 }}>
+                  {slotObj.time}
+                </Typography>
+                {slotObj.employees.map((emp, i) => (
+                  <Typography key={i} variant="caption" color="textSecondary" sx={{ lineHeight: '1.2', mb: 0.5 }}>
+                    {emp}
+                  </Typography>
+                ))}
+              </Button>
+            ))}
+          </Grid2>
+        )}
+      </Grid2>
+    </LocalizationProvider>
+  );
 }
