@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Grid, Button, Box } from '@mui/material';
 import AppointmentCard from '../components/AppointmentCard.jsx';
-import { formatDuration } from '../utilities/formatDuration.js';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { convertToTimeWords } from "../utilities/conversion.js";
 
 const BookAppointment = () => {
     const navigate = useNavigate();
@@ -109,7 +109,7 @@ const BookAppointment = () => {
                                                 )) : service.description
                                         }
                                         pricing={service.pricing}
-                                        duration={formatDuration(service.duration)}
+                                        duration={convertToTimeWords(service.duration)}
                                         onAppointmentBookConfirm={() => handleAppointmentBookConfirm(service)}
                                     />
                                 </Grid>

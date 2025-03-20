@@ -1,6 +1,6 @@
 const { bigIntReplacer } = require("../helpers/replacer");
 const { generateIdempotencyKey } = require("../helpers/randomGenerator");
-const { convertToSeconds } = require("../conversion");
+const { parseDurationToSeconds } = require("../conversion");
 
 class SquareItemBuilder {
 
@@ -95,7 +95,8 @@ class SquareItemBuilder {
                 },
                 pricingType,
                 sellable: true,
-                serviceDuration: service_duration ? BigInt(convertToSeconds(service_duration)) : undefined,
+                // Convert service_duration from "1 hour" to 3600.
+                serviceDuration: service_duration ? BigInt(parseDurationToSeconds(service_duration)) : undefined,
                 itemId: this.data.id
             }
         };
@@ -130,7 +131,7 @@ class SquareItemBuilder {
                 }
                 // Update service duration if provided.
                 if (duration) {
-                    variation.itemVariationData.serviceDuration = BigInt(convertToSeconds(duration));
+                    variation.itemVariationData.serviceDuration = BigInt(parseDurationToSeconds(duration));
                 }
                 // Ensure version consistency.
                 variation.version = BigInt(this.data.version);
@@ -156,7 +157,7 @@ class SquareItemBuilder {
                 }
                 // Update service duration if provided.
                 if (duration) {
-                    variation.itemVariationData.serviceDuration = BigInt(convertToSeconds(duration));
+                    variation.itemVariationData.serviceDuration = BigInt(parseDurationToSeconds(duration));
                 }
                 // Ensure version consistency.
                 variation.version = BigInt(this.data.version);
