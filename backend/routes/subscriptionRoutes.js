@@ -33,21 +33,20 @@ router.post('/plan', async (req, res) => {
                 presentAtAllLocations: true,
                 subscriptionPlanData: {
                     name: name,
-                    // You can include additional properties if needed.
+                    // Additional properties can be added here if needed.
                 },
             },
         };
 
-        // Upsert the subscription plan to Square
-        const response = await client.catalog.object.upsert({
+        // Upsert the subscription plan to Square and extract the result.
+        const { result } = await client.catalog.object.upsert({
             idempotencyKey: generateIdempotencyKey(),
             object: requestBody.object,
         });
 
-        // Use JSON.stringify with bigIntReplacer to convert any BigInt values
         return res.status(201).json({
             message: 'Subscription plan created successfully',
-            squareResponse: JSON.parse(JSON.stringify(response, bigIntReplacer)),
+            squareResponse: JSON.parse(JSON.stringify(result, bigIntReplacer)),
         });
     } catch (error) {
         console.error('Error creating subscription plan:', error);
@@ -91,15 +90,15 @@ router.post('/variation', async (req, res) => {
             },
         };
 
-        // Upsert the subscription plan variation to Square
-        const response = await client.catalog.object.upsert({
+        // Upsert the subscription plan variation to Square and extract the result.
+        const { result } = await client.catalog.object.upsert({
             idempotencyKey: generateIdempotencyKey(),
             object: requestBody.object,
         });
 
         return res.status(201).json({
             message: 'Subscription plan variation created successfully',
-            squareResponse: JSON.parse(JSON.stringify(response, bigIntReplacer)),
+            squareResponse: JSON.parse(JSON.stringify(result, bigIntReplacer)),
         });
     } catch (error) {
         console.error('Error creating subscription plan variation:', error);
@@ -130,17 +129,17 @@ router.post('/payment-link', async (req, res) => {
                 },
             },
             checkoutOptions: {
-                subscriptionPlanId: variationId, // payment link subscribes to the plan variation
+                subscriptionPlanId: variationId, // Payment link subscribes to the plan variation.
             },
             description: description || 'Subscription Payment',
         };
 
-        // Create the payment link using Square's Checkout API
-        const response = await client.checkoutApi.createPaymentLink(requestBody);
+        // Create the payment link using Square's Checkout API.
+        const { result } = await client.checkoutApi.createPaymentLink(requestBody);
 
         return res.status(200).json({
             message: 'Payment link created successfully',
-            squareResponse: JSON.parse(JSON.stringify(response, bigIntReplacer)),
+            squareResponse: JSON.parse(JSON.stringify(result, bigIntReplacer)),
         });
     } catch (error) {
         console.error('Error creating payment link:', error);
