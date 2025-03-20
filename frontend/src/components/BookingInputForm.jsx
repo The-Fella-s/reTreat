@@ -2,16 +2,8 @@ import React, { memo, useCallback, useState } from 'react';
 import { TextField, Button, Card, CardContent, Grid2, Autocomplete } from '@mui/material';
 import PropTypes from "prop-types";
 
-const ComboBox = ({
-                      categories,
-                      name,
-                      category,
-                      description,
-                      pricing,
-                      duration,
-                      onServiceChange,
-                      onAddService
-                  }) => {
+const BookingInputForm = ({ categories, name, category, description, pricing, duration, onServiceChange, onAddService }) => {
+
     // Local state to track validation errors for duration.
     const [durationError, setDurationError] = useState(false);
 
@@ -145,7 +137,7 @@ const ComboBox = ({
     );
 };
 
-ComboBox.propTypes = {
+BookingInputForm.propTypes = {
     categories: PropTypes.arrayOf(PropTypes.string).isRequired,
     name: PropTypes.string.isRequired,
     category: PropTypes.string.isRequired,
@@ -156,4 +148,4 @@ ComboBox.propTypes = {
     onAddService: PropTypes.func.isRequired
 };
 
-export default memo(ComboBox);
+export default memo(BookingInputForm);
