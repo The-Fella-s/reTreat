@@ -13,6 +13,7 @@ import {
   CardActions,
 } from '@mui/material';
 import axios from 'axios';
+import {convertToTimeWords} from "../../utilities/formatDuration.js";
 
 const BookingSection = () => {
   const [newBooking, setNewBooking] = useState({
@@ -338,7 +339,7 @@ const BookingSection = () => {
                       Price: {booking.pricing}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Duration: {booking.duration}
+                      Duration: {convertToTimeWords(booking.duration)}
                     </Typography>
                   </CardContent>
                   <CardActions>
