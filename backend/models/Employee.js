@@ -14,8 +14,8 @@ const employeeSchema = new mongoose.Schema({
   email: String,
   schedule: {
     days: { type: [String], required: true },
-    startTime: { type: String, required: true },
-    endTime: { type: String, required: true },
+    startTime: { type: String, default: '' },
+    endTime: { type: String, default: '' },
     customShifts: { type: [customShiftSchema], default: [] },
   },
 });

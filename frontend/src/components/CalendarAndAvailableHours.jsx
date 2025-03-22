@@ -12,8 +12,8 @@ import { DayCalendarSkeleton } from '@mui/x-date-pickers/DayCalendarSkeleton';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 
-// Given a selected day and the employees list, generate an array of objects.
-// Each object contains a time slot (in 30-min increments) and an array of employee names available at that slot.
+// Given a selected day and the employees list, generate an array of objects
+// Each object contains a time slot (in 30-min increments) 
 const getAvailableTimeSlotsForDay = (selectedDate, employees) => {
   const weekday = selectedDate.format('dddd');
   const dateStr = selectedDate.format('YYYY-MM-DD');
@@ -59,8 +59,8 @@ const getAvailableTimeSlotsForDay = (selectedDate, employees) => {
   return slotsArray;
 };
 
-// Custom day component that disables days with no availability.
-// It receives a set of available weekdays (e.g., Monday, Tuesday, etc.)
+// Custom day component that disables days with no availability
+// It receives a set of available weekdays (Monday, Tuesday, etc.)
 const ServerDay = ({ availableWeekdays, day, outsideCurrentMonth, onSelect, ...other }) => {
   const weekday = day.format('dddd');
   const isAvailable = availableWeekdays.has(weekday);
@@ -85,7 +85,7 @@ export default function CalendarAndAvailableHours({ onTimeSlotSelect }) {
   const [selectedDay, setSelectedDay] = useState(initialValue);
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [availableHours, setAvailableHours] = useState([]); // Array of {time, employees}
+  const [availableHours, setAvailableHours] = useState([]); 
   const requestAbortController = useRef(null);
 
   useEffect(() => {
@@ -110,9 +110,8 @@ export default function CalendarAndAvailableHours({ onTimeSlotSelect }) {
       if (emp.schedule.customShifts) emp.schedule.customShifts.forEach(shift => availableWeekdays.add(shift.day));
     }
   });
-
-  const handleMonthChange = (date) => {
-    // Additional logic if needed.
+  
+  const handleMonthChange = (date) => { 
   };
 
   const handleDaySelect = (day) => {
@@ -161,7 +160,7 @@ export default function CalendarAndAvailableHours({ onTimeSlotSelect }) {
                 variant="outlined"
                 onClick={() => {
                   if (onTimeSlotSelect) {
-                    // Pass an object containing both the date and time.
+                    // Pass an object containing both the date and time
                     onTimeSlotSelect({
                       date: selectedDay.format("MMMM DD, YYYY"),
                       time: slotObj.time,
