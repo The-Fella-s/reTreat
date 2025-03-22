@@ -1,22 +1,25 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose'); // Added to cast to ObjectId
 const Cart = require('../models/Cart');
 const User = require('../models/User');
 const Services = require('../models/Services');
 
 // GET route to fetch the cart by userId
 router.get('/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const cart = await Cart.findOne({ user: userId }).populate('items.service');
-    if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
+    try {
+      const { userId } = req.params;
+      const cart = await Cart.findOne({ user: userId }).populate('items.service');
+      console.log('Cart items:', cart.items); // Debug log
+      if (!cart) {
+        return res.status(404).json({ message: 'Cart not found' });
+      }
+      res.status(200).json(cart);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-    res.status(200).json(cart);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+  });
+  
 
 // POST route to add a service to the cart
 router.post('/add/service', async (req, res) => {
@@ -33,7 +36,8 @@ router.post('/add/service', async (req, res) => {
     if (!service) {
       return res.status(404).json({ message: 'Service not found in database.' });
     }
-    const serviceId = service._id;
+    // Explicitly cast service._id to an ObjectId
+    const serviceId = mongoose.Types.ObjectId(service._id);
     let cart = await Cart.findOne({ user: user._id });
     if (!cart) {
       cart = new Cart({ user: user._id, items: [] });
