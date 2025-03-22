@@ -3,7 +3,7 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import HomeIcon from "@mui/icons-material/Home";
 import { useContext, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";  // Correct useLocation import
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,10 +12,11 @@ import { useCart } from "../context/CartContext.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
 
 const PaymentInformation = () => {
-    const navigate = useNavigate();  // Initialize navigate
-    const { addToCart } = useCart();  // Use the addToCart function from CartContext
-    const { location } = useLocation();  // Use useLocation to get passed state
-    const { appointmentData } = location || {};  // Safely destructure appointmentData
+    const navigate = useNavigate();
+    const { addToCart } = useCart();
+    // Correctly retrieve appointmentData from state
+    const { state } = useLocation();
+    const { appointmentData } = state || {};
 
     const { user } = useContext(AuthContext);
 
@@ -37,7 +38,7 @@ const PaymentInformation = () => {
     const [addressLine1, setAddressLine1] = useState("");
     const [addressLine2, setAddressLine2] = useState("");
     const [city, setCity] = useState("");
-    const [state, setState] = useState("");
+    const [stateValue, setStateValue] = useState("");
     const [zipCode, setZipCode] = useState("");
     const [country, setCountry] = useState("");
 
@@ -56,15 +57,12 @@ const PaymentInformation = () => {
     const [additionalNotes, setAdditionalNotes] = useState("");
 
     const [showCvv, setShowCvv] = useState(false);
-
-    // Toggle the visibility of the CVV field
     const handleToggleCvv = () => {
         setShowCvv((prevState) => !prevState);
     };
 
-    // Handler for "Go Back" button click
     const handleGoBack = () => {
-        navigate(-1);  // Navigate back to the previous page
+        navigate(-1);
     };
 
     // Handler for "Book Appointment" button click
@@ -73,7 +71,7 @@ const PaymentInformation = () => {
 
         if (!user) {
             toast.error('You must be logged in to book an appointment.');
-            navigate('/login');  // Redirect to login page
+            navigate('/login');
             return;
         }
 
@@ -90,24 +88,19 @@ const PaymentInformation = () => {
         // Billing Information validations
         if (!addressLine1) validationErrors.addressLine1 = "Address Line 1 is required";
         if (!city) validationErrors.city = "City is required";
-        if (!state) validationErrors.state = "State is required";
+        if (!stateValue) validationErrors.state = "State is required";
         if (!zipCode) validationErrors.zipCode = "Zip Code is required";
         if (!country) validationErrors.country = "Country is required";
 
-        // If there are any validation errors, update the state and exit early
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         }
 
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            return;
-        }
-        setErrors({});  // Clear errors if valid
+        setErrors({});
 
         try {
-            // Card data and booking logic
+            // Build card data
             const cardData = {
                 email: email,
                 cardholderName: cardholderName,
@@ -117,7 +110,7 @@ const PaymentInformation = () => {
                 cvv: cvv,
                 addressLine1: addressLine1,
                 addressLine2: addressLine2,
-                administrativeDistrictLevel1: state,
+                administrativeDistrictLevel1: stateValue,
                 country: country,
                 firstName: firstName,
                 lastName: lastName,
@@ -163,11 +156,15 @@ const PaymentInformation = () => {
                 toast.info("Proceeding without linking your card.");
             }
 
-            await addToCart(user.id, appointmentData);  // Add to cart logic remains the same
-            toast.success("Appointment successfully booked!");
-            setTimeout(() => {
-                navigate("/");  // Optionally redirect after success
-            }, 1500);
+            await addToCart(user.id, appointmentData);
+            if (cardId != null) {
+                toast.success("Appointment successfully booked!");
+                setTimeout(() => {
+                    navigate("/");  // Redirect after success
+                }, 1500);
+            } else {
+                toast.error("Failed to process card information.");
+            }
         } catch (error) {
             const extracted = extractErrorMessage(error);
             setErrors({ general: extracted });
@@ -241,7 +238,11 @@ const PaymentInformation = () => {
                         <TextField fullWidth label="City" variant="outlined" value={city} onChange={(e) => setCity(e.target.value)} error={!!errors.city} helperText={errors.city} required />
                         <FormControl fullWidth error={!!errors.state} required>
                             <InputLabel>State</InputLabel>
-                            <Select label="State" value={state} onChange={(e) => setState(e.target.value)}>{states.map((stateAbbr) => (<MenuItem key={stateAbbr} value={stateAbbr}>{stateAbbr}</MenuItem>))}</Select>
+                            <Select label="State" value={stateValue} onChange={(e) => setStateValue(e.target.value)}>
+                                {states.map((stateAbbr) => (
+                                    <MenuItem key={stateAbbr} value={stateAbbr}>{stateAbbr}</MenuItem>
+                                ))}
+                            </Select>
                             {errors.state && (<Typography variant="caption" color="error">{errors.state}</Typography>)}
                         </FormControl>
                         <TextField fullWidth label="ZIP Code" variant="outlined" type="number" inputProps={{ maxLength: 5 }} value={zipCode} onChange={(e) => setZipCode(e.target.value)} error={!!errors.zipCode} helperText={errors.zipCode} required />
