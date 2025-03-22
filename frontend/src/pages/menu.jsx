@@ -13,28 +13,38 @@ function SpaMenuPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch services from the database
     axios.get('http://localhost:5000/api/services')
       .then((res) => {
         setMenuItems(res.data);
-        // Derive unique categories from fetched services
-        const uniqueCategories = Array.from(new Set(res.data.map(item => {
-          // Assuming category is stored as an ObjectId or a name?
-          // If category is an object with a name, use: item.category.name
-          return typeof item.category === 'object' && item.category !== null
-            ? item.category.name
-            : item.category;
-        })));
+        const uniqueCategories = Array.from(new Set(res.data.map(item => 
+          typeof item.category === 'object' && item.category !== null 
+            ? item.category.name 
+            : item.category
+        )));
         setCategories(['All', ...uniqueCategories]);
       })
-      .catch((err) => {
-        console.error('Error fetching services:', err);
-      });
+      .catch((err) => console.error('Error fetching services:', err));
   }, []);
 
-  const handleBook = (itemName) => {
-    toast.success(`${itemName} booking initiated!`);
-    navigate('/appointment'); // Redirects to appointment page
+  const handleAddToCart = (serviceName) => {
+    // Calls the Cart API to add one unit of the service.
+    axios.post('http://localhost:5000/api/carts/add/service', {
+      email: 'jordan@example.com',
+      serviceName: serviceName,
+      quantity: 1
+    })
+    .then((res) => {
+      toast.success(`${serviceName} added to cart`);
+    })
+    .catch((err) => {
+      console.error('Error adding to cart:', err);
+      toast.error('Failed to add to cart');
+    });
+  };
+
+  const handleBookAppointment = () => {
+    // Redirects to the cart page where the user can review the order and update quantities (up to 10 max)
+    navigate('/cart');
   };
 
   return (
@@ -42,10 +52,18 @@ function SpaMenuPage() {
       <ToastContainer />
 
       {/* Header Section */}
-      <Box textAlign="center" p={5} bgcolor="#e0e0e0">
+      <Box position="relative" textAlign="center" p={5} bgcolor="#e0e0e0">
         <Typography variant="h3" sx={{ fontFamily: 'Special Elite' }}>
           Menu
         </Typography>
+        {/* Book Appointment Button */}
+        <Button 
+          variant="contained" 
+          onClick={handleBookAppointment} 
+          sx={{ position: 'absolute', top: 20, right: 20 }}
+        >
+          Book Appointment
+        </Button>
       </Box>
 
       {/* Filter Buttons */}
@@ -54,7 +72,7 @@ function SpaMenuPage() {
           <Button
             key={category}
             variant={selectedCategory === category ? 'contained' : 'outlined'}
-            style={{ margin: '5px' }}
+            sx={{ margin: '5px' }}
             onClick={() => setSelectedCategory(category)}
           >
             {category}
@@ -63,7 +81,7 @@ function SpaMenuPage() {
       </Box>
 
       {/* Cards Section */}
-      <Grid container spacing={3} justifyContent="center" style={{ padding: '20px' }}>
+      <Grid container spacing={3} justifyContent="center" sx={{ padding: '20px' }}>
         {menuItems
           .filter(item => {
             const itemCategory = typeof item.category === 'object' && item.category !== null
@@ -77,7 +95,7 @@ function SpaMenuPage() {
                 name={item.name}
                 description={item.description}
                 price={`$${item.pricing}`}
-                onPurchase={() => handleBook(item.name)}
+                onPurchase={() => handleAddToCart(item.name)}
               />
             </Grid>
           ))}
