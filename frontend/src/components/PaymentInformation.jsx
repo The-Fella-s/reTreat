@@ -1,4 +1,4 @@
-import { Box, Button, Card, TextField, Typography, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
+import { Box, Button, Card, TextField, Typography, MenuItem, Select, InputLabel, FormControl, FormControlLabel, Checkbox } from "@mui/material";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import HomeIcon from "@mui/icons-material/Home";
@@ -40,6 +40,9 @@ const PaymentInformation = () => {
     const [state, setState] = useState("");
     const [zipCode, setZipCode] = useState("");
     const [country, setCountry] = useState("");
+
+    // Additional state for linking card to account
+    const [linkCard, setLinkCard] = useState(false);
 
     // List of states
     const states = [
@@ -122,32 +125,49 @@ const PaymentInformation = () => {
                 postalCode: zipCode,
             };
 
-            let cardId;
-            try {
-                const retrieveCard = await axios.get('http://localhost:5000/api/cards/retrieve', { params: { email } });
-                if (retrieveCard.data.card.id) cardId = retrieveCard.data.card.id;
-            } catch (error) {
-                if (error.response?.status === 404) {
-                    try {
-                        const response = await axios.post('http://localhost:5000/api/cards/create', cardData);
-                        if (response.data) {
-                            cardId = response.data.id;
+            let cardId = null;
+            if (linkCard) {
+                // Try to retrieve an existing card by email
+                try {
+                    const retrieveCard = await axios.get('http://localhost:5000/api/cards/retrieve', { params: { email } });
+                    if (retrieveCard.data.card.id) {
+                        cardId = retrieveCard.data.card.id;
+                    }
+                } catch (error) {
+                    // If card not found, create a new card
+                    if (error.response?.status === 404) {
+                        try {
+                            const response = await axios.post('http://localhost:5000/api/cards/create', cardData);
+                            if (response.data) {
+                                cardId = response.data.id;
+                                if (cardId) {
+                                    toast.success("Card successfully linked");
+                                }
+                            }
+                        } catch (createError) {
+                            const extracted = extractErrorMessage(createError);
+                            setErrors({ general: extracted });
+                            toast.error(extracted);
+                            return;  // Exit early if linking fails
                         }
-                    } catch (createError) {
-                        const extracted = extractErrorMessage(createError);
+                    } else {
+                        // Handle other errors if necessary
+                        const extracted = extractErrorMessage(error);
                         setErrors({ general: extracted });
                         toast.error(extracted);
+                        return;
                     }
                 }
+            } else {
+                // User chose not to link the card, proceed without linking
+                toast.info("Proceeding without linking your card.");
             }
 
             await addToCart(user.id, appointmentData);  // Add to cart logic remains the same
-            if (cardId != null) {
-                toast.success("Appointment successfully booked!");
-                setTimeout(() => {
-                    navigate("/");  // Optionally redirect after success
-                }, 1500);
-            }
+            toast.success("Appointment successfully booked!");
+            setTimeout(() => {
+                navigate("/");  // Optionally redirect after success
+            }, 1500);
         } catch (error) {
             const extracted = extractErrorMessage(error);
             setErrors({ general: extracted });
@@ -181,9 +201,21 @@ const PaymentInformation = () => {
 
                     {/* Right Section: Payment Information */}
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%" }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <CreditCardIcon />
-                            <Typography variant="h6" sx={{ fontWeight: "bold" }}>Payment Information</Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                <CreditCardIcon />
+                                <Typography variant="h6" sx={{ fontWeight: "bold" }}>Payment Information</Typography>
+                            </Box>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={linkCard}
+                                        onChange={(e) => setLinkCard(e.target.checked)}
+                                        sx={{ padding: 0 }} // Remove extra padding from the checkbox
+                                    />
+                                }
+                                label="Link card to account"
+                            />
                         </Box>
                         <TextField fullWidth label="Cardholder Name" variant="outlined" value={cardholderName} onChange={(e) => setCardholderName(e.target.value)} error={!!errors.cardholderName} helperText={errors.cardholderName} />
                         <TextField fullWidth label="Card Number" variant="outlined" type="text" inputProps={{ maxLength: 16, pattern: "[0-9]*" }} value={cardNumber} onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, ""))} error={!!errors.cardNumber} helperText={errors.cardNumber} />

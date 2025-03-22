@@ -232,4 +232,29 @@ router.put(
     }
 );
 
+// Search for users by name
+router.get('/search', protect, async (req, res) => {
+  try {
+    const { name } = req.query;
+    if (!name) {
+      return res.status(400).json({ message: 'Name query parameter is required.' });
+    }
+
+    // Find users whose name matches the search term (case-insensitive)
+    const users = await User.find({
+      name: { $regex: name, $options: 'i' }
+    }).select('-password'); // Exclude password from results
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'No users found with that name.' });
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('❌ Error searching users:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 module.exports = router;
