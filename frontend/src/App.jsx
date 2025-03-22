@@ -11,6 +11,7 @@ import ReadyToRelax from './components/ReadyToRelax';
 import Login from './pages/Login';
 import NavBar from './components/NavBar';
 import Register from './pages/Register.jsx';
+import VerifyEmail from './pages/VerifyEmail.jsx';
 import MeetTheTeam from './pages/MeetTheTeam.jsx';
 import BookAppointment from './pages/BookAppointment.jsx';
 import Profile from './components/Profile.jsx';
@@ -41,7 +42,7 @@ function HomePageTracker() {
     }
   }, [location]);
 
-  return null; // This component does not render anything
+  return null;
 }
 
 function App() {
@@ -61,7 +62,7 @@ function App() {
     <Router>
       <AuthProvider>
         <ThemeProvider theme={theme}>
-          <HomePageTracker /> {/* This only tracks visits when on the home page */}
+          <HomePageTracker />
           <Box className="app-container">
             <NavBar />
             <Box className="main-content">
@@ -79,6 +80,7 @@ function App() {
                 <Route path="/contact-us" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/meet-the-team" element={<MeetTheTeam />} />
                 <Route path="/appointment" element={<BookAppointment />} />
                 <Route path="/profile" element={<Profile />} />
