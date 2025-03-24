@@ -1,15 +1,19 @@
-import { data, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import AppointmentCardDetailsOnly from '../components/AppointmentCardDetailsOnly.jsx';
-import AppointmentCard from '../components/AppointmentCard.jsx';
-import {Box, Grid2} from '@mui/material';
+import { Box, Grid2 } from '@mui/material';
 import TotalPaymentCard from '../components/TotalPaymentCard.jsx';
 import CalendarAndAvailableHours from '../components/CalendarAndAvailableHours.jsx';
-import PaymentInformation from "../components/PaymentInformation.jsx";
+import PaymentInformation from '../components/PaymentInformation.jsx';
 import { CartProvider } from '../context/CartContext.jsx';
+import {getServiceImageUrl} from "../utilities/image.js";
 
 const Payment = () => {
     const { state } = useLocation();
     const { appointmentData } = state || {};
+
+    // State to hold the selected appointment slot (an object with date and time)
+    const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
 
     if (!appointmentData) {
         return <div>No appointment data found!</div>;
@@ -17,73 +21,66 @@ const Payment = () => {
 
     return (
         <>
-            <Grid2
-                container
-                justifyContent='center'
-                alignItems='center'
-            >
+            <Grid2 container justifyContent="center" alignItems="center">
                 <Grid2
                     container
-                    direction='row'
-                    paddingX={{ xs: 2, md: 4 }} // Padding on both left and right sides
-                    paddingY={4} // Padding for top and bottom
+                    direction="row"
+                    paddingX={{ xs: 2, md: 4 }}
+                    paddingY={4}
                     spacing={4}
-                    justifyContent={{ xs: 'center', md: 'flex-start' }} // Center on mobile, align left on desktop
-                    alignItems={{ xs: 'center', md: 'flex-start' }} // Align center vertically on mobile, align center left on desktop
-                    sx={{
-                        height: 'auto', // Dynamic height to adjust to content
-                    }}
+                    justifyContent={{ xs: 'center', md: 'flex-start' }}
+                    alignItems={{ xs: 'center', md: 'flex-start' }}
+                    sx={{ height: 'auto' }}
                 >
                     {/* Appointment details card */}
-                    <Grid2
-                        item
-                        xs={12}
-                        md={6}>
+                    <Grid2 item xs={12} md={6}>
                         <AppointmentCardDetailsOnly
                             title={appointmentData.name}
                             description={appointmentData.description}
                             pricing={appointmentData.pricing}
                             duration={appointmentData.duration}
+                            image={getServiceImageUrl(appointmentData.servicePicture)}
                             onAppointmentBookConfirm={(data) => console.log(data)}
                             sx={{ height: 'auto' }}
                         />
                     </Grid2>
 
                     <Box
-                        component='img'
+                        component="img"
                         sx={{
-                            height: { xs: 'auto', md: '270px', xl: '270px' }, // Auto height on mobile, fixed height on desktop
-                            minWidth: { xs: '20%', md: '37.5%' }, // Makes it responsive on mobile, laptops and desktop
-                            maxWidth: { xs: 'auto', md: '37.5%', lg: '40%', xl: '63.5%' }, // Makes it responsive on mobile, laptops and desktop
-                            width: '100%', // Full width on all screen sizes
-                            display: { xs: 'none', md: 'block' }, // Hidden on mobile, visible on desktop and up
-                            gridColumn: { xs: 'span 0', md: 'span 6' }, // Does not occupy grid space on mobile
+                            height: { xs: 'auto', md: '270px', xl: '270px' },
+                            minWidth: { xs: '20%', md: '37.5%' },
+                            maxWidth: { xs: 'auto', md: '37.5%', lg: '40%', xl: '63.5%' },
+                            width: '100%',
+                            display: { xs: 'none', md: 'block' },
+                            gridColumn: { xs: 'span 0', md: 'span 6' },
                         }}
                         alt='Appointment picture'
-                        src='https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2'
+                        src={getServiceImageUrl(appointmentData.servicePicture) || "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"}
                     />
 
-                    {/* Total Payment Card - sticky on desktop for visibility during scrolling */}
+                    {/* Total Payment Card - sticky on desktop */}
                     <Grid2
                         item
                         xs={12}
                         md={6}
                         sx={{
-                            position: 'sticky', // Sticky position for fixed visibility
-                            top: 20, // Offset from the top
-                            order: { xs: 2, md: 1 }, // Renders below DateTimePicker on mobile, but above it on desktop
-                            zIndex: 10, // Ensure visibility above other components
+                            position: 'sticky',
+                            top: 20,
+                            order: { xs: 2, md: 1 },
+                            zIndex: 10,
                         }}
                     >
                         <TotalPaymentCard
                             title={appointmentData.name} // Display appointment name in payment card
                             pricing={appointmentData.pricing} // Display appointment pricing in payment card
+                            appointmentTime={selectedTimeSlot}  // Pass the selected appointment slot here
                         />
                     </Grid2>
 
                     {/* Calendar and Available Hours */}
                     <Grid2 item xs={12} md={6} sx={{ order: { xs: 1, md: 2 } }}>
-                        <CalendarAndAvailableHours />
+                        <CalendarAndAvailableHours onTimeSlotSelect={setSelectedTimeSlot} />
                     </Grid2>
 
                     <Box
@@ -96,9 +93,9 @@ const Payment = () => {
                             order: { xs: 1, md: 2 },
                         }}
                     >
-                    <CartProvider>
-                        <PaymentInformation/>
-                    </CartProvider>
+                        <CartProvider>
+                            <PaymentInformation />
+                        </CartProvider>
                     </Box>
 
                 </Grid2>

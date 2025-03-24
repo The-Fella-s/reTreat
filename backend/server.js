@@ -43,6 +43,8 @@ const websiteVisitRoutes = require('./routes/websiteVisitRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const catalogRoutes = require('./routes/catalogRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const employeeRoutes = require('./routes/employeeRoutes')
+
 
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
@@ -60,6 +62,8 @@ app.use('/api/website-visits', websiteVisitRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/catalogs', catalogRoutes);
 app.use('/api/reviews', reviewRoutes);
+=======
+app.use('/api/employees', employeeRoutes);
 
 app.use(passport.initialize());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
