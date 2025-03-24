@@ -1,17 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  Box,
-  Typography,
-  Snackbar,
-  Alert,
-  Button,
-  Card,
-  CardContent,
-  CardActions,
-  CardMedia,
-  Grid,
-} from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
+import { Box, Typography, Snackbar, Alert, Button, Card, CardContent, CardActions, CardMedia, Grid2 } from '@mui/material';
 import axios from 'axios';
 import AppointmentCardAdminEdit from '../../components/AppointmentCardAdminEdit.jsx';
 import ComboBox from '../../components/BookingInputForm.jsx';
@@ -211,9 +199,9 @@ const BookingSection = () => {
           Existing Bookings
         </Typography>
 
-        <Grid container spacing={3}>
+        <Grid2 container spacing={3}>
           {bookings.map((booking, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+            <Grid2 item xs={12} sm={6} md={4} key={index}>
               <Card>
                 {booking.image && (
                   <CardMedia
@@ -247,9 +235,9 @@ const BookingSection = () => {
                   </Button>
                 </CardActions>
               </Card>
-            </Grid>
+            </Grid2>
           ))}
-        </Grid>
+        </Grid2>
       </Box>
 
       <Snackbar

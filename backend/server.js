@@ -62,7 +62,6 @@ app.use('/api/website-visits', websiteVisitRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/catalogs', catalogRoutes);
 app.use('/api/reviews', reviewRoutes);
-=======
 app.use('/api/employees', employeeRoutes);
 
 app.use(passport.initialize());
