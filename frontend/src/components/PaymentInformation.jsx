@@ -156,15 +156,11 @@ const PaymentInformation = () => {
                 toast.info("Proceeding without linking your card.");
             }
 
-            await addToCart(user.id, appointmentData);
-            if (cardId != null) {
-                toast.success("Appointment successfully booked!");
-                setTimeout(() => {
-                    navigate("/");  // Redirect after success
-                }, 1500);
-            } else {
-                toast.error("Failed to process card information.");
-            }
+            await addToCart(user.id, appointmentData);  // Add to cart logic remains the same
+            toast.success("Appointment successfully booked!");
+            setTimeout(() => {
+                navigate("/");  // Optionally redirect after success
+            }, 1500);
         } catch (error) {
             const extracted = extractErrorMessage(error);
             setErrors({ general: extracted });

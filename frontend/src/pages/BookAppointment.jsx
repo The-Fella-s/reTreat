@@ -3,6 +3,8 @@ import { Grid2, Typography, Button, Box } from '@mui/material';
 import AppointmentCard from '../components/AppointmentCard.jsx';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {convertToTimeWords} from "../utilities/formatDuration.js";
+=======
 import { getServiceImageUrl } from "../utilities/image.js";
 import { convertToTimeWords } from "../utilities/formatDuration.js";
 
@@ -99,8 +101,10 @@ const BookAppointment = () => {
                                         description={service.description}
                                         pricing={service.pricing}
                                         duration={convertToTimeWords(service.duration)}
+
                                         // Pass the image by converting the servicePicture to a URL if available
                                         image={getServiceImageUrl(service.servicePicture)}
+
                                         onAppointmentBookConfirm={() => handleAppointmentBookConfirm(service)}
                                     />
                                 </Grid2>

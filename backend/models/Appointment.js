@@ -1,17 +1,15 @@
 const mongoose = require('mongoose');
 
-const appointmentSchema = mongoose.Schema(          // DON'T MODIFY ORDER
-    {
-        name: { type: String, required: true },
-        description: { type: String, required: true },
-        pricing: { type: Number, required: true },
-        duration: { type: String, required: true },
-        category: { type: String, required: true },
-    },
-    {
-        timestamps: true
-    }
-);
+const appointmentSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  service: { type: mongoose.Schema.Types.ObjectId, ref: 'Services', required: true },
+  date: { type: Date, required: true },
+  status: { type: String, required: true },
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  pricing: { type: Number, required: true },
+  duration: { type: Number, required: true },
+  category: { type: String, required: true }
+}, { timestamps: true });
 
-const Appointment = mongoose.model('Appointment', appointmentSchema);
-module.exports = Appointment;
+module.exports = mongoose.model('Appointment', appointmentSchema);
