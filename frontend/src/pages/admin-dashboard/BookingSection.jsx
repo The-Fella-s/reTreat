@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Snackbar, Alert, Button, Card, CardContent, CardActions, CardMedia, Grid2 } from '@mui/material';
+import { Box, Typography, Grid2 } from '@mui/material';
 import axios from 'axios';
 import AppointmentCardAdminEdit from '../../components/AppointmentCardAdminEdit.jsx';
-import ComboBox from '../../components/BookingInputForm.jsx';
 import { getServiceImageUrl } from '../../utilities/image.js';
 import { convertToTimeWords } from '../../utilities/formatDuration.js';
+import BookingInputForm from "../../components/BookingInputForm.jsx";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const BookingSection = () => {
   const [services, setServices] = useState({
@@ -18,16 +20,13 @@ const BookingSection = () => {
 
   const [categories, setCategories] = useState([]);
   const [serviceList, setServiceList] = useState([]);
-  const [bookings, setBookings] = useState([]);
-  const [successMessage, setSuccessMessage] = useState(false);
-  const [deleteMessage, setDeleteMessage] = useState(false);
 
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const { data } = await axios.get(
-          'http://localhost:5000/api/categories/list?source=mongo'
+            'http://localhost:5000/api/categories/list?source=mongo'
         );
         const categoryNames = data.data.map(({ name }) => name);
         setCategories(categoryNames);
@@ -70,7 +69,7 @@ const BookingSection = () => {
     try {
       await axios.delete(`http://localhost:5000/api/services/${id}`);
       setServiceList((prev) => prev.filter((service) => service._id !== id));
-      setDeleteMessage(true);
+      toast.error("Service successfully deleted!");
     } catch (error) {
       console.error('Error deleting service:', error);
     }
@@ -106,29 +105,10 @@ const BookingSection = () => {
 
       const { data } = await axios.get('http://localhost:5000/api/services');
       setServiceList(data);
-      setSuccessMessage(true);
+      toast.success("Service successfully added!");
     } catch (error) {
       console.error('Error adding service:', error.response?.data || error);
     }
-  };
-
-  const handleEditBooking = (index) => {
-    const booking = bookings[index];
-    setServices({
-      name: booking.name,
-      category: booking.category,
-      description: booking.description,
-      pricing: booking.pricing,
-      duration: booking.duration,
-      servicePicture: booking.image,
-    });
-  };
-
-  const handleDeleteBooking = (index) => {
-    const updated = [...bookings];
-    updated.splice(index, 1);
-    setBookings(updated);
-    setDeleteMessage(true);
   };
 
   return (
@@ -145,7 +125,7 @@ const BookingSection = () => {
           alignItems={{ xs: 'center', sm: 'left' }}
           sx={{ flexDirection: { xs: 'column', sm: 'row' } }}
         >
-          <ComboBox
+          <BookingInputForm
             image={getServiceImageUrl(services.servicePicture)}
             name={services.name}
             categories={categories}
@@ -195,72 +175,18 @@ const BookingSection = () => {
           ))}
         </Grid2>
 
-        <Typography variant="h5" gutterBottom sx={{ mt: 5 }}>
-          Existing Bookings
-        </Typography>
-
-        <Grid2 container spacing={3}>
-          {bookings.map((booking, index) => (
-            <Grid2 item xs={12} sm={6} md={4} key={index}>
-              <Card>
-                {booking.image && (
-                  <CardMedia
-                    component="img"
-                    height="140"
-                    image={booking.image}
-                    alt={booking.name}
-                  />
-                )}
-                <CardContent>
-                  <Typography variant="h6">{booking.name}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {booking.description}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Category: {booking.category?.name || booking.category}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Price: {booking.pricing}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Duration: {convertToTimeWords(booking.duration)}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button size="small" onClick={() => handleEditBooking(index)}>
-                    Edit
-                  </Button>
-                  <Button size="small" color="error" onClick={() => handleDeleteBooking(index)}>
-                    Delete
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid2>
-          ))}
-        </Grid2>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </Box>
-
-      <Snackbar
-        open={successMessage}
-        autoHideDuration={3000}
-        onClose={() => setSuccessMessage(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert onClose={() => setSuccessMessage(false)} severity="success">
-          Booking successfully added!
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={deleteMessage}
-        autoHideDuration={3000}
-        onClose={() => setDeleteMessage(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert onClose={() => setDeleteMessage(false)} severity="error">
-          Booking successfully deleted!
-        </Alert>
-      </Snackbar>
     </>
   );
 };
