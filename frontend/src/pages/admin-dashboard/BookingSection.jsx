@@ -3,8 +3,8 @@ import { Box, Typography, Grid2 } from '@mui/material';
 import axios from 'axios';
 import AppointmentCardAdminEdit from '../../components/AppointmentCardAdminEdit.jsx';
 import ComboBox from '../../components/BookingInputForm.jsx';
-import { convertToTimeWords } from "../../utilities/conversion.js";
 import { getServiceImageUrl } from "../../utilities/image.js";
+import {convertToTimeWords} from "../../utilities/formatDuration.js";
 
 const BookingSection = () => {
     const [services, setServices] = useState({
