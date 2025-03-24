@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Grid, Button, Box } from '@mui/material';
+import { Grid2, Typography, Button, Box } from '@mui/material';
 import AppointmentCard from '../components/AppointmentCard.jsx';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import {convertToTimeWords} from "../utilities/formatDuration.js";
+import { getServiceImageUrl } from "../utilities/image.js";
+import { convertToTimeWords } from "../utilities/formatDuration.js";
 
 const BookAppointment = () => {
     const navigate = useNavigate();
@@ -41,8 +42,8 @@ const BookAppointment = () => {
 
     // Auto-fetch services and categories on mount
     useEffect(() => {
-        fetchServices(); // Fetch services immediately
-        fetchCategories(); // Fetch categories immediately
+        fetchServices();
+        fetchCategories();
     }, []);
 
     const handleAppointmentBookConfirm = (appointmentData) => {
@@ -50,8 +51,8 @@ const BookAppointment = () => {
     };
 
     return (
-        <Box style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Box>
+        <Grid2 style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Grid2>
                 <Typography
                     variant="h3"
                     gutterBottom
@@ -62,26 +63,16 @@ const BookAppointment = () => {
                     Book Appointment
                 </Typography>
 
-                {/* Horizontal category buttons */}
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexWrap: "nowrap",
-                        overflowX: "auto",
-                        justifyContent: "center",
-                        gap: 2,
-                        p: 2
-                    }}
-                >
+                <Grid2 container spacing={2} justifyContent="center" alignItems="center">
                     {categories.map((category, index) => (
                         <Button
                             key={index}
                             variant="outlined"
                             style={{
-                                padding: '10px',
-                                textAlign: 'center',
-                                backgroundColor: selectedCategory === category ? '#1976d2' : '',
-                                color: selectedCategory === category ? 'white' : '',
+                                padding: "10px",
+                                textAlign: "center",
+                                backgroundColor: selectedCategory === category ? "#1976d2" : "",
+                                color: selectedCategory === category ? "white" : "",
                                 whiteSpace: "nowrap",
                             }}
                             onClick={() => setSelectedCategory(category)}
@@ -89,35 +80,36 @@ const BookAppointment = () => {
                             {category}
                         </Button>
                     ))}
-                </Box>
+                </Grid2>
 
                 <Box p={5}>
-                    <Grid container direction="row" sx={{ justifyContent: "center", alignItems: "center" }}>
+                    <Grid2
+                        container
+                        spacing={2}
+                        justifyContent="center"
+                        alignItems="center"
+                        direction={{ xs: "column", sm: "row" }}
+                    >
                         {appointments
                             .filter(service => (service.category?.name || service.category) === selectedCategory)
                             .map((service, index) => (
-                                <Grid item sx={{ p: 1.5 }} key={index}>
+                                <Grid2 item xs={12} sm={6} md={4} sx={{ p: 1.5 }} key={index}>
                                     <AppointmentCard
                                         title={service.name}
-                                        description={
-                                            Array.isArray(service.description)
-                                                ? service.description.map((line, lineIndex) => (
-                                                    <span key={lineIndex}>
-                                                        {line}
-                                                        <br />
-                                                    </span>
-                                                )) : service.description
-                                        }
+                                        description={service.description}
                                         pricing={service.pricing}
                                         duration={convertToTimeWords(service.duration)}
+                                        // Pass the image by converting the servicePicture to a URL if available
+                                        image={getServiceImageUrl(service.servicePicture)}
                                         onAppointmentBookConfirm={() => handleAppointmentBookConfirm(service)}
                                     />
-                                </Grid>
+                                </Grid2>
                             ))}
-                    </Grid>
+                    </Grid2>
                 </Box>
-            </Box>
-        </Box>
+
+            </Grid2>
+        </Grid2>
     );
 };
 

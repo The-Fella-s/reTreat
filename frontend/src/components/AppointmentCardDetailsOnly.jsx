@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import { Box, Dialog, DialogTitle, DialogContent, DialogActions, CardMedia } from '@mui/material';
 import PropTypes from 'prop-types';
 
-const AppointmentCardDetailsOnly = ({ title, description }) => {
+const AppointmentCardDetailsOnly = ({ title, description, image }) => {
     const [openDialog, setOpenDialog] = React.useState(false);
     const [isMobile, setIsMobile] = React.useState(false);
 
@@ -41,7 +41,7 @@ const AppointmentCardDetailsOnly = ({ title, description }) => {
                 <CardMedia
                     component="img"
                     height="140"
-                    image="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"
+                    image={image || "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"}
                     alt="Mobile-only image"
                 />
             )}
@@ -63,11 +63,18 @@ const AppointmentCardDetailsOnly = ({ title, description }) => {
                         {title}
                     </Typography>
 
-                    {/* Description */}
+                    {/* Description with additional styling */}
                     <Typography
                         variant='body2'
                         sx={{
                             color: 'text.secondary',
+                            whiteSpace: 'pre-wrap',
+                            overflowWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            display: '-webkit-box',
+                            overflow: 'hidden',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 5,
                         }}
                     >
                         {description}
@@ -76,7 +83,7 @@ const AppointmentCardDetailsOnly = ({ title, description }) => {
             </Box>
 
             {/* Padding between description and buttons */}
-            <Box sx={{ p: 1 }}/>
+            <Box sx={{ p: 1 }} />
 
             {/* Read More button that opens up a popup and shows the full information */}
             <CardActions sx={{ justifyContent: 'flex-end', display: 'flex' }}>
@@ -107,7 +114,7 @@ AppointmentCardDetailsOnly.propTypes = {
     description: PropTypes.array,
     pricing: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     duration: PropTypes.string.isRequired,
-    thumbnail: PropTypes.string
+    image: PropTypes.string
 };
 
 export default AppointmentCardDetailsOnly;

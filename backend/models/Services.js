@@ -12,6 +12,7 @@ const servicesSchema = new mongoose.Schema(
         variantId: [String],
         variantPricing: [Number],
         variantDuration: [String],
+        servicePicture: { type: String },
     },
     {
         timestamps: true

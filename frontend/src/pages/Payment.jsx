@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import AppointmentCardDetailsOnly from '../components/AppointmentCardDetailsOnly.jsx';
-import AppointmentCard from '../components/AppointmentCard.jsx';
 import { Box, Grid2 } from '@mui/material';
 import TotalPaymentCard from '../components/TotalPaymentCard.jsx';
 import CalendarAndAvailableHours from '../components/CalendarAndAvailableHours.jsx';
 import PaymentInformation from '../components/PaymentInformation.jsx';
 import { CartProvider } from '../context/CartContext.jsx';
+import {getServiceImageUrl} from "../utilities/image.js";
 
 const Payment = () => {
     const { state } = useLocation();
@@ -39,6 +39,7 @@ const Payment = () => {
                             description={appointmentData.description}
                             pricing={appointmentData.pricing}
                             duration={appointmentData.duration}
+                            image={getServiceImageUrl(appointmentData.servicePicture)}
                             onAppointmentBookConfirm={(data) => console.log(data)}
                             sx={{ height: 'auto' }}
                         />
@@ -54,8 +55,8 @@ const Payment = () => {
                             display: { xs: 'none', md: 'block' },
                             gridColumn: { xs: 'span 0', md: 'span 6' },
                         }}
-                        alt="Appointment picture"
-                        src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"
+                        alt='Appointment picture'
+                        src={getServiceImageUrl(appointmentData.servicePicture) || "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"}
                     />
 
                     {/* Total Payment Card - sticky on desktop */}
@@ -71,8 +72,8 @@ const Payment = () => {
                         }}
                     >
                         <TotalPaymentCard
-                            title={appointmentData.name}
-                            pricing={appointmentData.pricing}
+                            title={appointmentData.name} // Display appointment name in payment card
+                            pricing={appointmentData.pricing} // Display appointment pricing in payment card
                             appointmentTime={selectedTimeSlot}  // Pass the selected appointment slot here
                         />
                     </Grid2>
@@ -84,11 +85,11 @@ const Payment = () => {
 
                     <Box
                         sx={{
-                            height: { xs: 'auto', md: '100%', lg: '100%' },
-                            minWidth: { xs: '300px', md: '37.5%' },
-                            maxWidth: { xs: '300px', md: '37.5%', lg: '40%', xl: '63.5%' },
-                            width: '100%',
-                            gridColumn: { xs: 'span 0', md: 'span 6' },
+                            height: { xs: 'auto', md: '100%', lg: '100%' }, // Auto height on mobile, fixed height on desktop
+                            minWidth: { xs: '300px', md: '37.5%' }, // Makes it responsive on mobile, laptops and desktop
+                            maxWidth: { xs: '300px', md: '37.5%', lg: '40%', xl: '63.5%' }, // Makes it responsive on mobile, laptops and desktop
+                            width: '100%', // Full width on all screen sizes
+                            gridColumn: { xs: 'span 0', md: 'span 6' }, // Does not occupy grid space on mobile
                             order: { xs: 1, md: 2 },
                         }}
                     >
@@ -99,6 +100,7 @@ const Payment = () => {
 
                 </Grid2>
             </Grid2>
+
         </>
     );
 };
