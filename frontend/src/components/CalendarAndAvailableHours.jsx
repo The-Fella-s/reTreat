@@ -147,7 +147,7 @@ export default function CalendarAndAvailableHours({ onTimeSlotSelect }) {
             spacing={2}
             sx={{
               marginTop: '20px',
-              maxWidth: '400px',
+              maxWidth: '300px',
               justifyContent: 'center',
             }}
           >
@@ -168,7 +168,7 @@ export default function CalendarAndAvailableHours({ onTimeSlotSelect }) {
                   }
                 }}
                 sx={{
-                  width: '150px',
+                  width: '100px',
                   minHeight: '80px',
                   textAlign: 'center',
                   display: 'flex',
