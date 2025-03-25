@@ -93,8 +93,10 @@ router.put('/update', async (req, res) => {
 router.get('/list', async (req, res) => {
     try {
         const source = req.query.source;
-        if (!source) res.status(400).json({ error: 'Source is required'});
-        if (!["square", "database", "mongo", "mongodb"].includes(source)) res.status(400).json({ error: 'Source must be either from Square or the database' });
+        if (!source) return res.status(400).json({ error: 'Source is required' });
+        if (!["square", "database", "mongo", "mongodb"].includes(source)) {
+            return res.status(400).json({ error: 'Source must be either from Square or the database' });
+        }
 
         let response;
 
@@ -106,15 +108,16 @@ router.get('/list', async (req, res) => {
             response = await Category.find();
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             message: 'Categories obtained successfully',
             source: source,
             data: JSON.parse(JSON.stringify(response, bigIntReplacer)),
         });
     } catch (error) {
         console.error('Error listing categories:', error);
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 });
+
 
 module.exports = router;
