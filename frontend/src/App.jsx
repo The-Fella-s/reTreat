@@ -15,7 +15,7 @@ import VerifyEmail from './pages/VerifyEmail.jsx';
 import MeetTheTeam from './pages/MeetTheTeam.jsx';
 import BookAppointment from './pages/BookAppointment.jsx';
 import Profile from './components/Profile.jsx';
-import Menu from './pages/Menu.jsx';
+import Menu from './pages/menu.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Payment from './pages/Payment.jsx';
