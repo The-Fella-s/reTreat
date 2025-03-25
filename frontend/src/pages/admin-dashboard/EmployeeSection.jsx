@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, InputLabel, FormControl, Checkbox, FormGroup, FormControlLabel } from '@mui/material';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, InputLabel, FormControl, Checkbox } from '@mui/material';
 import axios from 'axios';
 
 const EmployeeSection = () => {
@@ -195,17 +195,17 @@ const EmployeeSection = () => {
         </Typography>
       )}
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>First Name</TableCell>
-              <TableCell>Last Name</TableCell>
-              <TableCell>Address</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Schedule</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell sx={{ minWidth: 150 }}>First Name</TableCell>
+              <TableCell sx={{ minWidth: 150 }}>Last Name</TableCell>
+              <TableCell sx={{ minWidth: 200 }}>Address</TableCell>
+              <TableCell sx={{ minWidth: 150 }}>Phone</TableCell>
+              <TableCell sx={{ minWidth: 200 }}>Email</TableCell>
+              <TableCell sx={{ minWidth: 300 }}>Schedule</TableCell>
+              <TableCell sx={{ minWidth: 150 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
