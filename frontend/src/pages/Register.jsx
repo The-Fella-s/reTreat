@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Box,
   Button,
@@ -6,13 +6,17 @@ import {
   InputAdornment,
   TextField,
   Typography,
+  Container
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import reTreatLogo from "../assets/reTreatLogo.png";
+import { GoogleLogin } from '@react-oauth/google';
+import { default as jwt_decode } from 'jwt-decode';
+import { AuthContext } from "../context/AuthContext";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
   const [firstName, setFirstName] = useState("");
@@ -22,6 +26,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const navigate = useNavigate();
+  const { loginWithToken } = useContext(AuthContext);
 
   const validatePassword = (password) => {
     const minLength = 8;
@@ -32,9 +37,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validatePassword(password)) {
-      toast.error(
-        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character."
-      );
+      toast.error("Password must be 8+ chars, include uppercase, lowercase, number, special char.");
       return;
     }
     try {
@@ -46,7 +49,6 @@ const Register = () => {
       });
       if (response.status === 201) {
         toast.success("Registration successful! Check your email for a verification code.");
-        // Store user ID for verification step
         localStorage.setItem("userId", response.data.user.id);
         setTimeout(() => {
           navigate("/verify-email");
@@ -59,13 +61,41 @@ const Register = () => {
     }
   };
 
+  // "Register with Google" flow
+  const handleGoogleSuccess = async (credentialResponse) => {
+    const decoded = jwt_decode(credentialResponse.credential);
+    try {
+      const res = await axios.post("http://localhost:5000/api/users/google-login", {
+        email: decoded.email,
+        name: decoded.name,
+        picture: decoded.picture,
+        sub: decoded.sub,
+      });
+      // user is effectively "registered" with Google
+      loginWithToken(res.data.token); // <--- Make sure this function is spelled correctly
+      navigate("/profile");
+    } catch (err) {
+      console.error("Google login error:", err);
+      toast.error("Google login failed");
+    }
+  };
+
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" height="100vh" sx={{ backgroundColor: "#f0f0f0" }}>
-      <Box p={4} bgcolor="white" borderRadius={2} boxShadow={3} maxWidth={400} width="100%" textAlign="center">
-        <img src={reTreatLogo} alt="Logo" style={{ width: "100px", marginBottom: "1rem" }} />
-        <Typography variant="h4" gutterBottom>
-          Register
-        </Typography>
+    <Container maxWidth="sm">
+      <Box
+        p={4}
+        bgcolor="white"
+        borderRadius={2}
+        boxShadow={3}
+        textAlign="center"
+        sx={{ mt: 8 }}
+      >
+        <img
+          src={reTreatLogo}
+          alt="Logo"
+          style={{ width: "100px", marginBottom: "1rem" }}
+        />
+        <Typography variant="h4" gutterBottom>Register</Typography>
         <Typography variant="body1" color="textSecondary" paragraph>
           Join our community for reLaxation and reJuvenation!
         </Typography>
@@ -121,7 +151,7 @@ const Register = () => {
             error={!validatePassword(password) && password.length > 0}
             helperText={
               !validatePassword(password) && password.length > 0
-                ? "Password must be 8+ chars, include an uppercase, lowercase, number, and special character."
+                ? "Password must be 8+ chars, include uppercase, lowercase, number, special char."
                 : ""
             }
           />
@@ -137,18 +167,23 @@ const Register = () => {
           <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
             Register
           </Button>
-          <Box mt={2}>
-            <Typography variant="body2" color="textSecondary">
-              Already have an account?{" "}
-              <Link to="/login" style={{ color: "#1976d2", textDecoration: "none" }}>
-                Sign in
-              </Link>
-            </Typography>
-          </Box>
         </form>
+
+        <Typography variant="body1" sx={{ my: 2 }}>OR</Typography>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => toast.error("Google login failed")}
+        />
+
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          Already have an account?{" "}
+          <Link to="/login" style={{ color: "#1976d2", textDecoration: "none" }}>
+            Sign in
+          </Link>
+        </Typography>
         <ToastContainer />
       </Box>
-    </Box>
+    </Container>
   );
 };
 

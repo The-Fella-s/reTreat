@@ -4,6 +4,7 @@ const Category = require('../models/Category');
 const { createCategory, deleteCategory } = require('../utilities/helpers/categoryHelpers');
 const { SquareClient, SquareEnvironment } = require("square");
 const axios = require('axios');
+const multer = require("multer");
 
 const router = express.Router();
 
@@ -89,11 +90,12 @@ router.post('/populate', async (req, res) => {
                 description: updatedService.description,
                 pricing: updatedService.pricing,
                 duration: updatedService.duration,
-                category: categoryDoc ? categoryDoc.name : '', // Use category name
+                category: categoryDoc ? categoryDoc.name : '',
                 variantName: updatedService.variantName,
                 variantId: updatedService.variantId,
                 variantPricing: updatedService.variantPricing,
                 variantDuration: updatedService.variantDuration,
+                servicePicture: updatedService.servicePicture,
             };
 
             await axios.post('http://localhost:5000/api/catalogs/create', payload);
@@ -201,6 +203,34 @@ router.delete('/:id', async (req, res) => {
         res.status(200).json({ message: 'Service deleted successfully' });
     } catch (error) {
         console.error('Error deleting service:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Set up multer storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/services'); // Save files in uploads/services
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}_${file.originalname}`); // Unique filename
+    }
+});
+
+const upload = multer({ storage });
+
+// Image upload endpoint
+router.post('/upload', upload.single('servicePicture'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded.' });
+        }
+
+        // Upload to the services folder
+        const filePath = `/uploads/services/${req.file.filename}`;
+        res.status(200).json({ message: 'File uploaded successfully', filePath });
+    } catch (error) {
+        console.error('Error uploading file:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });

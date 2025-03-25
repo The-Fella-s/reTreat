@@ -12,17 +12,31 @@ const convertToSeconds = (time) => {
     return seconds;
 };
 
-const convertToTime = (totalSeconds) => {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
+const parseDurationToSeconds = (duration) => {
+    if (typeof duration === 'number') return duration; // Already a number
 
-    // When hours exist, pad minutes and seconds to 2 digits.
-    if (hours) {
-        return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const lower = duration.trim().toLowerCase();
+
+    // If duration contains a colon, assume it's already in hh:mm:ss (or mm:ss) format.
+    if (lower.includes(':')) {
+        return convertToSeconds(lower);
     }
-    // When no hours, you might choose a different format.
-    return `${minutes}:${String(seconds).padStart(2, '0')}`;
+
+    // Otherwise, check for keywords.
+    if (lower.includes('hour')) {
+        const num = parseFloat(lower);
+        return num * 3600;
+    }
+    if (lower.includes('minute')) {
+        const num = parseFloat(lower);
+        return num * 60;
+    }
+    if (lower.includes('second')) {
+        return parseFloat(lower);
+    }
+
+    // Fallback: try to parse it as seconds.
+    return parseFloat(lower);
 };
 
-module.exports = { convertToSeconds, convertToTime };
+module.exports = { convertToSeconds, parseDurationToSeconds };

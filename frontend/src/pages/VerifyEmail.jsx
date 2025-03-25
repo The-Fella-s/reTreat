@@ -20,7 +20,8 @@ const VerifyEmail = () => {
       toast.success(res.data.message);
       navigate('/login');
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Verification failed. Please try again.';
+      const errorMessage =
+        error.response?.data?.message || 'Verification failed. Please try again.';
       toast.error(errorMessage);
     }
   };
@@ -28,9 +29,7 @@ const VerifyEmail = () => {
   return (
     <Container maxWidth="sm">
       <Box sx={{ p: 4, bgcolor: 'white', mt: 8, borderRadius: 2, boxShadow: 3, textAlign: 'center' }}>
-        <Typography variant="h4" gutterBottom>
-          Verify Your Email
-        </Typography>
+        <Typography variant="h4" gutterBottom>Verify Your Email</Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
           Please enter the verification code sent to your email.
         </Typography>
