@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Box, Button, TextField, Typography, Container } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -6,17 +6,19 @@ import axios from 'axios';
 import { GoogleLogin } from '@react-oauth/google';
 import jwt_decode from 'jwt-decode';
 import 'react-toastify/dist/ReactToastify.css';
+import { AuthContext } from '../context/AuthContext'; // ✅ import context
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { loginWithToken } = useContext(AuthContext); // ✅ use the context
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post("http://localhost:5000/api/users/login", { email, password });
-      localStorage.setItem("token", res.data.token);
+      loginWithToken(res.data.token); // ✅ update context
       navigate("/profile");
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Something went wrong!";
@@ -33,7 +35,7 @@ const Login = () => {
         picture: decoded.picture,
         sub: decoded.sub,
       });
-      localStorage.setItem("token", res.data.token);
+      loginWithToken(res.data.token); // ✅ THIS LINE fixes the NavBar
       navigate("/profile");
     } catch (err) {
       console.error("Google login error:", err);

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { encrypt, decrypt }  = require('../utilities/encryption')
+const { encrypt, decrypt } = require('../utilities/encryption');
 
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
@@ -20,12 +20,18 @@ const userSchema = new mongoose.Schema({
     set: encrypt,
     get: decrypt,
   },
-
   // Profile picture fields
   profilePicture: { type: String },
   profilePictureHash: { type: String },
-
-  // Appointments (For Users & Employees)
+  // Email verification fields (for initial registration)
+  isVerified: { type: Boolean, default: false },
+  emailVerificationCode: { type: String },
+  emailVerificationExpires: { type: Date },
+  // Fields for pending email change (for profile update)
+  pendingEmail: { type: String },
+  pendingEmailVerificationCode: { type: String },
+  pendingEmailVerificationExpires: { type: Date },
+  // Appointments, employeeDetails, adminPermissions as before…
   appointments: [
     {
       date: Date,
@@ -34,8 +40,6 @@ const userSchema = new mongoose.Schema({
       employee: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     },
   ],
-
-  // Employee-Specific Fields
   employeeDetails: {
     isAvailable: { type: Boolean, default: true },
     schedule: [
@@ -46,16 +50,13 @@ const userSchema = new mongoose.Schema({
       },
     ],
   },
-
-  // Admin-Specific Fields
   adminPermissions: {
     canEditUsers: { type: Boolean, default: true },
     canViewReports: { type: Boolean, default: true },
   },
 }, {
-  toJSON: { getters: true },   // enable getters when converting to JSON
-  toObject: { getters: true }  // enable getters when converting to plain objects
+  toJSON: { getters: true },
+  toObject: { getters: true }
 });
 
-// Prevent model overwrite if model already exists
 module.exports = mongoose.models.User || mongoose.model('User', userSchema);

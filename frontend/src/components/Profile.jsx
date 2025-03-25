@@ -23,22 +23,17 @@ const ProfilePage = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Profile states
   const [profile, setProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Form data for edits
   const [editedProfile, setEditedProfile] = useState({
     name: '',
-    email: '',
     phone: ''
   });
 
-  // File-related states
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
-  // Fetch Profile
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
@@ -53,7 +48,6 @@ const ProfilePage = () => {
         setProfile(res.data);
         setEditedProfile({
           name: res.data.name,
-          email: res.data.email,
           phone: res.data.phone
         });
       } catch (error) {
@@ -63,7 +57,6 @@ const ProfilePage = () => {
     fetchProfile();
   }, [navigate]);
 
-  // Generate Preview for selected file
   useEffect(() => {
     if (!selectedFile) {
       setPreview(null);
@@ -81,7 +74,6 @@ const ProfilePage = () => {
     if (isEditing) {
       setEditedProfile({
         name: profile.name,
-        email: profile.email,
         phone: profile.phone
       });
       setSelectedFile(null);
@@ -101,7 +93,6 @@ const ProfilePage = () => {
       const token = localStorage.getItem('token');
       const formData = new FormData();
       formData.append('name', editedProfile.name);
-      formData.append('email', editedProfile.email);
       formData.append('phone', editedProfile.phone);
       if (selectedFile) {
         formData.append('profilePicture', selectedFile);
@@ -124,7 +115,6 @@ const ProfilePage = () => {
     }
   };
 
-  // Build the image URL from the stored path
   const profileImageUrl = profile.profilePicture
     ? `http://localhost:5000${profile.profilePicture}`
     : 'https://via.placeholder.com/120';
@@ -152,9 +142,24 @@ const ProfilePage = () => {
                   {selectedFile.name}
                 </Typography>
               )}
-              <TextField label="Name" name="name" variant="outlined" fullWidth margin="normal" value={editedProfile.name} onChange={handleInputChange} />
-              <TextField label="Email" name="email" variant="outlined" fullWidth margin="normal" value={editedProfile.email} onChange={handleInputChange} />
-              <TextField label="Phone" name="phone" variant="outlined" fullWidth margin="normal" value={editedProfile.phone} onChange={handleInputChange} />
+              <TextField
+                label="Name"
+                name="name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={editedProfile.name}
+                onChange={handleInputChange}
+              />
+              <TextField
+                label="Phone"
+                name="phone"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={editedProfile.phone}
+                onChange={handleInputChange}
+              />
               <Button variant="contained" color="primary" onClick={handleSave} sx={{ mt: 2, mr: 2 }}>
                 Save Changes
               </Button>
@@ -176,23 +181,6 @@ const ProfilePage = () => {
             </>
           )}
           <Divider sx={{ my: 3 }} />
-          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-            Recent Appointments
-          </Typography>
-          <List>
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar src="https://via.placeholder.com/40" />
-              </ListItemAvatar>
-              <ListItemText primary="Relaxing Spa Session" secondary="Jan 15, 2025 • 2 Guests • Completed" />
-            </ListItem>
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar src="https://via.placeholder.com/40" />
-              </ListItemAvatar>
-              <ListItemText primary="Massage Therapy" secondary="Jan 10, 2025 • 1 Guest • Completed" />
-            </ListItem>
-          </List>
         </Card>
       </Container>
     </Box>
