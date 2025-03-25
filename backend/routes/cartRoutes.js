@@ -78,8 +78,13 @@ router.delete('/remove/service/:userId/:serviceId', async (req, res) => {
     const { userId, serviceId } = req.params;
     const cart = await Cart.findOne({ user: userId });
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
+
     cart.items = cart.items.filter(item => item.service.toString() !== serviceId);
     await cart.save();
+
+    // Re-populate the cart so the front-end doesn't see "Unknown Service"
+    await cart.populate('items.service');
+
     res.status(200).json(cart);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, IconButton, Grid, Avatar, TextField, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Button,
+  IconButton,
+  Grid,
+  Avatar,
+  TextField,
+  CircularProgress,
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -23,7 +32,6 @@ const ShoppingCart = () => {
       setLoading(true);
       const res = await axios.get(`${baseUrl}/carts/${userId}`);
       setCart(res.data);
-      // Build local cartItems state from populated items
       if (res.data.items && res.data.items.length > 0) {
         const items = res.data.items.map((item) => {
           if (item.service && item.service.name) {
@@ -35,7 +43,6 @@ const ShoppingCart = () => {
               imageUrl: item.service.imageUrl || '',
             };
           } else {
-            // Fallback in case service is not populated
             return {
               id: item.service,
               name: "Unknown Service",
@@ -99,7 +106,7 @@ const ShoppingCart = () => {
     }
   };
 
-  // Local quantity update (ideally, you would call an update endpoint)
+  // Local quantity update
   const handleQuantityChange = (serviceId, newQuantity) => {
     setCartItems(prevItems =>
       prevItems.map(item =>
@@ -143,10 +150,16 @@ const ShoppingCart = () => {
                   onChange={(e) => handleQuantityChange(item.id, Math.max(1, parseInt(e.target.value)))}
                   sx={{ width: 80 }}
                 />
-                <IconButton onClick={() => handleRemoveService(item.id)} color="error">
+                <IconButton
+                  onClick={() => handleRemoveService(item.id)}
+                  color="error"
+                  aria-label="delete"
+                >
                   <DeleteIcon />
                 </IconButton>
-                <Typography sx={{ ml: 3 }}>${(item.price * item.quantity).toFixed(2)}</Typography>
+                <Typography sx={{ ml: 3 }}>
+                  ${(item.price * item.quantity).toFixed(2)}
+                </Typography>
               </Box>
             </Grid>
           ))}
@@ -165,8 +178,6 @@ const ShoppingCart = () => {
           <Button variant="outlined" onClick={fetchCart}>Refresh Cart</Button>
         </Box>
       )}
-
-      {/* For demonstration: A button to simulate adding a service (if needed) */}
       <Box sx={{ mt: 3 }}>
         <Button variant="outlined" onClick={fetchCart}>
           Refresh Cart
