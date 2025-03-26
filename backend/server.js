@@ -24,7 +24,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Allow preflight requests
-app.use(express.json()); // Middleware to parse JSON
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-session-secret-key',
   resave: false,
@@ -34,9 +33,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-
-app.use(express.json());
 connectDB(); // Connect to the database
 
 // Import and Register Routes
