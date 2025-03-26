@@ -61,14 +61,8 @@ function SpaMenuPage() {
         <Typography variant="h3" sx={{ fontFamily: 'Special Elite' }}>
           Menu
         </Typography>
-        <Button
-          variant="contained"
-          onClick={handleBookAppointment}
-          sx={{ position: 'absolute', top: 20, right: 20 }}
-        >
-          Book Appointment
-        </Button>
       </Box>
+  
       <Box display="flex" justifyContent="center" p={2} flexWrap="wrap">
         {categories.map((category) => (
           <Button
@@ -81,28 +75,69 @@ function SpaMenuPage() {
           </Button>
         ))}
       </Box>
-      <Grid container spacing={3} justifyContent="center" sx={{ padding: '20px' }}>
-        {menuItems
-          .filter(item => {
-            const itemCategory =
-              typeof item.category === 'object' && item.category !== null
-                ? item.category.name
-                : item.category;
-            return selectedCategory === 'All' || itemCategory === selectedCategory;
-          })
-          .map((item, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <ItemCard
-                name={item.name}
-                description={item.description}
-                price={`$${item.pricing}`}
-                onPurchase={() => handleAddToCart(item.name)}
-              />
-            </Grid>
-          ))}
-      </Grid>
+  
+      <Box sx={{ padding: '20px' }}>
+        {selectedCategory === 'All' ? (
+          categories
+            .filter(category => category !== 'All')
+            .map(category => {
+              const categoryItems = menuItems.filter(item => {
+                const itemCategory =
+                  typeof item.category === 'object' && item.category !== null
+                    ? item.category.name
+                    : item.category;
+                return itemCategory === category;
+              });
+  
+              return (
+                <Box key={category} sx={{ width: '100%', mb: 4 }}>
+                  <Typography
+                    variant="h5"
+                    sx={{ mt: 4, mb: 2, fontFamily: 'Special Elite' }}
+                  >
+                    {category}
+                  </Typography>
+                  <Grid container spacing={2} justifyContent="center">
+                    {categoryItems.map((item, index) => (
+                      <Grid item xs={12} sm={6} md={4} key={index}>
+                        <ItemCard
+                          name={item.name}
+                          description={item.description}
+                          price={`$${item.pricing}`}
+                          onPurchase={() => handleAddToCart(item.name)}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
+              );
+            })
+        ) : (
+          <Grid container spacing={2} justifyContent="center">
+            {menuItems
+              .filter(item => {
+                const itemCategory =
+                  typeof item.category === 'object' && item.category !== null
+                    ? item.category.name
+                    : item.category;
+                return itemCategory === selectedCategory;
+              })
+              .map((item, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <ItemCard
+                    name={item.name}
+                    description={item.description}
+                    price={`$${item.pricing}`}
+                    onPurchase={() => handleAddToCart(item.name)}
+                  />
+                </Grid>
+              ))}
+          </Grid>
+        )}
+      </Box>
     </Container>
   );
+  
 }
 
 export default SpaMenuPage;
