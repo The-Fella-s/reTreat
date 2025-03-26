@@ -2,30 +2,60 @@
 const express = require("express");
 const router = express.Router();
 const { SquareClient, SquareEnvironment } = require("square");
-require("dotenv").config();
+const SquareBusinessAccount = require("../models/squareBusinessAccount");
+const { protect } = require("../middleware/authMiddleware");
 const { bigIntReplacer } = require("../utilities/helpers/replacer");
+require("dotenv").config();
 
-// Initialize Square Client
-const client = new SquareClient({
-  token: process.env.SQUARE_ACCESS_TOKEN, // Use your Sandbox or Production token
-  environment: SquareEnvironment.Sandbox, // Change to Production if needed
-});
+// Helper function to get a Square client
+async function getSquareClient(merchantId) {
+  if (merchantId) {
+    // If merchantId provided, use that merchant's OAuth token
+    const account = await SquareBusinessAccount.findOne({ merchantId });
+    if (!account) {
+      throw new Error("Square account not found");
+    }
+    
+    if (account.isTokenExpired()) {
+      throw new Error("Square token expired, please reconnect");
+    }
+    
+    return new SquareClient({
+      accessToken: account.accessToken,
+      environment: process.env.NODE_ENV === "sandbox" 
+        ? SquareEnvironment.Production 
+        : SquareEnvironment.Sandbox,
+    });
+  }
+  
+  // Otherwise use the application's access token
+  return new SquareClient({
+    accessToken: process.env.SQUARE_ACCESS_TOKEN,
+    environment: process.env.NODE_ENV === "sandbox" 
+      ? SquareEnvironment.Production 
+      : SquareEnvironment.Sandbox,
+  });
+}
 
 // POST: Create a Payment
 router.post("/pay", async (req, res) => {
   try {
     // You can pass these fields from the frontend
     const {
-      idempotencyKey, // e.g. "7b0f3ec5-086a-4871-8f13-3c81b3875218"
-      amount,         // e.g. 1000 (for $10.00)
-      currency,       // e.g. "USD"
-      sourceId,       // e.g. "ccof:GaJGNaZa8x4OgDJn4GB"
-      customerId,     // optional
-      note            // e.g. "Brief description"
+      idempotencyKey,
+      amount,
+      currency,
+      sourceId,
+      customerId,
+      note,
+      merchantId
     } = req.body;
+    
+    // Get Square client (either app token or merchant OAuth token)
+    const client = await getSquareClient(merchantId);
 
     // Create the payment on Square
-    const response = await client.payments.create({
+    const response = await client.paymentsApi.createPayment({
       idempotencyKey: idempotencyKey || `ikey-${Date.now()}`, // fallback if not provided
       amountMoney: {
         amount: BigInt(amount), // must be a BigInt in smallest currency unit (e.g., cents)
@@ -34,11 +64,11 @@ router.post("/pay", async (req, res) => {
       sourceId,                // Required (nonce or card on file)
       autocomplete: true,      // Auto-completes the payment
       customerId,              // If you have a customer on file
-      locationId: process.env.SQUARE_LOCATION_ID, // or pass in body
+      locationId: merchantId ? undefined : process.env.SQUARE_LOCATION_ID, // Use app location ID if no merchant
       referenceId: `REF-${Date.now()}`,           // optional reference
       note: note || "Payment processed via API",
     });
-
+    
     // Check if payment succeeded
     if (response.result?.payment) {
       // Return the payment details to client
@@ -64,11 +94,26 @@ router.post("/pay", async (req, res) => {
   }
 });
 
-// Existing GET route to list payments
+// GET: List payments
 router.get("/list", async (req, res) => {
   try {
-    const response = await client.payments.list({ count: true });
-    const jsonResponse = JSON.stringify({ data: response.data }, bigIntReplacer);
+    const { merchantId } = req.query;
+    
+    // Get Square client (either app token or merchant OAuth token)
+    const client = await getSquareClient(merchantId);
+    
+    const response = await client.paymentsApi.listPayments({
+      beginTime: req.query.beginTime,
+      endTime: req.query.endTime,
+      sortOrder: req.query.sortOrder || "DESC",
+      limit: parseInt(req.query.limit) || 100
+    });
+    
+    const jsonResponse = JSON.stringify(
+      { data: response.result }, 
+      bigIntReplacer
+    );
+    
     res.set("Content-Type", "application/json");
     res.status(200).send(jsonResponse);
   } catch (error) {

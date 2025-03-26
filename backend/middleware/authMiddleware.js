@@ -2,26 +2,31 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User'); // Ensure proper import case
 
 const protect = async (req, res, next) => {
-  const token = req.header('Authorization');
-
+  // Check for token in the 'Authorization' header
+  const token = req.header('Authorization')?.replace('Bearer ', ''); // Get the token
+  console.log('Authorization token:', token);
   if (!token) {
     return res.status(401).json({ message: 'Access Denied. No Token Provided.' });
   }
 
   try {
-    const decoded = jwt.verify(token.replace('Bearer ', ''), process.env.JWT_SECRET);
+    // Verify the token using the secret key
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Attach user data from the token to req.user
     req.user = decoded;
 
-    // Fetch full user details from DB
+    // Fetch the full user details from the DB based on the decoded user ID
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    req.user.role = user.role; // Ensure role is set
+    // Attach the user's role and profile to the req.user object
+    req.user.role = user.role;
     req.user.profile = user; // Attach full profile data to the request
 
-    next();
+    next(); // Call the next middleware or route handler
   } catch (err) {
     res.status(401).json({ message: 'Invalid Token' });
   }
