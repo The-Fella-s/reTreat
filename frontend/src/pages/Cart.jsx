@@ -107,6 +107,7 @@ const ShoppingCart = () => {
     }
   };
 
+  // Local quantity update
   const handleQuantityChange = (serviceId, newQuantity) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
@@ -209,6 +210,7 @@ const ShoppingCart = () => {
                 <IconButton
                   onClick={() => handleRemoveService(item.id)}
                   color="error"
+                  aria-label="delete"
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -257,6 +259,7 @@ const ShoppingCart = () => {
 						Refresh Cart
 					</Button>
 				</Box>
+
     </Box>
   );
 };
