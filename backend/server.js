@@ -8,6 +8,7 @@ const cookieParser = require("cookie-parser");
 const passport = require("./config/passport");
 const cron = require("node-cron");
 const { refreshTokens } = require("./utilities/refreshToken");
+const session = require("express-session");
 
 dotenv.config();
 
@@ -23,8 +24,16 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Allow preflight requests
-app.use(express.json());
-connectDB();
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-session-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'sandbox' }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+connectDB(); // Connect to the database
 
 // Import and Register Routes
 const userRoutes = require('./routes/userRoutes');
@@ -42,10 +51,12 @@ const cardRoutes = require('./routes/cardRoutes');
 const websiteVisitRoutes = require('./routes/websiteVisitRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const catalogRoutes = require('./routes/catalogRoutes');
+const authRoutes= require('./routes/paymentOauthRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const employeeRoutes = require('./routes/employeeRoutes')
 
 
+app.use('/api/square', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
 app.use('/api/services', serviceRoutes);
