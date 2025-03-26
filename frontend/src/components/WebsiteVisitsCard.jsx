@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import { Line } from "react-chartjs-2";
 import axios from "axios";
-
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -16,7 +16,6 @@ import {
     Legend
 } from "chart.js";
 
-// Register Chart.js components
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -33,7 +32,7 @@ const WebsiteVisitsCard = () => {
         datasets: [
             {
                 label: "Website Visits",
-                data: [0, 0, 0, 0, 0, 0, 0], // Default values
+                data: [0, 0, 0, 0, 0, 0, 0],
                 borderColor: "orange",
                 fill: false,
                 tension: 0.4,
@@ -43,14 +42,11 @@ const WebsiteVisitsCard = () => {
 
     const [totalVisits, setTotalVisits] = useState(0);
 
-    // Fetch real visit data from MongoDB
     const fetchVisitsData = async () => {
         try {
             const response = await axios.get("http://localhost:5000/api/website-visits/get");
-            console.log("Website Visits API response:", response.data);
-
             const labels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-            const values = labels.map(day => response.data.dailyVisits?.[day] || 0); // Get real visit counts
+            const values = labels.map(day => response.data.dailyVisits?.[day] || 0);
 
             setVisitsData({
                 labels,
@@ -68,6 +64,17 @@ const WebsiteVisitsCard = () => {
             setTotalVisits(response.data.totalVisits);
         } catch (error) {
             console.error("Error fetching website visits data:", error);
+        }
+    };
+
+    const handleResetVisits = async () => {
+        try {
+            await axios.post("http://localhost:5000/api/website-visits/reset");
+            await fetchVisitsData(); // Refresh chart
+            alert("Website visits have been reset.");
+        } catch (error) {
+            console.error("Error resetting visits:", error);
+            alert("Failed to reset website visits.");
         }
     };
 
@@ -98,6 +105,15 @@ const WebsiteVisitsCard = () => {
                         }
                     }}
                 />
+
+                <Button
+                    variant="contained"
+                    color= 'error'
+                    sx={{ mt: 2 }}
+                    onClick={handleResetVisits}
+                >
+                    Reset Website Visits
+                </Button>
             </CardContent>
         </Card>
     );
