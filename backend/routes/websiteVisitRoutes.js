@@ -37,4 +37,36 @@ router.get('/get', async (req, res) => {
     }
 });
 
+// Reset website visits and dailyVisits
+router.post('/reset', async (req, res) => {
+    try {
+        const resetDoc = await WebsiteVisit.findOneAndUpdate(
+            {},
+            {
+                totalVisits: 0,
+                dailyVisits: {
+                    Monday: 0,
+                    Tuesday: 0,
+                    Wednesday: 0,
+                    Thursday: 0,
+                    Friday: 0,
+                    Saturday: 0,
+                    Sunday: 0
+                }
+            },
+            { new: true, upsert: true }
+        );
+
+        res.json({
+            success: true,
+            message: 'Website visits reset successfully.',
+            totalVisits: resetDoc.totalVisits,
+            dailyVisits: resetDoc.dailyVisits
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to reset website visits', error: error.message });
+    }
+});
+
+
 module.exports = router;
