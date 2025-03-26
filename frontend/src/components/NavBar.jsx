@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -14,7 +14,6 @@ import Menu from '@mui/material/Menu';
 import Typography from '@mui/material/Typography';
 import { AuthContext } from '../context/AuthContext';
 import logo from '/src/assets/reTreatLogo.png';
-import Grow from '@mui/material/Grow';
 import Collapse from '@mui/material/Collapse';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Badge from '@mui/material/Badge';
@@ -25,6 +24,7 @@ const NavBar = () => {
   const [userAnchor, setUserAnchor] = useState(null);
   const [menuItemsVisible, setMenuItemsVisible] = useState([false, false, false]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleOpenNav = (event) => setNavAnchor(event.currentTarget);
   const handleCloseNav = () => setNavAnchor(null);
@@ -50,13 +50,13 @@ const NavBar = () => {
     { name: 'Book Appointment', path: '/appointment' },
     { name: 'FAQ', path: '/faq' },
     { name: 'About us', path: '/about-us' },
-    { name: 'Contact Us', path: '/contact-us' }
+    { name: 'Contact Us', path: '/contact-us' },
   ];
 
   const employeePages = user?.role === 'employee' ? [{ name: 'Manage Schedule', path: '/employee-schedule' }] : [];
   const allPages = [...pages, ...employeePages];
 
-  const profileImageUrl = user && user.profilePicture 
+  const profileImageUrl = user?.profilePicture
     ? `http://localhost:5000${user.profilePicture}?t=${Date.now()}`
     : 'https://via.placeholder.com/120';
 
@@ -64,16 +64,28 @@ const NavBar = () => {
     <AppBar position="static" color="secondary">
       <Container maxWidth="false">
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box component={Link} to="/" sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', textDecoration: 'none', ml: 2, mr: 1 }}>
+          {/* Logo */}
+          <Box
+            component={Link}
+            to="/"
+            sx={{
+              display: { xs: 'none', md: 'flex' },
+              alignItems: 'center',
+              textDecoration: 'none',
+              ml: 2,
+              mr: 1,
+            }}
+          >
             <img src={logo} alt="Logo" style={{ height: 40 }} />
           </Box>
 
+          {/* Mobile Nav */}
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton size="large" aria-label="Current Users Account" aria-controls="menu-navbar" aria-haspopup="true" onClick={handleOpenNav} color="primary">
+            <IconButton size="large" onClick={handleOpenNav} color="primary">
               <MenuIcon />
             </IconButton>
             <Menu
-              id="menu-navbar2"
+              id="menu-navbar-mobile"
               anchorEl={navAnchor}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
               keepMounted
@@ -90,36 +102,51 @@ const NavBar = () => {
             </Menu>
           </Box>
 
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center', flexGrow: 1, textAlign: 'center' }}>
+          {/* Desktop Nav Links */}
+          <Box
+            sx={{
+              display: { xs: 'none', md: 'flex' },
+              justifyContent: 'center',
+              flexGrow: 1,
+              textAlign: 'center',
+            }}
+          >
             {allPages.map((page) => (
-              <Button key={page.name} component={Link} to={page.path} sx={{ my: 2, color: 'white', px: 2.25, mx: 1 }}>
+              <Button
+                key={page.name}
+                component={Link}
+                to={page.path}
+                sx={{ my: 2, color: 'white', px: 2.25, mx: 1 }}
+              >
                 {page.name}
               </Button>
             ))}
           </Box>
 
+          {/* Right side */}
           <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+            {/* Cart Icon always visible */}
+            <IconButton onClick={() => navigate('/cart')} sx={{ color: 'white', mr: 2 }}>
+              <Badge>
+                <ShoppingCartIcon />
+              </Badge>
+            </IconButton>
+
             {user ? (
               <>
-                <IconButton onClick={() => navigate('/cart')} sx={{ color: 'white', mr: 2 }}>
-                  <Badge>
-                    <ShoppingCartIcon />
-                  </Badge>
-                </IconButton>
-
                 <Tooltip title="Open Account Options">
                   <IconButton onClick={handleOpenUser} sx={{ p: 0, mr: 2 }}>
                     <Avatar alt={user.name} src={profileImageUrl} sx={{ width: 40, height: 40 }} />
                   </IconButton>
                 </Tooltip>
                 <Menu
-                  sx={{ mt: '10px' }}
-                  id="menu-navbar"
+                  id="menu-user-dropdown"
                   anchorEl={userAnchor}
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                  transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                   open={Boolean(userAnchor)}
                   onClose={handleCloseUser}
+                  sx={{ mt: '10px' }}
                 >
                   <Collapse in={menuItemsVisible[0]} timeout={400}>
                     <MenuItem onClick={() => navigate('/profile')}>

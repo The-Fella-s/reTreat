@@ -1,6 +1,5 @@
 const Services = require('../models/Services'); // Import your model
 const Category = require('../models/Category');
-const { convertToTime } = require("./conversion"); // Import conversion helper
 
 async function mapJsonToServices(jsonData) {
     if (!jsonData || !jsonData.catalogObject || !jsonData.catalogObject.itemData) {
@@ -30,10 +29,8 @@ async function mapJsonToServices(jsonData) {
                     : 0;
                 variantPricing.push(price);
 
-                // Parse duration: convert seconds to a time string if available
+                // Storing seconds as strings i.e. "3600"
                 const durationStr = variation.itemVariationData.serviceDuration
-                    ? convertToTime(parseInt(variation.itemVariationData.serviceDuration, 10))
-                    : "Unknown";
                 variantDuration.push(durationStr);
 
                 // Use first variant's values as the main pricing/duration

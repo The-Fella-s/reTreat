@@ -1,9 +1,10 @@
 const express = require('express');
 const Services = require("../models/Services");
 const Category = require('../models/Category');
-const { createCategory, deleteCategory} = require('../utilities/helpers/categoryHelpers');
+const { createCategory, deleteCategory } = require('../utilities/helpers/categoryHelpers');
 const { SquareClient, SquareEnvironment } = require("square");
 const axios = require('axios');
+const multer = require("multer");
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ const client = new SquareClient({
     userAgentDetail: 'sample_app_node_subscription',
 });
 
-// Get all services
+// GET all services
 router.get('/', async (req, res) => {
   try {
       const services = await Services.find().populate('category', 'name');
@@ -24,7 +25,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Ensures that backend route checks for an empty database if configuring through MongoDB Compass
+// GET /check-existence route (moved here so it won't conflict with /:id)
 router.get('/check-existence', async (req, res) => {
   try {
       const existingServices = await Services.find().populate('category', 'name');
@@ -39,6 +40,20 @@ router.get('/check-existence', async (req, res) => {
   }
 });
 
+// GET service by ID
+router.get('/:id', async (req, res) => {
+    try {
+      const service = await Services.findById(req.params.id);
+      if (!service) {
+        return res.status(404).json({ message: 'Service not found' });
+      }
+      res.status(200).json(service);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /populate route
 router.post('/populate', async (req, res) => {
     try {
         const { services } = req.body;
@@ -75,11 +90,12 @@ router.post('/populate', async (req, res) => {
                 description: updatedService.description,
                 pricing: updatedService.pricing,
                 duration: updatedService.duration,
-                category: categoryDoc ? categoryDoc.name : '', // Use category name
+                category: categoryDoc ? categoryDoc.name : '',
                 variantName: updatedService.variantName,
                 variantId: updatedService.variantId,
                 variantPricing: updatedService.variantPricing,
                 variantDuration: updatedService.variantDuration,
+                servicePicture: updatedService.servicePicture,
             };
 
             await axios.post('http://localhost:5000/api/catalogs/create', payload);
@@ -187,6 +203,34 @@ router.delete('/:id', async (req, res) => {
         res.status(200).json({ message: 'Service deleted successfully' });
     } catch (error) {
         console.error('Error deleting service:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Set up multer storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/services'); // Save files in uploads/services
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}_${file.originalname}`); // Unique filename
+    }
+});
+
+const upload = multer({ storage });
+
+// Image upload endpoint
+router.post('/upload', upload.single('servicePicture'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded.' });
+        }
+
+        // Upload to the services folder
+        const filePath = `/uploads/services/${req.file.filename}`;
+        res.status(200).json({ message: 'File uploaded successfully', filePath });
+    } catch (error) {
+        console.error('Error uploading file:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });

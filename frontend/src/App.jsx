@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 import Footer from './components/Footer';
@@ -15,20 +15,20 @@ import VerifyEmail from './pages/VerifyEmail.jsx';
 import MeetTheTeam from './pages/MeetTheTeam.jsx';
 import BookAppointment from './pages/BookAppointment.jsx';
 import Profile from './components/Profile.jsx';
-import Menu from './pages/Menu.jsx';
+import Menu from './pages/menu.jsx';
+import Payment from './pages/Payment.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Payment from './pages/Payment.jsx';
-import { ThemeProvider } from '@mui/material/styles';
-import defaultTheme from './components/Theme.jsx';
-import Main from './components/MainPage.jsx';
 import AdminDashboard from './pages/admin-dashboard/AdminDashboard.jsx';
-import { createCustomTheme } from './utilities/themeUtils.js';
-import { Box } from '@mui/material';
-import AuthProvider from './context/AuthContext.jsx';
 import AboutUs from './pages/AboutUs.jsx';
 import EmployeeSchedule from './pages/EmployeeSchedule.jsx';
 import Cart from './pages/Cart.jsx';
+import { ThemeProvider } from '@mui/material/styles';
+import defaultTheme from './components/Theme.jsx';
+import Main from './components/MainPage.jsx';
+import { createCustomTheme } from './utilities/themeUtils.js';
+import { Box } from '@mui/material';
+import AuthProvider from './context/AuthContext.jsx';
 
 function HomePageTracker() {
   const location = useLocation();
@@ -59,7 +59,7 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <>
       <AuthProvider>
         <ThemeProvider theme={theme}>
           <HomePageTracker />
@@ -96,7 +96,7 @@ function App() {
           </Box>
         </ThemeProvider>
       </AuthProvider>
-    </Router>
+    </>
   );
 }
 

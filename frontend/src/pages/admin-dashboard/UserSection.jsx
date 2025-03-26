@@ -3,17 +3,19 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Box, Checkbox, Typography } from '@mui/material';
 
 const columns = [
-  { field: 'id', headerName: 'ID', width: 90 },
+  { field: 'id', headerName: 'ID', width: 90, minWidth: 90 },
   {
     field: 'firstName',
     headerName: 'First name',
     flex: 2,
+    minWidth: 150,
     editable: true,
   },
   {
     field: 'lastName',
     headerName: 'Last name',
     flex: 2,
+    minWidth: 150,
     editable: true,
   },
   {
@@ -21,12 +23,14 @@ const columns = [
     headerName: 'Join Date',
     type: 'date',
     flex: 2,
+    minWidth: 150,
     editable: true,
   },
   {
     field: 'employeeStatus',
     headerName: 'Employee Status',
     flex: 2,
+    minWidth: 150,
     renderCell: (params) => (
       <Checkbox
         checked={params.value}
@@ -57,21 +61,23 @@ const UserSection = () => {
 
   return (
     <div>
-      <Box sx={{padding: 3}}>
-      <Typography variant="h4" gutterBottom>
-        User Information
-      </Typography>
-      <p>Manage registered users, their data, and roles.</p>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5, 10, 20]}
-          disableSelectionOnClick
-          autoHeight
-          checkboxSelection
-          processRowUpdate={processRowUpdate}
-        />
+      <Box sx={{ padding: 3 }}>
+        <Typography variant="h4" gutterBottom>
+          User Information
+        </Typography>
+        <p>Manage registered users, their data, and roles.</p>
+        <Box sx={{ width: '100%', overflowX: 'auto' }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            pageSize={5}
+            rowsPerPageOptions={[5, 10, 20]}
+            disableSelectionOnClick
+            autoHeight
+            checkboxSelection
+            processRowUpdate={processRowUpdate}
+          />
+        </Box>
       </Box>
     </div>
   );

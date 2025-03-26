@@ -5,7 +5,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const { protect, adminOnly } = require('./middleware/authMiddleware');
 const cookieParser = require("cookie-parser");
-const passport = require("./config/passport"); // Import Passport config
+const passport = require("./config/passport");
 const cron = require("node-cron");
 const { refreshTokens } = require("./utilities/refreshToken");
 const session = require("express-session");
@@ -16,10 +16,10 @@ const app = express();
 
 // Improved CORS Configuration
 const corsOptions = {
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 };
 
 app.use(cors(corsOptions));
@@ -39,6 +39,7 @@ connectDB(); // Connect to the database
 const userRoutes = require('./routes/userRoutes');
 const themeRoutes = require('./routes/themeRoutes');
 const serviceRoutes = require('./routes/servicesRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes'); // NEW appointments route
 const scheduleRoutes = require('./routes/scheduleRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const paymentRoutes = require('./routes/paymentsRoutes');
@@ -51,50 +52,46 @@ const websiteVisitRoutes = require('./routes/websiteVisitRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const catalogRoutes = require('./routes/catalogRoutes');
 const authRoutes= require('./routes/paymentOauthRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const employeeRoutes = require('./routes/employeeRoutes')
+
 
 app.use('/api/square', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
 app.use('/api/services', serviceRoutes);
-app.use('/api/appointments', serviceRoutes);
+app.use('/api/appointments', appointmentRoutes);
 app.use('/api/schedules', scheduleRoutes);
-app.use('/api/cart', cartRoutes);
+app.use('/api/carts', cartRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/instagram', instagramRoutes);
 app.use('/api/places', googleRoutes);
 app.use("/api/statistics", statisticsRoutes);
 app.use('/api/customers', customerRoutes);
-app.use('/api/cards/', cardRoutes);
-app.use('/api/website-visits',websiteVisitRoutes);
+app.use('/api/cards', cardRoutes);
+app.use('/api/website-visits', websiteVisitRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/catalogs', catalogRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/employees', employeeRoutes);
 
-// Initialize passport for Facebook API
 app.use(passport.initialize());
-
-// Serve files from the 'uploads' folder safely
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
-// Admin Dashboard Route (Secured)
 app.get('/api/admin-dashboard', protect, adminOnly, (req, res) => {
   res.json({ message: 'Welcome to Admin Dashboard' });
 });
 
-// Square API test
 app.get('/api/square', (req, res) => {
   res.json({ message: "Square API is running and working" });
 });
 
-// Root Test Route
 app.get('/', (req, res) => res.send('API is running'));
 
-// Schedule token refresh every day at midnight (adjust as needed)
 cron.schedule("0 0 * * *", async () => {
   console.log("Running scheduled token refresh...");
   await refreshTokens();
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

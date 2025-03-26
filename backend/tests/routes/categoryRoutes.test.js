@@ -208,13 +208,15 @@ describe('Category Routes', () => {
         });
     });
 
+
     // GET /list
     describe('GET /list', () => {
         it('should list categories and return 200', async () => {
             const fakeListResponse = { objects: [{ id: 'cat1' }, { id: 'cat2' }] };
             mockCatalogCategory.search.mockResolvedValue(fakeListResponse);
 
-            const res = await request(app).get('/api/categories/list');
+            // Added query parameter "source" with value "square"
+            const res = await request(app).get('/api/categories/list?source=square');
             expect(mockCatalogCategory.search).toHaveBeenCalledWith({ objectTypes: ['CATEGORY'] });
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty('message', 'Categories obtained successfully');
@@ -223,7 +225,8 @@ describe('Category Routes', () => {
 
         it('should return 500 if catalog.search throws an error', async () => {
             mockCatalogCategory.search.mockRejectedValue(new Error('List error'));
-            const res = await request(app).get('/api/categories/list');
+            // Added query parameter "source" with value "square"
+            const res = await request(app).get('/api/categories/list?source=square');
             expect(res.statusCode).toBe(500);
             expect(res.body).toHaveProperty('error', 'List error');
         });

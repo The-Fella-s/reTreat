@@ -11,7 +11,9 @@
     "dependencies": {
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
+        "@sendgrid/mail": "^8.1.4",
         "axios": "^1.7.9",
+        "backend": "file:",
         "bcrypt": "^5.1.1",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
