@@ -14,6 +14,9 @@ dotenv.config();
 
 const app = express();
 
+// Use JSON parsing middleware early
+app.use(express.json());
+
 // Improved CORS Configuration
 const corsOptions = {
   origin: 'http://localhost:5173',
