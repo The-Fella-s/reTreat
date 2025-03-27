@@ -7,10 +7,10 @@ const InstagramPosts = require("../models/InstagramPosts");
 const router = express.Router();
 
 // Route to initiate Instagram OAuth flow
-router.get("/auth", passport.authenticate("oauth2", { session: false }));
+router.get("/auth", passport.authenticate("instagram", { session: false }));
 
 // Route for handling Instagram OAuth callback
-router.get("/callback", passport.authenticate("oauth2", { failureRedirect: "/", session: false }), (req, res) => {
+router.get("/callback", passport.authenticate("instagram", { failureRedirect: "/", session: false }), (req, res) => {
   if (!req.user || !req.user.accessToken || !req.user.instagramId) {
     return res.status(400).json({ error: "Authentication failed" });
   }
