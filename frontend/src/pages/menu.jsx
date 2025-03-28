@@ -59,7 +59,7 @@ function SpaMenuPage() {
       <ToastContainer />
       <Box position="relative" textAlign="center" p={5} bgcolor="#e0e0e0">
         <Typography variant="h3" sx={{ fontFamily: 'Special Elite' }}>
-          Menu
+        Menu
         </Typography>
       </Box>
   

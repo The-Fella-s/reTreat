@@ -154,12 +154,6 @@ const NavBar = () => {
                     </MenuItem>
                   </Collapse>
 
-                  <Collapse in={menuItemsVisible[1]} timeout={400}>
-                    <MenuItem onClick={() => navigate('/account-settings')}>
-                      <Typography>Account Settings</Typography>
-                    </MenuItem>
-                  </Collapse>
-
                   <Collapse in={menuItemsVisible[2]} timeout={400}>
                     <MenuItem onClick={logout}>
                       <Typography>Log Out</Typography>
