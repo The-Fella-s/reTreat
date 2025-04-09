@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema({
       employee: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     },
   ],
+  schedule: {
+    days: { type: [String], required: true },
+    startTime: { type: String, default: '' },
+    endTime: { type: String, default: '' },
+  },
   employeeDetails: {
     isAvailable: { type: Boolean, default: true },
     schedule: [
