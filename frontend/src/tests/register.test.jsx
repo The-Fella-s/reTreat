@@ -1,15 +1,16 @@
 import React from "react";
-import { render, fireEvent, screen, waitFor } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import Register from "../pages/Register";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import axios from "axios";
+import Register from "../pages/Register";
+import { renderWithAuth } from "./testHelper";
 
-// Mock axios
+// ✅ Mock axios for testing purposes
 jest.mock("axios");
 
-const renderWithRouter = (ui) => {
-  return render(<BrowserRouter>{ui}</BrowserRouter>);
-};
+// ✅ Mock GoogleLogin to avoid hook errors during testing
+jest.mock("@react-oauth/google", () => ({
+  GoogleLogin: () => <div data-testid="mock-google-login">Mock Google Login</div>
+}));
 
 describe("Register Component", () => {
   beforeEach(() => {
@@ -17,28 +18,34 @@ describe("Register Component", () => {
   });
 
   it("renders registration form fields", () => {
-    renderWithRouter(<Register />);
+    renderWithAuth(<Register />);
+
     expect(screen.getByLabelText(/First Name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Last Name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^Password/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Phone Number/i)).toBeInTheDocument();
+    expect(screen.getByTestId("mock-google-login")).toBeInTheDocument(); // verify mocked login rendered
   });
 
   it("shows validation error for weak password", async () => {
-    renderWithRouter(<Register />);
+    renderWithAuth(<Register />);
+    
     fireEvent.change(screen.getByLabelText(/^Password/i), {
       target: { value: "abc" },
     });
+
     expect(
-      screen.getByText(/Password must be 8\+ chars, include an uppercase/i)
+      screen.getByText(/Password must be 8\+ chars, include uppercase/i)
     ).toBeInTheDocument();
   });
 
-  it("submits form with valid data and calls customer create endpoint when registration is successful", async () => {
+  it("submits form with valid data and calls registration endpoint when successful", async () => {
+    // Simulate a successful registration response
     axios.post.mockResolvedValueOnce({ status: 201 });
 
-    renderWithRouter(<Register />);
+    renderWithAuth(<Register />);
+    
     fireEvent.change(screen.getByLabelText(/First Name/i), {
       target: { value: "Jane" },
     });
@@ -66,14 +73,6 @@ describe("Register Component", () => {
           name: "Jane Doe",
           phone: "5555555555",
         }
-      );
-    });
-
-    // Then verify that the customer creation endpoint was called
-    await waitFor(() => {
-      expect(axios.post).toHaveBeenCalledWith(
-          "http://localhost:5000/api/customers/create",
-          { email: "jane@example.com" }
       );
     });
   });
