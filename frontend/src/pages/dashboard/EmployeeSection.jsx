@@ -9,6 +9,32 @@ const EmployeeSection = () => {
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [editedEmployee, setEditedEmployee] = useState({});
 
+
+
+
+
+   // NEW CODE: State for the Add Employee dialog and new employee data
+   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+   const [newEmployee, setNewEmployee] = useState({
+     firstName: '',
+     lastName: '',
+     phone: '',
+     email: '',
+     profession: '',                   // NEW: Profession field
+     address: {                        // NEW: Address object with required fields
+       street: '',
+       city: '',
+       state: '',
+       postalCode: '',
+       country: ''
+     }
+   });
+
+
+
+
+
+
   // Utility: Retrieve auth token
   const getAuthToken = () => localStorage.getItem('token');
 
@@ -117,6 +143,80 @@ const EmployeeSection = () => {
     }));
   };
 
+
+
+
+ // NEW CODE: Handlers for the Add Employee dialog
+
+  // Open Add Employee dialog.
+  const handleOpenAddDialog = () => {
+    setNewEmployee({
+      firstName: '',
+      lastName: '',
+      phone: '',
+      email: '',
+      address: {}
+    });
+    setIsAddDialogOpen(true);
+  };
+
+  // Handle changes in Add Employee form.
+  const handleAddEmployeeChange = (e) => {
+    const { name, value } = e.target;
+    // If the field is for the address, split the name by a dot.
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setNewEmployee((prev) => ({
+        ...prev,
+        [parent]: {
+          ...(prev[parent] || {}),
+          [child]: value
+        }
+      }));
+    } else {
+      setNewEmployee((prev) => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  // NEW CODE: Submit new employee data.
+  const handleCreateEmployee = async () => {
+    try {
+      const token = getAuthToken();
+      const response = await axios.post('http://localhost:5000/api/employees', newEmployee, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const createdEmployee = response.data;
+      // Map new employee to row format.
+      const newRow = {
+        id: createdEmployee._id,
+        firstName: createdEmployee.firstName,
+        lastName: createdEmployee.lastName,
+        phone: createdEmployee.phone,
+        email: createdEmployee.email,
+        profession: createdEmployee.employeeDetails?.profession || '',
+        formattedAddress: `${createdEmployee.address?.street || ''}, ${createdEmployee.address?.city || ''}, ${createdEmployee.address?.state || ''} ${createdEmployee.address?.postalCode || ''}, ${createdEmployee.address?.country || ''}`,
+        address: createdEmployee.address,
+        joinDate: createdEmployee.createdAt ? new Date(createdEmployee.createdAt) : null,
+      };
+      // Update rows with the new employee.
+      setRows((prevRows) => [...prevRows, newRow]);
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating employee:', error);
+      setErrorMessage('Failed to add employee. Please try again.');
+    }
+  };
+
+
+
+
+
+
+
+
   const columns = [
     { field: 'id', headerName: 'ID', width: 90, minWidth: 90 },
     { field: 'firstName', headerName: 'First Name', flex: 1, minWidth: 150 },
@@ -165,13 +265,13 @@ const EmployeeSection = () => {
             </Typography>
         )}
         <Box sx={{ marginBottom: 2 }}>
-          <Button
-              variant="contained"
-              color="primary"
-              onClick={() => console.log('Add Employee functionality to be implemented')}
-          >
-            Add Employee
-          </Button>
+             <Button
+                variant="contained"
+                color="primary"
+                onClick={handleOpenAddDialog}  // Adds employee when clicked
+              >
+              Add Employee
+            </Button>
         </Box>
         <Box sx={{ height: 500, width: '100%', overflowX: 'auto' }}>
           <DataGrid
@@ -284,6 +384,124 @@ const EmployeeSection = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+
+
+
+
+
+
+
+
+         {/* NEW CODE: Add Employee Dialog */}
+      <Dialog open={isAddDialogOpen} onClose={() => setIsAddDialogOpen(false)} fullWidth>
+        <DialogTitle>Add New Employee</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            name="firstName"
+            label="First Name"
+            fullWidth
+            value={newEmployee.firstName}
+            onChange={handleAddEmployeeChange}
+          />
+          <TextField
+            margin="dense"
+            name="lastName"
+            label="Last Name"
+            fullWidth
+            value={newEmployee.lastName}
+            onChange={handleAddEmployeeChange}
+          />
+          <TextField
+            margin="dense"
+            name="phone"
+            label="Phone"
+            fullWidth
+            value={newEmployee.phone}
+            onChange={handleAddEmployeeChange}
+          />
+          <TextField
+            margin="dense"
+            name="email"
+            label="Email"
+            fullWidth
+            value={newEmployee.email}
+            onChange={handleAddEmployeeChange}
+          />
+          <TextField
+            margin="dense"
+            name="profession"
+            label="Profession"
+            fullWidth
+            value={newEmployee.profession}
+            onChange={handleAddEmployeeChange}
+          />
+          {/* Address Section */}
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle1" gutterBottom>
+              Address
+            </Typography>
+            <TextField
+              margin="dense"
+              name="address.street"
+              label="Street"
+              fullWidth
+              value={newEmployee.address.street || ''}
+              onChange={handleAddEmployeeChange}
+            />
+            <TextField
+              margin="dense"
+              name="address.city"
+              label="City"
+              fullWidth
+              value={newEmployee.address.city || ''}
+              onChange={handleAddEmployeeChange}
+            />
+            <TextField
+              margin="dense"
+              name="address.state"
+              label="State"
+              fullWidth
+              value={newEmployee.address.state || ''}
+              onChange={handleAddEmployeeChange}
+            />
+            <TextField
+              margin="dense"
+              name="address.postalCode"
+              label="Postal Code"
+              fullWidth
+              value={newEmployee.address.postalCode || ''}
+              onChange={handleAddEmployeeChange}
+            />
+            <TextField
+              margin="dense"
+              name="address.country"
+              label="Country"
+              fullWidth
+              value={newEmployee.address.country || ''}
+              onChange={handleAddEmployeeChange}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsAddDialogOpen(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleCreateEmployee} variant="contained" color="primary">
+            Add Employee
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+
+
+
+
+
+
+
       </Box>
   );
 };
