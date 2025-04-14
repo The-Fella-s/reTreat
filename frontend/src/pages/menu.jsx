@@ -35,19 +35,8 @@ function SpaMenuPage() {
   }, []);
 
   const handleAddToCart = (serviceName) => {
-    axios
-      .post('http://localhost:5000/api/carts/add/service', {
-        email: 'jordan@example.com',
-        serviceName: serviceName,
-        quantity: 1,
-      })
-      .then((res) => {
-        toast.success(`${serviceName} added to cart`);
-      })
-      .catch((err) => {
-        console.error('Error adding to cart:', err);
-        toast.error('Failed to add to cart');
-      });
+    const externalUrl = `https://retreat-salon-and-spa.square.site/`;
+    window.location.href = externalUrl;
   };
 
   const handleBookAppointment = () => {
