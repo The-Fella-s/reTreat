@@ -19,7 +19,7 @@ import Menu from './pages/menu.jsx';
 import Payment from './pages/Payment.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import AdminDashboard from './pages/admin-dashboard/AdminDashboard.jsx';
+import AdminDashboard from './pages/dashboard/Dashboard.jsx';
 import AboutUs from './pages/AboutUs.jsx';
 import EmployeeSchedule from './pages/EmployeeSchedule.jsx';
 import Cart from './pages/Cart.jsx';
@@ -86,7 +86,7 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/menu" element={<Menu />} />
                 <Route path="/payment" element={<Payment />} />
-                <Route path="/admin-dashboard/*" element={<AdminDashboard setTheme={setTheme} />} />
+                <Route path="/dashboard/*" element={<AdminDashboard setTheme={setTheme} />} />
                 <Route path="/about-us" element={<AboutUs />} />
                 <Route path="/employee-schedule" element={<EmployeeSchedule />} />
                 <Route path="/cart" element={<Cart />} />
