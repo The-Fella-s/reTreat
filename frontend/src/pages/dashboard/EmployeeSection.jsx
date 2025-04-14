@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions } from '@mui/material';
+import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Autocomplete } from '@mui/material';
 import axios from 'axios';
 
 const EmployeeSection = () => {
@@ -9,19 +9,14 @@ const EmployeeSection = () => {
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [editedEmployee, setEditedEmployee] = useState({});
 
-
-
-
-
-   // NEW CODE: State for the Add Employee dialog and new employee data
    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
    const [newEmployee, setNewEmployee] = useState({
      firstName: '',
      lastName: '',
      phone: '',
      email: '',
-     profession: '',                   // NEW: Profession field
-     address: {                        // NEW: Address object with required fields
+     profession: '',                   
+     address: {                      
        street: '',
        city: '',
        state: '',
@@ -31,8 +26,8 @@ const EmployeeSection = () => {
    });
 
 
-
-
+   const [existingUsers, setExistingUsers] = useState([]);
+   const [selectedUser, setSelectedUser] = useState(null);
 
 
   // Utility: Retrieve auth token
@@ -86,6 +81,20 @@ const EmployeeSection = () => {
   useEffect(() => {
     fetchEmployees();
   }, []);
+
+
+   const fetchExistingUsers = async () => {
+    try {
+      const token = getAuthToken();
+      const response = await axios.get('http://localhost:5000/api/users', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Assuming response.data is an array of user objects.
+      setExistingUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
 
   // Opens the Edit dialog with employee data pre-filled.
   const handleEditClick = (employee) => {
@@ -144,26 +153,29 @@ const EmployeeSection = () => {
   };
 
 
-
-
- // NEW CODE: Handlers for the Add Employee dialog
-
-  // Open Add Employee dialog.
+  // Open Add Employee dialog
   const handleOpenAddDialog = () => {
     setNewEmployee({
       firstName: '',
       lastName: '',
       phone: '',
       email: '',
-      address: {}
+      profession: '',
+      address: {
+        street: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: ''
+      }
     });
+    setSelectedUser(null); // Reset selected user
     setIsAddDialogOpen(true);
+    fetchExistingUsers(); 
   };
-
   // Handle changes in Add Employee form.
   const handleAddEmployeeChange = (e) => {
     const { name, value } = e.target;
-    // If the field is for the address, split the name by a dot.
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setNewEmployee((prev) => ({
@@ -181,27 +193,69 @@ const EmployeeSection = () => {
     }
   };
 
-  // NEW CODE: Submit new employee data.
+
+   const handleSelectUser = (event, user) => {
+    setSelectedUser(user);
+    if (user) {
+      // Autofill the employee form with data from the selected user.
+      setNewEmployee((prev) => ({
+        ...prev,
+        firstName: user.firstName || (user.name ? user.name.split(' ')[0] : ''),
+        lastName: user.lastName || (user.name ? user.name.split(' ').slice(1).join(' ') : ''),
+        phone: user.phone || '',
+        email: user.email || '',
+        profession: user.profession || '',
+        address: {
+          street: user.address?.street || '',
+          city: user.address?.city || '',
+          state: user.address?.state || '',
+          postalCode: user.address?.postalCode || '',
+          country: user.address?.country || ''
+        }
+      }));
+    }
+  };
+
   const handleCreateEmployee = async () => {
     try {
       const token = getAuthToken();
-      const response = await axios.post('http://localhost:5000/api/employees', newEmployee, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const createdEmployee = response.data;
-      // Map new employee to row format.
+      let createdEmployee;
+      
+      if (selectedUser) {
+        const updatePayload = {
+          ...newEmployee, 
+          role: 'employee'
+        };
+        
+        const response = await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, updatePayload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        createdEmployee = response.data;
+      } else {
+        const employeePayload = {
+          ...newEmployee,
+          password: "password", 
+          role: 'employee',               
+          schedule: { days: [], startTime: '', endTime: '', customShifts: [] } 
+        };
+        const response = await axios.post('http://localhost:5000/api/employees', employeePayload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        createdEmployee = response.data;
+      }
+      
+      // Map the returned data to a new row for the DataGrid
       const newRow = {
         id: createdEmployee._id,
-        firstName: createdEmployee.firstName,
-        lastName: createdEmployee.lastName,
+        firstName: createdEmployee.firstName || newEmployee.firstName,
+        lastName: createdEmployee.lastName || newEmployee.lastName, 
         phone: createdEmployee.phone,
         email: createdEmployee.email,
-        profession: createdEmployee.employeeDetails?.profession || '',
+        profession: createdEmployee.profession,
         formattedAddress: `${createdEmployee.address?.street || ''}, ${createdEmployee.address?.city || ''}, ${createdEmployee.address?.state || ''} ${createdEmployee.address?.postalCode || ''}, ${createdEmployee.address?.country || ''}`,
         address: createdEmployee.address,
         joinDate: createdEmployee.createdAt ? new Date(createdEmployee.createdAt) : null,
       };
-      // Update rows with the new employee.
       setRows((prevRows) => [...prevRows, newRow]);
       setIsAddDialogOpen(false);
     } catch (error) {
@@ -209,13 +263,6 @@ const EmployeeSection = () => {
       setErrorMessage('Failed to add employee. Please try again.');
     }
   };
-
-
-
-
-
-
-
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 90, minWidth: 90 },
@@ -384,19 +431,30 @@ const EmployeeSection = () => {
             </Button>
           </DialogActions>
         </Dialog>
-
-
-
-
-
-
-
-
-
-         {/* NEW CODE: Add Employee Dialog */}
-      <Dialog open={isAddDialogOpen} onClose={() => setIsAddDialogOpen(false)} fullWidth>
+        {/* Add Employee Dialog */}
+        <Dialog open={isAddDialogOpen} onClose={() => setIsAddDialogOpen(false)} fullWidth>
         <DialogTitle>Add New Employee</DialogTitle>
         <DialogContent>
+          <Autocomplete
+            options={existingUsers}
+            getOptionLabel={(option) =>
+              `${option.firstName || option.name || ''} ${option.lastName || ''}`.trim()
+            }
+            onChange={handleSelectUser}
+            value={selectedUser}
+            renderOption={(props, option, { index }) => (
+              <li
+                {...props}
+                key={option._id ? option._id : `${option.email}-${index}`}
+              >
+                {`${option.firstName || option.name || ''} ${option.lastName || ''}`.trim()}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Search Existing Users" margin="dense" />
+            )}
+          />
+          {/* Employee fields that can be auto-filled */}
           <TextField
             margin="dense"
             name="firstName"
@@ -493,16 +551,7 @@ const EmployeeSection = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-
-
-
-
-
-
-
-
-      </Box>
+    </Box>
   );
 };
 
