@@ -1,11 +1,21 @@
 const mongoose = require('mongoose');
 const { encrypt, decrypt } = require('../utilities/encryption');
 
+// Separate schema for addresses
+const addressSchema = new mongoose.Schema({
+  street: { type: String, trim: true },
+  city: { type: String, trim: true },
+  state: { type: String, trim: true },
+  postalCode: { type: String, trim: true },
+  country: { type: String, trim: true }
+});
+
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   name: { type: String, required: true },
   phone: { type: String },
+  address: addressSchema,
   role: { type: String, enum: ['user', 'employee', 'admin'], default: 'user' },
   createdAt: { type: Date, default: Date.now },
   squareId: {
@@ -47,6 +57,7 @@ const userSchema = new mongoose.Schema({
   },
   employeeDetails: {
     isAvailable: { type: Boolean, default: true },
+    profession: { type: mongoose.Schema.Types.ObjectId, ref: 'Profession' },
     schedule: [
       {
         day: String,
