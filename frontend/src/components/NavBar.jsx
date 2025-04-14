@@ -154,6 +154,16 @@ const NavBar = () => {
                     </MenuItem>
                   </Collapse>
 
+
+                  {user?.role === 'admin' && (
+                    <Collapse in={menuItemsVisible[1]} timeout={400}>
+                      <MenuItem onClick={() => navigate('/dashboard')}>
+                        <Typography>Dashboard</Typography>
+                      </MenuItem>
+                    </Collapse>
+                  )}
+
+
                   <Collapse in={menuItemsVisible[2]} timeout={400}>
                     <MenuItem onClick={logout}>
                       <Typography>Log Out</Typography>
