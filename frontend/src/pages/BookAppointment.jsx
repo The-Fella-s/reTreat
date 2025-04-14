@@ -46,8 +46,9 @@ const BookAppointment = () => {
         fetchCategories();
     }, []);
 
-    const handleAppointmentBookConfirm = (appointmentData) => {
-        navigate('/payment', { state: { appointmentData } });
+    const handleAppointmentBookConfirm = () => {
+        const externalUrl = 'https://retreat-salon-and-spa.square.site/';
+        window.location.href = externalUrl;
     };
 
     return (

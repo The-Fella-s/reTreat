@@ -56,13 +56,24 @@ function generateVerificationCode() {
 router.post('/register', async (req, res) => {
   const { email, password, name, phone, role } = req.body;
   try {
+    console.log("📥 Received registration data:", req.body);
+
     if (!email || !password || !name) {
       return res.status(400).json({ message: 'All fields are required' });
     }
+
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already in use' });
+      if (existingUser.isVerified) {
+        return res.status(400).json({ message: 'Email already in use' });
+      } else {
+        // 🔄 Delete the unverified user so they can re-register
+        await User.deleteOne({ email });
+        console.log('Deleted unverified account:', email);
+      }
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationCode = generateVerificationCode();
     const codeExpiry = Date.now() + 24 * 60 * 60 * 1000;
@@ -113,6 +124,7 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // =================== VERIFY EMAIL (Initial Registration) ===================
 router.post('/verify-email', async (req, res) => {
@@ -168,15 +180,23 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
+
     const user = await User.findOne({ email });
     console.log('LOGIN user found:', user);
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+
+    // 🚨 ADD THIS CHECK
+    if (!user.isVerified) {
+      return res.status(403).json({ message: 'Please verify your email before logging in.' });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+
     const token = generateToken(user._id, user.role);
     console.log('LOGIN success, token generated:', token);
     res.status(200).json({
@@ -196,6 +216,7 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // =================== GOOGLE SIGN-ON ===================
 router.post('/google-login', async (req, res) => {
@@ -347,5 +368,38 @@ router.get('/search', protect, async (req, res) => {
   }
 });
 
+// Returns all users (without passwords)
+router.get('/', protect, async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.status(200).json(users);  // This ensures a JSON response.
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Failed to fetch users' });
+  }
+});
+
+// Update the user with the new data
+router.put('/:id', protect, async (req, res) => {
+  try {
+    let user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Update allowed fields. If you haven't permitted role update, add this.
+    user.firstName = req.body.firstName || user.firstName;
+    user.lastName = req.body.lastName || user.lastName;
+    // If you want to allow role updates, explicitly update it:
+    if (req.body.role) {
+      user.role = req.body.role;
+    }
+    // If there are other fields you want to update, include them accordingly.
+
+    const updatedUser = await user.save();
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 module.exports = router;
