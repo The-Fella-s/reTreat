@@ -4,7 +4,7 @@ import axios from 'axios';
 import './App.css';
 import Footer from './components/Footer';
 import Contact from './components/ContactUs';
-import FAQ from './pages/FAQ.jsx';
+import FAQ from './pages/faq.jsx';
 import Reviews from './components/Reviews';
 import SocialMedia from './components/SocialMedia';
 import ReadyToRelax from './components/ReadyToRelax';
