@@ -22,16 +22,16 @@ function MainPage() {
 						<iframe
 							width="100%"
 							height="100%"
-							src="https://www.youtube.com/embed/E2p_8yA3Rmg"
+							src="https://www.youtube.com/embed/Q0F3Cp4OGW4?si=cTUz9fAer0dOwO1-"
 							title="About reTreat Salon & Spa"
 							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 							allowFullScreen
 							style={{
 								position: "absolute",
 								top: 0,
-								left: 0,
-								width: "100%",
-								height: "100%",
+								left: 390,
+								width: "31.5%",
+								height: "99.5%",
 								borderRadius: 20,
 								border: 100,
 								borderColor: "text.secondary",

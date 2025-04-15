@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container, Typography} from '@mui/material'; // Might change things utilizing Grid2 later on, leaving here for now
-import img from '/src/assets/StockImage.jpg';
+import img from '/src/assets/Danniel&Holly.jpg';
 import ReadyToRelax from '../components/ReadyToRelax';
 
 function AboutUs() {
@@ -31,7 +31,7 @@ function AboutUs() {
                             height: 'auto',
                             mt: 2,
                             borderRadius: 6,
-                            border: 6,
+                            border: 4,
                             borderColor: 'text.secondary'
                         }}
                     />

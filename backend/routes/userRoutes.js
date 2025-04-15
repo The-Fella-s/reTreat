@@ -368,5 +368,38 @@ router.get('/search', protect, async (req, res) => {
   }
 });
 
+// Returns all users (without passwords)
+router.get('/', protect, async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.status(200).json(users);  // This ensures a JSON response.
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Failed to fetch users' });
+  }
+});
+
+// Update the user with the new data
+router.put('/:id', protect, async (req, res) => {
+  try {
+    let user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Update allowed fields. If you haven't permitted role update, add this.
+    user.firstName = req.body.firstName || user.firstName;
+    user.lastName = req.body.lastName || user.lastName;
+    // If you want to allow role updates, explicitly update it:
+    if (req.body.role) {
+      user.role = req.body.role;
+    }
+    // If there are other fields you want to update, include them accordingly.
+
+    const updatedUser = await user.save();
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 module.exports = router;
