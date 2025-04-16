@@ -1,181 +1,94 @@
 const express = require('express');
 const router = express.Router();
+const axios = require('axios');
 const docusign = require('docusign-esign');
-const fs = require('fs');
-const path = require('path');
-const User = require('../models/User');
-const { protect } = require('../middleware/authMiddleware');
 
-const CLIENT_ID = process.env.DOCUSIGN_CLIENT_ID;
-const CLIENT_SECRET = process.env.DOCUSIGN_CLIENT_SECRET;
-const REDIRECT_URI = process.env.DOCUSIGN_REDIRECT_URI;
-const BASE_URL = process.env.DOCUSIGN_BASE_URL;
-const ACCOUNT_ID = process.env.DOCUSIGN_ACCOUNT_ID;
+const {
+  DOCUSIGN_CLIENT_ID,
+  DOCUSIGN_CLIENT_SECRET,
+  DOCUSIGN_REDIRECT_URI,
+  DOCUSIGN_ACCOUNT_ID,
+} = process.env;
 
-// Initialize DocuSign API client
-const initDsClient = () => {
-  const dsApiClient = new docusign.ApiClient();
-  dsApiClient.setBasePath(BASE_URL);
-  return dsApiClient;
-};
-const getAuthenticatedClient = async (userId) => {
-  try {
-    const user = await User.findById(userId);
-    if (!user || !user.docusignAccessToken) {
-      throw new Error('User not authenticated with DocuSign');
-    }
 
-    if (user.docusignExpiresIn && user.docusignExpiresIn < Date.now()) {
-      const dsApiClient = initDsClient();
-      const response = await dsApiClient.refreshAccessToken(
-        CLIENT_ID,
-        CLIENT_SECRET,
-        user.docusignRefreshToken
-      );
-
-      await User.findByIdAndUpdate(userId, {
-        docusignAccessToken: response.accessToken,
-        docusignRefreshToken: response.refreshToken,
-        docusignExpiresIn: Date.now() + (response.expiresIn * 1000)
-      });
-
-      user.docusignAccessToken = response.accessToken;
-    }
-
-    const dsApiClient = initDsClient();
-    dsApiClient.addDefaultHeader('Authorization', `Bearer ${user.docusignAccessToken}`);
-    
-    return { dsApiClient, accountId: ACCOUNT_ID };
-  } catch (error) {
-    console.error('Error getting authenticated client:', error);
-    throw error;
-  }
-};
-
-// Generate authorization URL
-router.get('/auth', (req, res) => {
-  try {
-    const dsApiClient = initDsClient();
-    const scopes = ['signature', 'impersonation'];
-    const authUri = dsApiClient.getAuthorizationUri(
-      CLIENT_ID,
-      scopes,
-      REDIRECT_URI,
-      'code'
-    );
-    res.status(200).json({ authUrl: authUri });
-  } catch (error) {
-    console.error('Error generating auth URL:', error);
-    res.status(500).json({ error: 'Failed to generate authentication URL' });
-  }
+router.get('/auth-url', (req, res) => {
+  const redirectUrl = `https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature&client_id=${DOCUSIGN_CLIENT_ID}&redirect_uri=${encodeURIComponent(DOCUSIGN_REDIRECT_URI)}`;
+  res.json({ url: redirectUrl });
 });
 
 
-router.get('/test', (req, res) => {
-  res.status(200).json({ 
-    message: 'DocuSign route is working!',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Handle OAuth callback
 router.get('/callback', async (req, res) => {
   try {
     const { code } = req.query;
-    if (!code) {
-      return res.status(400).json({ error: 'Authorization code is missing' });
-    }
-
-    const dsApiClient = initDsClient();
-    const response = await dsApiClient.generateAccessToken(
-      CLIENT_ID,
-      CLIENT_SECRET,
-      code
-    );
-
-    res.status(200).json({ 
-      success: true, 
-      message: 'DocuSign authentication successful' 
+    const response = await axios.post('https://account-d.docusign.com/oauth/token', new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      client_id: DOCUSIGN_CLIENT_ID,
+      client_secret: DOCUSIGN_CLIENT_SECRET,
+      redirect_uri: DOCUSIGN_REDIRECT_URI
+    }).toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
+
+
+    const { access_token } = response.data;
+
+    res.json({ accessToken: access_token, message: 'You can now send documents' });
   } catch (error) {
-    console.error('DocuSign callback error:', error);
-    res.status(500).json({ error: 'Failed to process DocuSign authentication' });
+    res.status(500).json({ message: 'Token exchange failed', error });
   }
 });
 
-// Create a new envelope with documents (EMAIL ONLY)
-router.post('/create-envelope', protect, async (req, res) => {
-  try {
-    const { documentPath, signerEmail, signerName, documentName, emailSubject, emailBody } = req.body;
-    
-    if (!documentPath || !signerEmail || !signerName || !documentName) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+
+router.post('/send-envelope', async (req, res) => {
+  const { accessToken, customerEmail, customerName } = req.body;
+
+  const apiClient = new docusign.ApiClient();
+  apiClient.setBasePath("https://demo.docusign.net/restapi");
+  apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+
+  const envelopeDefinition = new docusign.EnvelopeDefinition();
+  envelopeDefinition.emailSubject = "Please sign your purchase agreement";
+  envelopeDefinition.status = "sent";
+
+  const docBase64 = Buffer.from("Hello {{customerName}}, please sign here.").toString('base64');
+
+  envelopeDefinition.documents = [
+    {
+      documentBase64: docBase64,
+      name: "Purchase Agreement",
+      fileExtension: "txt",
+      documentId: "1",
     }
+  ];
 
-    const { dsApiClient, accountId } = await getAuthenticatedClient(req.user._id);
-    const envDef = new docusign.EnvelopeDefinition();
-    envDef.emailSubject = emailSubject || 'Please sign this document';
-    
-    const doc = new docusign.Document();
-    const documentBuffer = fs.readFileSync(path.resolve(documentPath));
-    const documentBase64 = Buffer.from(documentBuffer).toString('base64');
-    
-    doc.documentBase64 = documentBase64;
-    doc.name = documentName;
-    doc.fileExtension = path.extname(documentPath).substring(1);
-    doc.documentId = '1';
-    
-    envDef.documents = [doc];
-    const signer = new docusign.Signer();
-    signer.email = signerEmail;
-    signer.name = signerName;
-    signer.recipientId = '1';
-    
+  const signer = {
+    email: customerEmail,
+    name: customerName,
+    recipientId: "1",
+    routingOrder: "1",
+    tabs: {
+      signHereTabs: [
+        {
+          documentId: "1",
+          pageNumber: "1",
+          recipientId: "1",
+          xPosition: "100",
+          yPosition: "150",
+        }
+      ]
+    }
+  };
 
-    const signHere = new docusign.SignHere();
-    signHere.documentId = '1';
-    signHere.pageNumber = '1';
-    signHere.xPosition = '200';
-    signHere.yPosition = '200';
-    
-    const tabs = new docusign.Tabs();
-    tabs.signHereTabs = [signHere];
-    signer.tabs = tabs;
-    
-    const recipients = new docusign.Recipients();
-    recipients.signers = [signer];
-    envDef.recipients = recipients;
-    
-    // Set status to "sent" to immediately send the envelope via email
-    envDef.status = 'sent';
-    
-    // Create envelope via API
-    const envelopesApi = new docusign.EnvelopesApi(dsApiClient);
-    const results = await envelopesApi.createEnvelope(accountId, { envelopeDefinition: envDef });
-    
-    res.status(200).json({
-      envelopeId: results.envelopeId,
-      status: results.status,
-      message: 'Document sent via email successfully'
-    });
-  } catch (error) {
-    console.error('Error creating envelope:', error);
-    res.status(500).json({ error: 'Failed to create envelope' });
-  }
-});
+  envelopeDefinition.recipients = { signers: [signer] };
 
-// Get envelope status
-router.get('/envelopes/:envelopeId', protect, async (req, res) => {
   try {
-    const { envelopeId } = req.params;
-    const { dsApiClient, accountId } = await getAuthenticatedClient(req.user._id);
-    const envelopesApi = new docusign.EnvelopesApi(dsApiClient);
-    const result = await envelopesApi.getEnvelope(accountId, envelopeId);
-    
-    res.status(200).json(result);
-  } catch (error) {
-    console.error('Error getting envelope status:', error);
-    res.status(500).json({ error: 'Failed to get envelope status' });
+    const envelopesApi = new docusign.EnvelopesApi(apiClient);
+    const result = await envelopesApi.createEnvelope(DOCUSIGN_ACCOUNT_ID, { envelopeDefinition });
+    res.json({ message: "Envelope sent!", envelopeId: result.envelopeId });
+  } catch (err) {
+    console.error("Error sending envelope", err);
+    res.status(500).json({ message: "Failed to send document" });
   }
 });
 
