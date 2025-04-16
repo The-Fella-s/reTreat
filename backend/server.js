@@ -57,7 +57,7 @@ const catalogRoutes = require('./routes/catalogRoutes');
 const authRoutes= require('./routes/paymentOauthRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const employeeRoutes = require('./routes/employeeRoutes')
-
+const teamRoutes = require('./routes/teamRoutes');
 
 app.use('/api/square', authRoutes);
 app.use('/api/users', userRoutes);
@@ -77,6 +77,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/catalogs', catalogRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/employees', employeeRoutes);
+app.use('/api/team', teamRoutes);
 
 app.use(passport.initialize());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
