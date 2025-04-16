@@ -11,6 +11,7 @@ import UserSection from "./UserSection.jsx";
 import BookingSection from "./BookingSection.jsx";
 import ThemeSection from "./ThemeSection.jsx";
 import MenuSection from "./MenuSection.jsx";
+import WaiverSection from "./WaiverSection.jsx";
 
 // Value for the drawer's width
 const drawerWidth = 220;
@@ -38,6 +39,7 @@ function Dashboard({ setTheme }) {
         { text: "Menu", icon: <RestaurantMenuIcon />, path: "menu" },
         { text: "Bookings", icon: <BarChartIcon />, path: "booking" },
         { text: "Themes", icon: <LayersIcon />, path: "themes" },
+        { text: "Waivers", icon: <LayersIcon />, path: "waivers" },
     ];
 
     const drawerContent = (
@@ -138,6 +140,7 @@ function Dashboard({ setTheme }) {
                             <Route path="menu" element={<MenuSection />} />
                             <Route path="booking" element={<BookingSection />} />
                             <Route path="themes" element={<ThemeSection setTheme={setTheme} />} />
+                            <Route path="waivers" element={<WaiverSection />} />
                         </Routes>
                     </Box>
                 </>
@@ -164,6 +167,7 @@ function Dashboard({ setTheme }) {
                             <Route path="menu" element={<MenuSection />} />
                             <Route path="booking" element={<BookingSection />} />
                             <Route path="themes" element={<ThemeSection setTheme={setTheme} />} />
+                            <Route path="waivers" element={<WaiverSection />} />
                         </Routes>
                     </Box>
                 </Box>
