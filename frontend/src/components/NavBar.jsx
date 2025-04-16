@@ -51,6 +51,7 @@ const NavBar = () => {
     { name: 'FAQ', path: '/faq' },
     { name: 'About us', path: '/about-us' },
     { name: 'Contact Us', path: '/contact-us' },
+    { name: 'Waiver', path: '/waiver' }  
   ];
 
   const employeePages = user?.role === 'employee' ? [{ name: 'Manage Schedule', path: '/employee-schedule' }] : [];

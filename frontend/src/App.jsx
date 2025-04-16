@@ -29,6 +29,7 @@ import Main from './components/MainPage.jsx';
 import { createCustomTheme } from './utilities/themeUtils.js';
 import { Box } from '@mui/material';
 import AuthProvider from './context/AuthContext.jsx';
+import WaiverForm from './pages/waiver.jsx'; 
 
 function HomePageTracker() {
   const location = useLocation();
@@ -90,6 +91,7 @@ function App() {
                 <Route path="/about-us" element={<AboutUs />} />
                 <Route path="/employee-schedule" element={<EmployeeSchedule />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/waiver" element={<WaiverForm />} />
               </Routes>
             </Box>
             <Footer />
