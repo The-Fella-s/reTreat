@@ -10,13 +10,13 @@ const {
   DOCUSIGN_ACCOUNT_ID,
 } = process.env;
 
-// Step 1 - Generate login URL
+
 router.get('/auth-url', (req, res) => {
   const redirectUrl = `https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature&client_id=${DOCUSIGN_CLIENT_ID}&redirect_uri=${encodeURIComponent(DOCUSIGN_REDIRECT_URI)}`;
   res.json({ url: redirectUrl });
 });
 
-// Step 2 - Exchange code for token
+
 router.get('/callback', async (req, res) => {
   try {
     const { code } = req.query;
@@ -30,7 +30,7 @@ router.get('/callback', async (req, res) => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
 
-    // Save access_token somewhere if needed
+
     const { access_token } = response.data;
 
     res.json({ accessToken: access_token, message: 'You can now send documents' });
@@ -39,7 +39,7 @@ router.get('/callback', async (req, res) => {
   }
 });
 
-// Step 3 - Send envelope to a user after purchase
+
 router.post('/send-envelope', async (req, res) => {
   const { accessToken, customerEmail, customerName } = req.body;
 
