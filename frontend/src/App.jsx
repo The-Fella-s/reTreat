@@ -30,6 +30,7 @@ import { createCustomTheme } from './utilities/themeUtils.js';
 import { Box } from '@mui/material';
 import AuthProvider from './context/AuthContext.jsx';
 import WaiverForm from './pages/waiver.jsx'; 
+import Unauthorized from "./pages/Unauthorized";
 
 function HomePageTracker() {
   const location = useLocation();
@@ -92,6 +93,7 @@ function App() {
                 <Route path="/employee-schedule" element={<EmployeeSchedule />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/waiver" element={<WaiverForm />} />
+                <Route path="/unauthorized" element={<Unauthorized />} />
               </Routes>
             </Box>
             <Footer />
