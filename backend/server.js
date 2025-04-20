@@ -57,8 +57,11 @@ const catalogRoutes = require('./routes/catalogRoutes');
 const authRoutes= require('./routes/paymentOauthRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const employeeRoutes = require('./routes/employeeRoutes')
+const teamRoutes = require('./routes/teamRoutes');
+const docusignRoutes=require('./routes/docusignRoutes');
+const waiverRoutes = require("./routes/waiverRoutes");
 
-
+app.use("/api/waivers", waiverRoutes);
 app.use('/api/square', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
@@ -77,6 +80,9 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/catalogs', catalogRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/employees', employeeRoutes);
+app.use('/api/team', teamRoutes);
+app.use('/api/docusign', docusignRoutes);
+
 
 app.use(passport.initialize());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -9,6 +9,9 @@ const customShiftSchema = new mongoose.Schema({
 const employeeSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
+  title: String,
+  description: String,
+  imageUrl: String,
   address: String,
   phone: String,
   email: String,
