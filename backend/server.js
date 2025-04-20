@@ -59,7 +59,9 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const employeeRoutes = require('./routes/employeeRoutes')
 const teamRoutes = require('./routes/teamRoutes');
 const docusignRoutes=require('./routes/docusignRoutes');
+const waiverRoutes = require("./routes/waiverRoutes");
 
+app.use("/api/waivers", waiverRoutes);
 app.use('/api/square', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/themes', themeRoutes);
