@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Divider, useMediaQuery, IconButton, AppBar, Toolbar } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Dashboard as DashboardIcon, People as PeopleIcon, BarChart as BarChartIcon, Layers as LayersIcon, Menu as MenuIcon, Close as CloseIcon, RestaurantMenu as RestaurantMenuIcon } from "@mui/icons-material";
@@ -12,6 +12,7 @@ import BookingSection from "./BookingSection.jsx";
 import ThemeSection from "./ThemeSection.jsx";
 import MenuSection from "./MenuSection.jsx";
 import WaiverSection from "./WaiverSection.jsx";
+import jwt_decode from "jwt-decode";
 
 // Value for the drawer's width
 const drawerWidth = 220;
@@ -21,7 +22,30 @@ function Dashboard({ setTheme }) {
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const [mobileOpen, setMobileOpen] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
     const basePath = "/dashboard";
+
+    // Checks for admin priv
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            navigate("/unauthorized");
+            return;
+        }
+
+        try {
+            const decoded = jwt_decode(token);
+            const userRole = decoded?.role;
+
+            if (userRole !== "admin") {
+                navigate("/unauthorized");
+            }
+        } catch (error) {
+            console.error("Invalid token:", error);
+            navigate("/unauthorized");
+        }
+    }, []);
 
     const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
