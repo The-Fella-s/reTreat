@@ -54,8 +54,7 @@ const NavBar = () => {
     { name: 'Waiver', path: '/waiver' }  
   ];
 
-  const employeePages = user?.role === 'employee' ? [{ name: 'Manage Schedule', path: '/employee-schedule' }] : [];
-  const allPages = [...pages, ...employeePages];
+  const allPages = [...pages];
 
   const profileImageUrl = user?.profilePicture
     ? `http://localhost:5000${user.profilePicture}?t=${Date.now()}`

@@ -25,8 +25,6 @@ import Register from './pages/Register.jsx';
 import VerifyEmail from './pages/VerifyEmail.jsx';
 import Profile from './components/Profile.jsx';
 import AdminDashboard from './pages/dashboard/Dashboard.jsx';
-import EmployeeSchedule from './pages/EmployeeSchedule.jsx';
-import Cart from './pages/Cart.jsx';
 import WaiverForm from './pages/waiver.jsx';
 import Unauthorized from './pages/Unauthorized';
 
@@ -83,8 +81,6 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/dashboard/*" element={<AdminDashboard setTheme={setTheme} />} />
 
-              <Route path="/employee-schedule" element={<EmployeeSchedule />} />
-              <Route path="/cart" element={<Cart />} />
               <Route path="/waiver" element={<WaiverForm />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
             </Routes>

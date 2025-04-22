@@ -8,7 +8,6 @@ import "@testing-library/jest-dom";
 jest.mock("../../../../pages/dashboard/StatisticsSection.jsx", () => () => <div>Statistics Section</div>);
 jest.mock("../../../../pages/dashboard/EmployeeSection.jsx", () => () => <div>Employee Section</div>);
 jest.mock("../../../../pages/dashboard/UserSection.jsx", () => () => <div>User Section</div>);
-jest.mock("../../../../pages/dashboard/MenuSection.jsx", () => () => <div>Menu Section</div>);
 jest.mock("../../../../pages/dashboard/BookingSection.jsx", () => () => <div>Booking Section</div>);
 jest.mock("../../../../pages/dashboard/ThemeSection.jsx", () => (props) => <div>Theme Section</div>);
 
@@ -47,7 +46,6 @@ describe("Dashboard Component", () => {
             expect(screen.getByText("Overview")).toBeInTheDocument();
             expect(screen.getByText("Employees")).toBeInTheDocument();
             expect(screen.getByText("Users")).toBeInTheDocument();
-            expect(screen.getByText("Menu")).toBeInTheDocument();
             expect(screen.getByText("Bookings")).toBeInTheDocument();
             expect(screen.getByText("Themes")).toBeInTheDocument();
 
@@ -76,18 +74,6 @@ describe("Dashboard Component", () => {
             // Wait for the User Section to load up.
             await waitFor(() => {
                 expect(screen.getByText("User Section")).toBeInTheDocument();
-            });
-        });
-
-        test("navigates to Menu route when clicking menu item", async () => {
-            renderDashboard("/dashboard/", setThemeMock);
-
-            // Click on the "Menu" menu item.
-            fireEvent.click(screen.getByText("Menu"));
-
-            // Wait for the Menu Section to load up.
-            await waitFor(() => {
-                expect(screen.getByText("Menu Section")).toBeInTheDocument();
             });
         });
 
@@ -132,7 +118,6 @@ describe("Dashboard Component", () => {
             // Verify that the menu items are not visible before clicking the menu icon.
             expect(screen.queryByText("Employees")).not.toBeVisible();
             expect(screen.queryByText("Users")).not.toBeVisible();
-            expect(screen.queryByText("Menu")).not.toBeVisible();
             expect(screen.queryByText("Bookings")).not.toBeVisible();
             expect(screen.queryByText("Themes")).not.toBeVisible();
         });
@@ -176,27 +161,6 @@ describe("Dashboard Component", () => {
             // Wait for the User Section to load up.
             await waitFor(() => {
                 expect(screen.getByText("User Section")).toBeInTheDocument();
-            });
-        });
-
-        test("opens the drawer when menu icon is clicked and then navigates on menu item click for Menu", async () => {
-            renderDashboard("/dashboard/", setThemeMock);
-
-            // Open the temporary Drawer by clicking the menu icon.
-            const menuButton = screen.getByLabelText("menu");
-            fireEvent.click(menuButton);
-
-            // Wait for the drawer content to appear.
-            await waitFor(() => {
-                expect(screen.getByText("Menu")).toBeInTheDocument();
-            });
-
-            // Click on the "Menu" menu item.
-            fireEvent.click(screen.getByText("Menu"));
-
-            // Wait for the Menu Section to load up.
-            await waitFor(() => {
-                expect(screen.getByText("Menu Section")).toBeInTheDocument();
             });
         });
 

@@ -10,7 +10,6 @@ import EmployeeSection from "./EmployeeSection.jsx";
 import UserSection from "./UserSection.jsx";
 import BookingSection from "./BookingSection.jsx";
 import ThemeSection from "./ThemeSection.jsx";
-import MenuSection from "./MenuSection.jsx";
 import WaiverSection from "./WaiverSection.jsx";
 import jwt_decode from "jwt-decode";
 
@@ -142,7 +141,6 @@ function Dashboard({ setTheme }) {
                             <Route path="/" element={<StatisticsSection />} />
                             <Route path="employees" element={<EmployeeSection />} />
                             <Route path="users" element={<UserSection />} />
-                            <Route path="menu" element={<MenuSection />} />
                             <Route path="booking" element={<BookingSection />} />
                             <Route path="themes" element={<ThemeSection setTheme={setTheme} />} />
                             <Route path="waivers" element={<WaiverSection />} />
@@ -169,7 +167,6 @@ function Dashboard({ setTheme }) {
                             <Route path="/" element={<StatisticsSection />} />
                             <Route path="employees" element={<EmployeeSection />} />
                             <Route path="users" element={<UserSection />} />
-                            <Route path="menu" element={<MenuSection />} />
                             <Route path="booking" element={<BookingSection />} />
                             <Route path="themes" element={<ThemeSection setTheme={setTheme} />} />
                             <Route path="waivers" element={<WaiverSection />} />
