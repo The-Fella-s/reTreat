@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import VerifyEmail from '../pages/VerifyEmail';
+import VerifyEmail from '../../pages/VerifyEmail.jsx';
 import { BrowserRouter } from 'react-router-dom';
 import React from 'react';
 import axios from 'axios';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ItemCard from '../components/ItemCard';
+import ItemCard from '../../components/ItemCard.jsx';
 
 describe('ItemCard Component', () => {
   const sampleProps = {

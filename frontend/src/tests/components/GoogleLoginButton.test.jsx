@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import GoogleLoginButton from '../components/GoogleLoginButton';
+import GoogleLoginButton from '../../components/GoogleLoginButton.jsx';
 import '@testing-library/jest-dom';
 import axios from 'axios';
 

@@ -1,8 +1,8 @@
 import React from "react";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import axios from "axios";
-import Register from "../pages/Register";
-import { renderWithAuth } from "./testHelper";
+import Register from "../../pages/Register.jsx";
+import { renderWithAuth } from "../utilities/testHelper.js";
 
 // ✅ Mock axios for testing purposes
 jest.mock("axios");

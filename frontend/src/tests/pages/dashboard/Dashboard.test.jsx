@@ -1,15 +1,15 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
-import Dashboard from "../../../../pages/dashboard/Dashboard.jsx";
+import Dashboard from "../../../pages/dashboard/Dashboard.jsx";
 import "@testing-library/jest-dom";
 
 // --- Mocks for the route section components --- //
-jest.mock("../../../../pages/dashboard/StatisticsSection.jsx", () => () => <div>Statistics Section</div>);
-jest.mock("../../../../pages/dashboard/EmployeeSection.jsx", () => () => <div>Employee Section</div>);
-jest.mock("../../../../pages/dashboard/UserSection.jsx", () => () => <div>User Section</div>);
-jest.mock("../../../../pages/dashboard/BookingSection.jsx", () => () => <div>Booking Section</div>);
-jest.mock("../../../../pages/dashboard/ThemeSection.jsx", () => (props) => <div>Theme Section</div>);
+jest.mock("../../../pages/dashboard/StatisticsSection.jsx", () => () => <div>Statistics Section</div>);
+jest.mock("../../../pages/dashboard/EmployeeSection.jsx", () => () => <div>Employee Section</div>);
+jest.mock("../../../pages/dashboard/UserSection.jsx", () => () => <div>User Section</div>);
+jest.mock("../../../pages/dashboard/BookingSection.jsx", () => () => <div>Booking Section</div>);
+jest.mock("../../../pages/dashboard/ThemeSection.jsx", () => (props) => <div>Theme Section</div>);
 
 // --- Mock useMediaQuery to simulate mobile and desktop --- //
 import useMediaQuery from "@mui/material/useMediaQuery";

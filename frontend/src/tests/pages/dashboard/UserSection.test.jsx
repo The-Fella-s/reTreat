@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import UserSection from '../../../../pages/dashboard/UserSection';
+import UserSection from '../../../pages/dashboard/UserSection.jsx';
 
 // A helper to simulate JSON responses in fetch mocks.
 const createFetchResponse = (data, ok = true, status = 200) => {

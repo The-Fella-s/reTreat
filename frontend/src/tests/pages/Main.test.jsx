@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Main from '../../../pages/Main';
+import Main from '../../pages/Main.jsx';
 
 // Mock react-player to expose its props as data-attributes
 jest.mock('react-player', () => (props) => (
@@ -16,9 +16,9 @@ jest.mock('react-player', () => (props) => (
 ));
 
 // Mock child components
-jest.mock('../../../components/SocialMedia',  () => () => <div data-testid="social-media" />);
-jest.mock('../../../components/Reviews',      () => () => <div data-testid="reviews" />);
-jest.mock('../../../components/ReadyToRelax', () => () => <div data-testid="ready-to-relax" />);
+jest.mock('../../components/SocialMedia.jsx',  () => () => <div data-testid="social-media" />);
+jest.mock('../../components/Reviews.jsx',      () => () => <div data-testid="reviews" />);
+jest.mock('../../components/ReadyToRelax.jsx', () => () => <div data-testid="ready-to-relax" />);
 
 describe('Main component', () => {
     beforeEach(() => {

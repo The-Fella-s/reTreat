@@ -2,12 +2,12 @@ import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import axios from 'axios';
-import BookAppointment from '../../../frontend/src/pages/BookAppointment';
+import BookAppointment from '../../pages/BookAppointment.jsx';
 import '@testing-library/jest-dom';
 
 jest.mock('axios');
 
-jest.mock('../../../frontend/src/components/AppointmentCard', () => {
+jest.mock('../../components/AppointmentCard.jsx', () => {
   return ({ onAppointmentBookConfirm }) => (
     <button onClick={onAppointmentBookConfirm}>Book Appointment</button>
   );

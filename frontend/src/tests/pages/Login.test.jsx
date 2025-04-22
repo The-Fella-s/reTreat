@@ -1,9 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import axios from "axios";
-import Login from "../pages/Login";
+import Login from "../../pages/Login.jsx";
 import { BrowserRouter as Router } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext.jsx";
 
 // MOCK GoogleLogin
 jest.mock("@react-oauth/google", () => ({

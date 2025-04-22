@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import axios from 'axios';
 import { BrowserRouter } from 'react-router-dom';
-import SpaMenuPage from '../pages/menu';
+import SpaMenuPage from '../../pages/menu.jsx';
 import { ToastContainer } from 'react-toastify';
 
 jest.mock('axios');

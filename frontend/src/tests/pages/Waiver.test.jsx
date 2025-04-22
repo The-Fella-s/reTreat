@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import WaiverForm from "../pages/waiver"; // adjust the path if needed
+import WaiverForm from "../../pages/waiver.jsx"; // adjust the path if needed
 import axios from "axios";
 import "@testing-library/jest-dom";
 
