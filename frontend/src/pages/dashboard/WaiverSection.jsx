@@ -22,6 +22,14 @@ const WaiverSection = () => {
   const [loading, setLoading] = useState(false);
   const [selectedWaiver, setSelectedWaiver] = useState(null);
 
+  // build headers including token
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+  };
+
   useEffect(() => {
     fetchWaivers();
   }, []);
@@ -29,7 +37,9 @@ const WaiverSection = () => {
   const fetchWaivers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/waivers');
+      const res = await axios.get('/api/waivers', {
+        headers: getAuthHeaders()
+      });
       const data = Array.isArray(res.data) ? res.data : res.data.waivers;
       setWaivers(data || []);
     } catch (error) {
@@ -41,7 +51,11 @@ const WaiverSection = () => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.put(`/api/waivers/${id}/approve`);
+      await axios.put(
+        `/api/waivers/${id}/approve`,
+        {},
+        { headers: getAuthHeaders() }
+      );
       toast.success('Waiver approved!');
       fetchWaivers();
     } catch (error) {
@@ -51,7 +65,11 @@ const WaiverSection = () => {
 
   const handleReject = async (id) => {
     try {
-      await axios.put(`/api/waivers/${id}/reject`);
+      await axios.put(
+        `/api/waivers/${id}/reject`,
+        {},
+        { headers: getAuthHeaders() }
+      );
       toast.success('Waiver rejected!');
       fetchWaivers();
     } catch (error) {
@@ -72,6 +90,7 @@ const WaiverSection = () => {
       <Typography variant="h4" gutterBottom>
         Waiver Requests
       </Typography>
+
       <Table>
         <TableHead>
           <TableRow>
@@ -89,7 +108,9 @@ const WaiverSection = () => {
               <TableCell>
                 {(w.formData.firstName || '') + ' ' + (w.formData.lastName || '')}
               </TableCell>
-              <TableCell>{new Date(w.dateSigned).toLocaleDateString()}</TableCell>
+              <TableCell>
+                {new Date(w.dateSigned).toLocaleDateString()}
+              </TableCell>
               <TableCell>{w.status}</TableCell>
               <TableCell>
                 <Button variant="text" onClick={() => handleView(w)}>
@@ -132,7 +153,10 @@ const WaiverSection = () => {
           {selectedWaiver &&
             Object.entries(selectedWaiver.formData).map(([key, value]) => (
               <Box key={key} sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ textTransform: 'capitalize' }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ textTransform: 'capitalize' }}
+                >
                   {key.replace(/([A-Z])/g, ' $1')}
                 </Typography>
                 <Typography variant="body2">{value}</Typography>

@@ -26,26 +26,7 @@ function Dashboard({ setTheme }) {
     const basePath = "/dashboard";
 
     // Checks for admin priv
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            navigate("/unauthorized");
-            return;
-        }
-
-        try {
-            const decoded = jwt_decode(token);
-            const userRole = decoded?.role;
-
-            if (userRole !== "admin") {
-                navigate("/unauthorized");
-            }
-        } catch (error) {
-            console.error("Invalid token:", error);
-            navigate("/unauthorized");
-        }
-    }, []);
+   
 
     const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
