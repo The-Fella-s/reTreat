@@ -10,7 +10,7 @@ const GoogleLoginButton = () => {
     console.log('Google user decoded:', decoded);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/users/google-login', {
+      const res = await axios.post('/api/users/google-login', {
         email: decoded.email,
         name: decoded.name,
         picture: decoded.picture,

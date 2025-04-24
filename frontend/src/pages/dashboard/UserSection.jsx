@@ -11,7 +11,7 @@ const UserSection = () => {
   // Fetch users and map them to the DataGrid row structure.
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
+      const response = await fetch('/api/users', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ const UserSection = () => {
     const updatedRow = { ...row, role: newRole, employeeStatus: newRole === 'employee' };
 
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${row.id}`, {
+      const response = await fetch(`/api/users/${row.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ const UserSection = () => {
   // Process row updates for other fields if needed
   const processRowUpdate = async (newRow) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${newRow.id}`, {
+      const response = await fetch(`/api/users/${newRow.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

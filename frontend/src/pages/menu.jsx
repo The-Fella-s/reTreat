@@ -15,7 +15,7 @@ function SpaMenuPage() {
   useEffect(() => {
     async function fetchServices() {
       try {
-        const res = await axios.get('http://localhost:5000/api/services');
+        const res = await axios.get('/api/services');
         setMenuItems(res.data);
         const uniqueCategories = Array.from(
           new Set(

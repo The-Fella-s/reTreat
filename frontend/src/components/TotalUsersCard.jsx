@@ -11,7 +11,7 @@ import axios from 'axios';
         useEffect(() => {
             const fetchTotalUsers = async () => {
                 try {
-                    const response = await axios.get('http://localhost:5000/api/statistics/fetch');
+                    const response = await axios.get('/api/statistics/fetch');
                     setTotalUsers(response.data.totalUsers);
                 } catch (error) {
                     console.error('Error fetching total users:', error);

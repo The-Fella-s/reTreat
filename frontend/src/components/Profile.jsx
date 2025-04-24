@@ -42,7 +42,7 @@ const ProfilePage = () => {
         return;
       }
       try {
-        const res = await axios.get('http://localhost:5000/api/users/me', {
+        const res = await axios.get('/api/users/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile(res.data);
@@ -98,7 +98,7 @@ const ProfilePage = () => {
         formData.append('profilePicture', selectedFile);
       }
       const res = await axios.put(
-        `http://localhost:5000/api/users/update-profile/${user.id}`,
+        `/api/users/update-profile/${user.id}`,
         formData,
         {
           headers: {
@@ -116,7 +116,7 @@ const ProfilePage = () => {
   };
 
   const profileImageUrl = profile.profilePicture
-    ? `http://localhost:5000${profile.profilePicture}`
+    ? `${profile.profilePicture}`
     : 'https://via.placeholder.com/120';
 
   return (

@@ -44,7 +44,7 @@ const WebsiteVisitsCard = () => {
 
     const fetchVisitsData = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/website-visits/get");
+            const response = await axios.get("/api/website-visits/get");
             const labels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
             const values = labels.map(day => response.data.dailyVisits?.[day] || 0);
 
@@ -69,7 +69,7 @@ const WebsiteVisitsCard = () => {
 
     const handleResetVisits = async () => {
         try {
-            await axios.post("http://localhost:5000/api/website-visits/reset");
+            await axios.post("/api/website-visits/reset");
             await fetchVisitsData(); // Refresh chart
             alert("Website visits have been reset.");
         } catch (error) {

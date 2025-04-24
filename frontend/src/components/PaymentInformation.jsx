@@ -122,7 +122,7 @@ const PaymentInformation = () => {
             if (linkCard) {
                 // Try to retrieve an existing card by email
                 try {
-                    const retrieveCard = await axios.get('http://localhost:5000/api/cards/retrieve', { params: { email } });
+                    const retrieveCard = await axios.get('/api/cards/retrieve', { params: { email } });
                     if (retrieveCard.data.card.id) {
                         cardId = retrieveCard.data.card.id;
                     }
@@ -130,7 +130,7 @@ const PaymentInformation = () => {
                     // If card not found, create a new card
                     if (error.response?.status === 404) {
                         try {
-                            const response = await axios.post('http://localhost:5000/api/cards/create', cardData);
+                            const response = await axios.post('/api/cards/create', cardData);
                             if (response.data) {
                                 cardId = response.data.id;
                                 if (cardId) {

@@ -26,7 +26,7 @@ const BookingSection = () => {
     const fetchCategories = async () => {
       try {
         const { data } = await axios.get(
-            'http://localhost:5000/api/categories/list?source=mongo'
+            '/api/categories/list?source=mongo'
         );
         const categoryNames = data.data.map(({ name }) => name);
         setCategories(categoryNames);
@@ -41,7 +41,7 @@ const BookingSection = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/api/services');
+        const { data } = await axios.get('/api/services');
         setServiceList(data);
       } catch (error) {
         console.error('Error fetching services:', error);
@@ -67,7 +67,7 @@ const BookingSection = () => {
 
   const handleDeleteService = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/services/${id}`);
+      await axios.delete(`/api/services/${id}`);
       setServiceList((prev) => prev.filter((service) => service._id !== id));
       toast.error("Service successfully deleted!");
     } catch (error) {
@@ -82,7 +82,7 @@ const BookingSection = () => {
       if (services.servicePicture instanceof File) {
         const formData = new FormData();
         formData.append('servicePicture', services.servicePicture);
-        const uploadResponse = await axios.post('http://localhost:5000/api/services/upload', formData, {
+        const uploadResponse = await axios.post('/api/services/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -99,11 +99,11 @@ const BookingSection = () => {
         servicePicture: imagePath,
       };
 
-      await axios.post('http://localhost:5000/api/services/populate', {
+      await axios.post('/api/services/populate', {
         services: [serviceData],
       });
 
-      const { data } = await axios.get('http://localhost:5000/api/services');
+      const { data } = await axios.get('/api/services');
       setServiceList(data);
       toast.success("Service successfully added!");
     } catch (error) {

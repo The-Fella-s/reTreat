@@ -17,7 +17,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/users/login", { email, password });
+      const res = await axios.post("/api/users/login", { email, password });
       loginWithToken(res.data.token); // ✅ update context
       navigate("/profile");
     } catch (error) {
@@ -29,7 +29,7 @@ const Login = () => {
   const handleGoogleSuccess = async (credentialResponse) => {
     const decoded = jwt_decode(credentialResponse.credential);
     try {
-      const res = await axios.post("http://localhost:5000/api/users/google-login", {
+      const res = await axios.post("/api/users/google-login", {
         email: decoded.email,
         name: decoded.name,
         picture: decoded.picture,

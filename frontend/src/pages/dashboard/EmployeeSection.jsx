@@ -37,7 +37,7 @@ const EmployeeSection = () => {
   const fetchEmployees = async () => {
     try {
       const token = getAuthToken();
-      const response = await axios.get('http://localhost:5000/api/employees', {
+      const response = await axios.get('/api/employees', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const mappedRows = response.data.map((user) => {
@@ -86,7 +86,7 @@ const EmployeeSection = () => {
    const fetchExistingUsers = async () => {
     try {
       const token = getAuthToken();
-      const response = await axios.get('http://localhost:5000/api/users', {
+      const response = await axios.get('/api/users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       // Assuming response.data is an array of user objects.
@@ -105,7 +105,7 @@ const EmployeeSection = () => {
   // Delete employee and update DataGrid rows.
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/employees/${id}`, {
+      await axios.delete(`/api/employees/${id}`, {
         headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
       setRows((prevRows) => prevRows.filter((row) => row.id !== id));
@@ -117,7 +117,7 @@ const EmployeeSection = () => {
   // Save updated employee. Update the row's formatted address as well.
   const handleSave = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/employees/${editingEmployee.id}`, editedEmployee, {
+      await axios.put(`/api/employees/${editingEmployee.id}`, editedEmployee, {
         headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
       setRows((prevRows) =>
@@ -227,7 +227,7 @@ const EmployeeSection = () => {
           role: 'employee'
         };
         
-        const response = await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, updatePayload, {
+        const response = await axios.put(`/api/users/${selectedUser._id}`, updatePayload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         createdEmployee = response.data;
@@ -238,7 +238,7 @@ const EmployeeSection = () => {
           role: 'employee',               
           schedule: { days: [], startTime: '', endTime: '', customShifts: [] } 
         };
-        const response = await axios.post('http://localhost:5000/api/employees', employeePayload, {
+        const response = await axios.post('/api/employees', employeePayload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         createdEmployee = response.data;

@@ -57,7 +57,7 @@ const NavBar = () => {
   const allPages = [...pages];
 
   const profileImageUrl = user?.profilePicture
-    ? `http://localhost:5000${user.profilePicture}?t=${Date.now()}`
+    ? `${user.profilePicture}?t=${Date.now()}`
     : 'https://via.placeholder.com/120';
 
   return (

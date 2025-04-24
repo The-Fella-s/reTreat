@@ -15,7 +15,7 @@ const BookAppointment = () => {
     // Function to fetch services from backend
     const fetchServices = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/services');
+            const response = await axios.get('/api/services');
             setAppointments(response.data);
         } catch (error) {
             console.error('Error fetching appointments:', error);
@@ -25,7 +25,7 @@ const BookAppointment = () => {
     // Function to fetch categories from backend
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/categories/list?source=mongo');
+            const response = await axios.get('/api/categories/list?source=mongo');
 
             // Extract category names from the data
             const categoryNames = response.data.data.map(category => category.name);

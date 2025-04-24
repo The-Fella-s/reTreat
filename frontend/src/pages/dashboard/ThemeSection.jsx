@@ -22,7 +22,7 @@ const ThemeSection = ( {setTheme} ) => {
 
   // Fetch saved themes from the backend when this component mounts
   useEffect(() => {
-    axios.get('http://localhost:5000/api/themes')
+    axios.get('/api/themes')
       .then(response => {
         setSavedThemes(response.data);
       })
@@ -59,7 +59,7 @@ const ThemeSection = ( {setTheme} ) => {
       isActive: false
     };
 
-    axios.post('http://localhost:5000/api/themes', newThemeData)
+    axios.post('/api/themes', newThemeData)
       .then(response => {
         // Add the newly saved theme to the list
         setSavedThemes([...savedThemes, response.data]);
@@ -72,7 +72,7 @@ const ThemeSection = ( {setTheme} ) => {
 
   // Activate a saved theme via a PUT request and update the global theme
   const handleActivateTheme = (themeObj) => {
-    axios.put(`http://localhost:5000/api/themes/${themeObj._id}`, { isActive: true })
+    axios.put(`/api/themes/${themeObj._id}`, { isActive: true })
       .then(response => {
         // Update the global theme using the custom theme creator
         setTheme(createCustomTheme(response.data));
@@ -86,7 +86,7 @@ const ThemeSection = ( {setTheme} ) => {
   // Delete a saved theme via a DELETE request
   const handleDeleteTheme = async (themeId) => {
     try {
-      await fetch(`http://localhost:5000/api/themes/${themeId}`, {
+      await fetch(`/api/themes/${themeId}`, {
         method: 'DELETE'
       });
       setSavedThemes(savedThemes.filter(t => t._id !== themeId));

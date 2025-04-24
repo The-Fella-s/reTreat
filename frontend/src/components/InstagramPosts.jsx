@@ -16,7 +16,7 @@ const InstagramPosts = () => {
         const fetchPosts = async () => {
             try {
                 const res = await axios.get(
-                    "http://localhost:5000/api/instagram/posts",
+                    "/api/instagram/posts",
                     { withCredentials: true }
                 );
                 setPosts(res.data.data);

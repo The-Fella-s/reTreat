@@ -45,7 +45,7 @@ const SignupsCard = () => {
     // Fetch sign-up data from MongoDB
     const fetchSignupsData = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/statistics");
+            const response = await axios.get("/api/statistics");
             console.log("Signups API response:", response.data);
     
             const labels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
