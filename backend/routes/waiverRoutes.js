@@ -1,61 +1,81 @@
-// backend/routes/waiverRoutes.js
-const express = require("express");
-const router = express.Router();
-const Waiver = require("../models/Waiver");
+const express      = require("express");
+const router       = express.Router();
+const Waiver       = require("../models/Waiver");
 const { protect, adminOnly } = require("../middleware/authMiddleware");
+const optionalAuth = require("../middleware/optionalAuth");
 
-// ─── Public: anyone (even not logged in) can submit ───────────────────────
-router.post("/", async (req, res) => {
+// ─── Anyone can submit, but if logged in, we capture their user ID ───────────
+router.post("/", optionalAuth, async (req, res) => {
+  const { waiverType, formData } = req.body;
+  if (!waiverType || !formData) {
+    return res.status(400).json({ message: "waiverType and formData are required" });
+  }
+
+  const newWaiver = {
+    waiverType,
+    formData
+  };
+  if (req.user) newWaiver.user = req.user.id;
+
   try {
-    const { waiverType, formData } = req.body;
-    if (!waiverType || !formData) {
-      return res.status(400).json({ message: "waiverType and formData are required" });
-    }
-    const waiver = await Waiver.create({ waiverType, formData });
-    return res.status(201).json(waiver);
+    const waiver = await Waiver.create(newWaiver);
+    res.status(201).json(waiver);
   } catch (err) {
-    console.error("Error saving waiver:", err);
-    return res.status(500).json({ message: "Error saving waiver" });
+    console.error(err);
+    res.status(500).json({ message: "Error saving waiver" });
   }
 });
 
-// ─── Authenticated users can see all waivers ───────────────────────────────
+// ─── Guests or users fetch all waivers (admin only) ──────────────────────────
 router.get("/", protect, async (req, res) => {
+  const waivers = await Waiver.find().sort({ dateSigned: -1 });
+  res.json(waivers);
+});
+
+// ─── Fetch _only_ this user’s waivers ────────────────────────────────────────
+router.get("/my", protect, async (req, res) => {
   try {
-    const waivers = await Waiver.find().sort({ dateSigned: -1 });
-    return res.json(waivers);
+    const waivers = await Waiver
+      .find({ user: req.user.id })
+      .sort({ dateSigned: -1 });
+    res.json(waivers);
   } catch (err) {
-    console.error("Error fetching waivers:", err);
-    return res.status(500).json({ message: "Error fetching waivers" });
+    console.error(err);
+    res.status(500).json({ message: "Error fetching your waivers" });
   }
 });
 
-// ─── Admins only can approve ───────────────────────────────────────────────
+// ─── Admin approve ───────────────────────────────────────────────────────────
 router.put("/:id/approve", protect, adminOnly, async (req, res) => {
   try {
-    const w = await Waiver.findById(req.params.id);
-    if (!w) return res.status(404).json({ message: "Waiver not found" });
-    w.status = "approved";
-    await w.save();
-    return res.json(w);
+    const waiver = await Waiver.findById(req.params.id);
+    if (!waiver) return res.status(404).json({ message: "Waiver not found" });
+
+    waiver.status = "approved";
+    await waiver.save();
+
+    res.json(waiver);                                // ← SEND RESPONSE
   } catch (err) {
     console.error("Error approving waiver:", err);
-    return res.status(500).json({ message: "Error approving waiver" });
+    res.status(500).json({ message: "Error approving waiver" });
   }
 });
 
-// ─── Admins only can reject ────────────────────────────────────────────────
+// ─── Admin reject ────────────────────────────────────────────────────────────
 router.put("/:id/reject", protect, adminOnly, async (req, res) => {
   try {
-    const w = await Waiver.findById(req.params.id);
-    if (!w) return res.status(404).json({ message: "Waiver not found" });
-    w.status = "rejected";
-    await w.save();
-    return res.json(w);
+    const waiver = await Waiver.findById(req.params.id);
+    if (!waiver) return res.status(404).json({ message: "Waiver not found" });
+
+    waiver.status = "rejected";
+    await waiver.save();
+
+    res.json(waiver);                                // ← SEND RESPONSE
   } catch (err) {
     console.error("Error rejecting waiver:", err);
-    return res.status(500).json({ message: "Error rejecting waiver" });
+    res.status(500).json({ message: "Error rejecting waiver" });
   }
 });
+
 
 module.exports = router;

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+// src/components/Profile.jsx
+import React, { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Container,
@@ -11,180 +12,180 @@ import {
   IconButton,
   TextField,
   Button,
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   List,
   ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Divider
-} from '@mui/material';
-import { Email, Phone, Edit } from '@mui/icons-material';
+  ListItemText
+} from "@mui/material";
+import { Email, Phone, Edit } from "@mui/icons-material";
 
-const ProfilePage = () => {
+export default function ProfilePage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
+  const [waivers, setWaivers] = useState([]);
+  const [selectedWaiver, setSelectedWaiver] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-
-  const [editedProfile, setEditedProfile] = useState({
-    name: '',
-    phone: ''
-  });
-
+  const [editedProfile, setEditedProfile] = useState({ name: "", phone: "" });
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
+  // fetch user info and their waivers
   useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-      try {
-        const res = await axios.get('/api/users/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+    const token = localStorage.getItem("token");
+    if (!token) return navigate("/login");
+
+    const headers = { Authorization: `Bearer ${token}` };
+
+    axios.get("/api/users/me", { headers })
+      .then(res => {
         setProfile(res.data);
-        setEditedProfile({
-          name: res.data.name,
-          phone: res.data.phone
-        });
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-      }
-    };
-    fetchProfile();
+        setEditedProfile({ name: res.data.name, phone: res.data.phone });
+      })
+      .catch(console.error);
+
+    axios.get("/api/waivers/my", { headers })
+      .then(res => setWaivers(res.data))
+      .catch(console.error);
   }, [navigate]);
 
+  // preview profile pic
   useEffect(() => {
-    if (!selectedFile) {
-      setPreview(null);
-      return;
-    }
-    const objectUrl = URL.createObjectURL(selectedFile);
-    setPreview(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
+    if (!selectedFile) return setPreview(null);
+    const url = URL.createObjectURL(selectedFile);
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
   }, [selectedFile]);
 
-  if (!profile) return <Typography>Loading profile...</Typography>;
+  if (!profile) return <Typography>Loading profile…</Typography>;
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-    if (isEditing) {
-      setEditedProfile({
-        name: profile.name,
-        phone: profile.phone
-      });
-      setSelectedFile(null);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setEditedProfile({ ...editedProfile, [e.target.name]: e.target.value });
-  };
-
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
-
-  const handleSave = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const formData = new FormData();
-      formData.append('name', editedProfile.name);
-      formData.append('phone', editedProfile.phone);
-      if (selectedFile) {
-        formData.append('profilePicture', selectedFile);
-      }
-      const res = await axios.put(
-        `/api/users/update-profile/${user.id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      );
-      setProfile(res.data.user);
-      setIsEditing(false);
-      setSelectedFile(null);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-    }
-  };
-
-  const profileImageUrl = profile.profilePicture
-    ? `${profile.profilePicture}`
-    : 'https://via.placeholder.com/120';
+  const profileImageUrl = profile.profilePicture || "https://via.placeholder.com/120";
 
   return (
-    <Box sx={{ bgcolor: 'primary.light', py: 5, minHeight: '100vh' }}>
+    <Box sx={{ bgcolor: "primary.light", py: 5, minHeight: "100vh" }}>
       <Container maxWidth="sm">
-        <Card sx={{ p: 4, borderRadius: 3, boxShadow: 3, bgcolor: 'white', textAlign: 'center', position: 'relative' }}>
+        <Card sx={{ p: 4, borderRadius: 3, boxShadow: 3, bgcolor: "white", textAlign: "center", position: "relative" }}>
           <Avatar
             alt="Profile Picture"
             src={isEditing && preview ? preview : profileImageUrl}
-            sx={{ width: 120, height: 120, mx: 'auto', mb: 2 }}
+            sx={{ width: 120, height: 120, mx: "auto", mb: 2 }}
           />
-          <IconButton onClick={handleEditToggle} sx={{ position: 'absolute', top: 8, right: 8 }}>
+          <IconButton onClick={() => setIsEditing(x => !x)} sx={{ position: "absolute", top: 8, right: 8 }}>
             <Edit />
           </IconButton>
+
           {isEditing ? (
             <>
               <Button variant="contained" component="label" sx={{ mb: 2 }}>
                 Choose File
-                <input type="file" hidden onChange={handleFileChange} accept="image/*" />
+                <input type="file" hidden onChange={e => setSelectedFile(e.target.files[0])} accept="image/*" />
               </Button>
-              {selectedFile && (
-                <Typography variant="body2" sx={{ mb: 2 }}>
-                  {selectedFile.name}
-                </Typography>
-              )}
+              {selectedFile && <Typography variant="body2" sx={{ mb: 2 }}>{selectedFile.name}</Typography>}
+
               <TextField
                 label="Name"
                 name="name"
-                variant="outlined"
                 fullWidth
                 margin="normal"
                 value={editedProfile.name}
-                onChange={handleInputChange}
+                onChange={e => setEditedProfile(p => ({ ...p, name: e.target.value }))}
               />
               <TextField
                 label="Phone"
                 name="phone"
-                variant="outlined"
                 fullWidth
                 margin="normal"
                 value={editedProfile.phone}
-                onChange={handleInputChange}
+                onChange={e => setEditedProfile(p => ({ ...p, phone: e.target.value }))}
               />
-              <Button variant="contained" color="primary" onClick={handleSave} sx={{ mt: 2, mr: 2 }}>
-                Save Changes
-              </Button>
-              <Button variant="outlined" color="secondary" onClick={handleEditToggle} sx={{ mt: 2 }}>
-                Cancel
-              </Button>
+              <Box sx={{ mt: 2 }}>
+                <Button
+                  variant="contained"
+                  onClick={async () => {
+                    const token = localStorage.getItem("token");
+                    const form = new FormData();
+                    form.append("name", editedProfile.name);
+                    form.append("phone", editedProfile.phone);
+                    if (selectedFile) form.append("profilePicture", selectedFile);
+                    try {
+                      const res = await axios.put(
+                        `/api/users/update-profile/${user.id}`,
+                        form,
+                        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
+                      );
+                      setProfile(res.data.user);
+                      setIsEditing(false);
+                      setSelectedFile(null);
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  sx={{ mr: 1 }}
+                >
+                  Save
+                </Button>
+                <Button variant="outlined" onClick={() => setIsEditing(false)}>Cancel</Button>
+              </Box>
             </>
           ) : (
             <>
-              <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
-                {profile.name}
-              </Typography>
-              <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>{profile.name}</Typography>
+              <Typography variant="body1" sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Email sx={{ mr: 1 }} /> {profile.email}
               </Typography>
-              <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 1 }}>
-                <Phone sx={{ mr: 1 }} /> {profile.phone}
+              <Typography variant="body1" sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: 1 }}>
+                <Phone sx={{ mr: 1 }} /> {profile.phone || "(no phone on file)"}
               </Typography>
             </>
           )}
+
           <Divider sx={{ my: 3 }} />
+
+          {/* ——— My Waivers Section ——— */}
+          <Typography variant="h6" align="left" gutterBottom>My Waivers</Typography>
+          {waivers.length === 0 ? (
+            <Typography>You haven’t submitted any waivers yet.</Typography>
+          ) : (
+            <List>
+              {waivers.map(w => (
+                <ListItem key={w._id} sx={{ mb: 1, border: "1px solid #eee", borderRadius: 1 }}>
+                  <ListItemText
+                    primary={`${w.waiverType.charAt(0).toUpperCase() + w.waiverType.slice(1)} — ${new Date(w.dateSigned).toLocaleDateString()}`}
+                    secondary={`Status: ${w.status}`}
+                  />
+                  <Button onClick={() => setSelectedWaiver(w)} sx={{ mr: 1 }}>View Details</Button>
+                </ListItem>
+              ))}
+            </List>
+          )}
+
+          {/* Details Dialog */}
+          <Dialog open={!!selectedWaiver} onClose={() => setSelectedWaiver(null)} fullWidth maxWidth="sm">
+            <DialogTitle>Waiver Details</DialogTitle>
+            <DialogContent dividers>
+              {selectedWaiver && Object.entries(selectedWaiver.formData).map(([key, val]) => (
+                <Box key={key} sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" sx={{ textTransform: "capitalize" }}>
+                    {key.replace(/([A-Z])/g, " $1")}
+                  </Typography>
+                  <Typography variant="body2">
+                    {Array.isArray(val) ? val.join(", ") : val}
+                  </Typography>
+                </Box>
+              ))}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setSelectedWaiver(null)}>Close</Button>
+            </DialogActions>
+          </Dialog>
+          {/* ————————————— */}
         </Card>
       </Container>
     </Box>
   );
-};
-
-export default ProfilePage;
+}

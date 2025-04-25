@@ -1,94 +1,122 @@
-const express = require('express');
+// backend/routes/docusignRoutes.js
+const express = require("express");
 const router = express.Router();
-const axios = require('axios');
-const docusign = require('docusign-esign');
+const docusign = require("docusign-esign");
+const Waiver = require("../models/Waiver");
+const { getJwtApiClient } = require("../lib/docusign-jwt");
 
-const {
-  DOCUSIGN_CLIENT_ID,
-  DOCUSIGN_CLIENT_SECRET,
-  DOCUSIGN_REDIRECT_URI,
-  DOCUSIGN_ACCOUNT_ID,
-} = process.env;
+const ACCOUNT_ID = process.env.DOCUSIGN_ACCOUNT_ID;
+const BASE_PATH  = process.env.DOCUSIGN_BASE_URL;      // e.g. https://demo.docusign.net/restapi
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL; // e.g. http://localhost:5173
 
-
-router.get('/auth-url', (req, res) => {
-  const redirectUrl = `https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature&client_id=${DOCUSIGN_CLIENT_ID}&redirect_uri=${encodeURIComponent(DOCUSIGN_REDIRECT_URI)}`;
-  res.json({ url: redirectUrl });
-});
-
-
-router.get('/callback', async (req, res) => {
+// ─── Send Envelope & Generate Embedded Signing URL ─────────────────────────
+router.post("/send-envelope", async (req, res) => {
   try {
-    const { code } = req.query;
-    const response = await axios.post('https://account-d.docusign.com/oauth/token', new URLSearchParams({
-      grant_type: 'authorization_code',
-      code,
-      client_id: DOCUSIGN_CLIENT_ID,
-      client_secret: DOCUSIGN_CLIENT_SECRET,
-      redirect_uri: DOCUSIGN_REDIRECT_URI
-    }).toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    const { customerEmail, customerName, clientUserId } = req.body;
+
+    // 1) Initialize JWT‐authenticated DocuSign API client
+    const apiClient = await getJwtApiClient();
+    apiClient.setBasePath(BASE_PATH);
+    const envelopesApi = new docusign.EnvelopesApi(apiClient);
+
+    // 2) Build envelope definition
+    const envDef = new docusign.EnvelopeDefinition();
+    envDef.emailSubject = "Please sign your waiver";
+    envDef.status       = "sent";
+    envDef.documents    = [
+      {
+        documentBase64: Buffer.from(
+          `Hello ${customerName}, please sign this waiver.`
+        ).toString("base64"),
+        name:          "Waiver",
+        fileExtension: "txt",
+        documentId:    "1",
+      },
+    ];
+
+    // 3) Add a signer with clientUserId for embedded signing
+    const signer = docusign.Signer.constructFromObject({
+      email:        customerEmail,
+      name:         customerName,
+      recipientId:  "1",
+      routingOrder: "1",
+      clientUserId,
+    });
+    signer.tabs = docusign.Tabs.constructFromObject({
+      signHereTabs: [
+        {
+          documentId:  "1",
+          pageNumber:  "1",
+          recipientId: "1",
+          xPosition:   "100",
+          yPosition:   "150",
+        },
+      ],
+    });
+    envDef.recipients = docusign.Recipients.constructFromObject({
+      signers: [signer],
     });
 
+    // 4) Create the envelope
+    const createResult = await envelopesApi.createEnvelope(ACCOUNT_ID, {
+      envelopeDefinition: envDef,
+    });
+    const envelopeId = createResult.envelopeId;
 
-    const { access_token } = response.data;
+    // 5) Persist envelopeId on your Waiver record
+    await Waiver.findByIdAndUpdate(clientUserId, { envelopeId });
 
-    res.json({ accessToken: access_token, message: 'You can now send documents' });
-  } catch (error) {
-    res.status(500).json({ message: 'Token exchange failed', error });
+    // 6) Create the embedded signing view
+    const returnUrl = `${FRONTEND_BASE_URL}/waiver-complete`;
+    const viewReq = docusign.RecipientViewRequest.constructFromObject({
+      returnUrl,
+      authenticationMethod: "none",
+      email:        customerEmail,
+      userName:     customerName,
+      recipientId:  "1",
+      clientUserId,
+    });
+    const viewResult = await envelopesApi.createRecipientView(
+      ACCOUNT_ID,
+      envelopeId,
+      { recipientViewRequest: viewReq }
+    );
+
+    // 7) Return the signing URL and envelopeId
+    res.json({ signingUrl: viewResult.url, envelopeId });
+  } catch (err) {
+    console.error("DocuSign send-envelope error:", err);
+    res.status(500).json({ message: "DocuSign error", error: err });
   }
 });
 
-
-router.post('/send-envelope', async (req, res) => {
-  const { accessToken, customerEmail, customerName } = req.body;
-
-  const apiClient = new docusign.ApiClient();
-  apiClient.setBasePath("https://demo.docusign.net/restapi");
-  apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
-
-  const envelopeDefinition = new docusign.EnvelopeDefinition();
-  envelopeDefinition.emailSubject = "Please sign your purchase agreement";
-  envelopeDefinition.status = "sent";
-
-  const docBase64 = Buffer.from("Hello {{customerName}}, please sign here.").toString('base64');
-
-  envelopeDefinition.documents = [
-    {
-      documentBase64: docBase64,
-      name: "Purchase Agreement",
-      fileExtension: "txt",
-      documentId: "1",
-    }
-  ];
-
-  const signer = {
-    email: customerEmail,
-    name: customerName,
-    recipientId: "1",
-    routingOrder: "1",
-    tabs: {
-      signHereTabs: [
-        {
-          documentId: "1",
-          pageNumber: "1",
-          recipientId: "1",
-          xPosition: "100",
-          yPosition: "150",
-        }
-      ]
-    }
-  };
-
-  envelopeDefinition.recipients = { signers: [signer] };
-
+// ─── Download Completed PDF ────────────────────────────────────────────────
+router.get("/envelopes/:id/document", async (req, res) => {
   try {
+    const waiver = await Waiver.findById(req.params.id);
+    if (!waiver?.envelopeId) return res.status(404).end();
+
+    const apiClient = await getJwtApiClient();
+    apiClient.setBasePath(BASE_PATH);
     const envelopesApi = new docusign.EnvelopesApi(apiClient);
-    const result = await envelopesApi.createEnvelope(DOCUSIGN_ACCOUNT_ID, { envelopeDefinition });
-    res.json({ message: "Envelope sent!", envelopeId: result.envelopeId });
+
+    // “combined” yields the fully-signed PDF
+    const pdfBytes = await envelopesApi.getDocument(
+      ACCOUNT_ID,
+      waiver.envelopeId,
+      "combined"
+    );
+
+    res
+      .contentType("application/pdf")
+      .header(
+        "Content-Disposition",
+        `inline; filename=waiver-${waiver._id}.pdf`
+      )
+      .send(Buffer.from(pdfBytes, "binary"));
   } catch (err) {
-    console.error("Error sending envelope", err);
-    res.status(500).json({ message: "Failed to send document" });
+    console.error("DocuSign getDocument error:", err);
+    res.status(500).end();
   }
 });
 

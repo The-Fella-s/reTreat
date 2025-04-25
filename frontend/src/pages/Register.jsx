@@ -13,10 +13,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import reTreatLogo from "../assets/reTreatLogo.png";
-import { GoogleLogin } from '@react-oauth/google';
-import { default as jwt_decode } from 'jwt-decode';
+import { GoogleLogin } from "@react-oauth/google";
+import { default as jwt_decode } from "jwt-decode";
 import { AuthContext } from "../context/AuthContext";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const [firstName, setFirstName] = useState("");
@@ -37,7 +37,9 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validatePassword(password)) {
-      toast.error("Password must be 8+ chars, include uppercase, lowercase, number, special char.");
+      toast.error(
+        "Password must be 8+ chars, include uppercase, lowercase, number, special char."
+      );
       return;
     }
     try {
@@ -45,10 +47,12 @@ const Register = () => {
         email,
         password,
         name: `${firstName} ${lastName}`,
-        phone,
+        phone
       });
       if (response.status === 201) {
-        toast.success("Registration successful! Check your email for a verification code.");
+        toast.success(
+          "Registration successful! Check your email for a verification code."
+        );
         localStorage.setItem("userId", response.data.user.id);
         setTimeout(() => {
           navigate("/verify-email");
@@ -56,7 +60,8 @@ const Register = () => {
       }
     } catch (error) {
       console.error("Error during registration:", error);
-      const errorMessage = error.response?.data?.message || "Something went wrong!";
+      const errorMessage =
+        error.response?.data?.message || "Something went wrong!";
       toast.error(errorMessage);
     }
   };
@@ -69,10 +74,9 @@ const Register = () => {
         email: decoded.email,
         name: decoded.name,
         picture: decoded.picture,
-        sub: decoded.sub,
+        sub: decoded.sub
       });
-      // user is effectively "registered" with Google
-      loginWithToken(res.data.token); // <--- Make sure this function is spelled correctly
+      loginWithToken(res.data.token);
       navigate("/profile");
     } catch (err) {
       console.error("Google login error:", err);
@@ -95,10 +99,13 @@ const Register = () => {
           alt="Logo"
           style={{ width: "100px", marginBottom: "1rem" }}
         />
-        <Typography variant="h4" gutterBottom>Register</Typography>
+        <Typography variant="h4" gutterBottom>
+          Register
+        </Typography>
         <Typography variant="body1" color="textSecondary" paragraph>
           Join our community for reLaxation and reJuvenation!
         </Typography>
+
         <form onSubmit={handleSubmit}>
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
             <TextField
@@ -137,13 +144,13 @@ const Register = () => {
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="toggle password visibility"
-                    onClick={() => setShowPassword((prev) => !prev)}
+                    onClick={() => setShowPassword((p) => !p)}
                     edge="end"
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
-              ),
+              )
             }}
             fullWidth
             margin="normal"
@@ -164,21 +171,30 @@ const Register = () => {
             margin="normal"
             required
           />
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
             Register
           </Button>
         </form>
 
-        <Typography variant="body1" sx={{ my: 2 }}>OR</Typography>
+        <Typography variant="body1" sx={{ my: 2 }}>
+          OR
+        </Typography>
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
           onError={() => toast.error("Google login failed")}
+          text="signup_with"
         />
 
         <Typography variant="body2" sx={{ mt: 2 }}>
           Already have an account?{" "}
           <Link to="/login" style={{ color: "#1976d2", textDecoration: "none" }}>
-            Sign in
+            Sign On
           </Link>
         </Typography>
         <ToastContainer />
