@@ -39,7 +39,7 @@ function HomePageTracker() {
     if (location.pathname === '/' && !hasTrackedVisit.current) {
       hasTrackedVisit.current = true;
       axios
-        .post('http://localhost:5000/api/website-visits/track')
+        .post('/api/website-visits/track')
         .catch((err) => console.error('Error tracking visits:', err));
     }
   }, [location]);
@@ -52,7 +52,7 @@ function App() {
 
   useEffect(() => {
     axios
-      .get('http://localhost:5000/api/themes/active')
+      .get('/api/themes/active')
       .then((res) => {
         if (res.data) setTheme(createCustomTheme(res.data));
       })
