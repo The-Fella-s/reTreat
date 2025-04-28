@@ -27,7 +27,7 @@ const ReadyToRelax = () => {
 			<Button
 				variant="contained"
 				color="primary"
-				href="/book-appointment" // Change to the actual booking page when it's ready
+				href="/appointment" // Change to the actual booking page when it's ready
 			>
 				Book Appointment
 			</Button>
