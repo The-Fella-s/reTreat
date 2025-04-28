@@ -15,7 +15,6 @@ import Typography from '@mui/material/Typography';
 import { AuthContext } from '../context/AuthContext';
 import logo from '/src/assets/reTreatLogo.png';
 import Collapse from '@mui/material/Collapse';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Badge from '@mui/material/Badge';
 
 const NavBar = () => {
@@ -125,12 +124,7 @@ const NavBar = () => {
 
           {/* Right side */}
           <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
-            {/* Cart Icon always visible */}
-            <IconButton onClick={() => navigate('/cart')} sx={{ color: 'white', mr: 2 }}>
-              <Badge>
-                <ShoppingCartIcon />
-              </Badge>
-            </IconButton>
+    
 
             {user ? (
               <>
