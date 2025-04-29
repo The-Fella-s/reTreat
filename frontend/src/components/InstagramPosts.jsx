@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress } from "@mui/material";
+import { Box, Typography, CircularProgress, IconButton } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 const swipeConfidenceThreshold = 100;
 const swipePower = (offset, velocity) => Math.abs(offset) * velocity;
@@ -19,7 +21,9 @@ const InstagramPosts = () => {
                     "/api/instagram/posts",
                     { withCredentials: true }
                 );
-                setPosts(res.data.data);
+                // Only include posts that have a media_url
+                const validPosts = res.data.data.filter(post => post.media_url);
+                setPosts(validPosts);
             } catch (err) {
                 console.error(err);
                 setError("Failed to fetch posts.");
@@ -100,13 +104,52 @@ const InstagramPosts = () => {
         }),
     };
 
+    // Helper function to render media if media_url exists.
+    const renderMedia = (post, uniqueKey, additionalProps = {}) => {
+        const mediaUrl = post?.media_url;
+        if (!mediaUrl) return null;
+        const commonProps = {
+            src: mediaUrl,
+            alt: "Media",
+            custom: direction,
+            initial: "enter",
+            animate: "center",
+            exit: "exit",
+            style: {
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                userSelect: "none",
+                borderRadius: "10px",
+            },
+            ...additionalProps,
+        };
+
+        if (mediaUrl.includes(".mp4")) {
+            return (
+                <motion.video
+                    key={uniqueKey}
+                    {...commonProps}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                />
+            );
+        } else {
+            return <motion.img key={uniqueKey} {...commonProps} />;
+        }
+    };
+
     return (
         <Box
             sx={{
                 display: "flex",
-                justifyContent: "center",
+                flexDirection: "column",
                 alignItems: "center",
-                overflow: "hidden",
                 mt: 4,
                 width: "100%",
             }}
@@ -120,42 +163,28 @@ const InstagramPosts = () => {
                     position: "relative",
                 }}
             >
-                {/* Left (Previous) Image */}
-                <Box
-                    sx={{
-                        width: 150,
-                        height: 200,
-                        overflow: "hidden",
-                        borderRadius: "10px",
-                        opacity: 0.6,
-                        position: "relative",
-                    }}
-                >
-                    <AnimatePresence initial={false} custom={direction}>
-                        <motion.img
-                            key={prevIndex}
-                            src={posts[prevIndex]?.media_url}
-                            alt="Previous"
-                            custom={direction}
-                            variants={smallVariants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            draggable={false}
-                            style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                userSelect: "none",
-                            }}
-                        />
-                    </AnimatePresence>
+                {/* Left (Previous) Media */}
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <Box
+                        sx={{
+                            width: 150,
+                            height: 200,
+                            overflow: "hidden",
+                            borderRadius: "10px",
+                            opacity: 0.6,
+                            position: "relative",
+                        }}
+                    >
+                        <AnimatePresence initial={false} custom={direction}>
+                            {renderMedia(posts[prevIndex], prevIndex, { variants: smallVariants })}
+                        </AnimatePresence>
+                    </Box>
+                    <IconButton onClick={() => paginate(-1)} sx={{ mt: 3 }}>
+                        <ArrowBackIosIcon />
+                    </IconButton>
                 </Box>
 
-                {/* Center (Current) Image */}
+                {/* Center (Current) Media */}
                 <Box
                     sx={{
                         width: 300,
@@ -166,73 +195,99 @@ const InstagramPosts = () => {
                     }}
                 >
                     <AnimatePresence initial={false} custom={direction}>
-                        <motion.img
-                            key={page}
-                            src={posts[imageIndex].media_url}
-                            data-testid="current-image"
-                            alt="Current"
-                            custom={direction}
-                            variants={centerVariants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            drag="x"
-                            dragConstraints={{ left: 0, right: 0 }}
-                            dragElastic={1}
-                            onDragEnd={(e, { offset, velocity }) => {
-                                const swipe = swipePower(offset.x, velocity.x);
-                                if (swipe < -swipeConfidenceThreshold) {
-                                    paginate(1);
-                                } else if (swipe > swipeConfidenceThreshold) {
-                                    paginate(-1);
-                                }
-                            }}
-                            style={{
-                                position: "absolute",
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                cursor: "grab",
-                                userSelect: "none",
-                                borderRadius: "10px",
-                            }}
-                        />
+                        {posts[imageIndex]?.media_url ? (
+                            posts[imageIndex].media_url.includes(".mp4") ? (
+                                <motion.video
+                                    key={page}
+                                    src={posts[imageIndex].media_url}
+                                    data-testid="current-media"
+                                    alt="Current Media"
+                                    custom={direction}
+                                    variants={centerVariants}
+                                    initial="enter"
+                                    animate="center"
+                                    exit="exit"
+                                    drag="x"
+                                    dragConstraints={{ left: 0, right: 0 }}
+                                    dragElastic={1}
+                                    onDragEnd={(e, { offset, velocity }) => {
+                                        const swipe = swipePower(offset.x, velocity.x);
+                                        if (swipe < -swipeConfidenceThreshold) {
+                                            paginate(1);
+                                        } else if (swipe > swipeConfidenceThreshold) {
+                                            paginate(-1);
+                                        }
+                                    }}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    style={{
+                                        position: "absolute",
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        cursor: "grab",
+                                        userSelect: "none",
+                                        borderRadius: "10px",
+                                    }}
+                                />
+                            ) : (
+                                <motion.img
+                                    key={page}
+                                    src={posts[imageIndex].media_url}
+                                    data-testid="current-media"
+                                    alt="Current Media"
+                                    custom={direction}
+                                    variants={centerVariants}
+                                    initial="enter"
+                                    animate="center"
+                                    exit="exit"
+                                    drag="x"
+                                    dragConstraints={{ left: 0, right: 0 }}
+                                    dragElastic={1}
+                                    onDragEnd={(e, { offset, velocity }) => {
+                                        const swipe = swipePower(offset.x, velocity.x);
+                                        if (swipe < -swipeConfidenceThreshold) {
+                                            paginate(1);
+                                        } else if (swipe > swipeConfidenceThreshold) {
+                                            paginate(-1);
+                                        }
+                                    }}
+                                    style={{
+                                        position: "absolute",
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        cursor: "grab",
+                                        userSelect: "none",
+                                        borderRadius: "10px",
+                                    }}
+                                />
+                            )
+                        ) : null}
                     </AnimatePresence>
                 </Box>
 
-                {/* Right (Next) Image */}
-                <Box
-                    sx={{
-                        width: 150,
-                        height: 200,
-                        overflow: "hidden",
-                        borderRadius: "10px",
-                        opacity: 0.6,
-                        position: "relative",
-                    }}
-                >
-                    <AnimatePresence initial={false} custom={direction}>
-                        <motion.img
-                            key={nextIndex}
-                            src={posts[nextIndex]?.media_url}
-                            alt="Next"
-                            custom={direction}
-                            variants={smallVariants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            draggable={false}
-                            style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                userSelect: "none",
-                            }}
-                        />
-                    </AnimatePresence>
+                {/* Right (Next) Media */}
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <Box
+                        sx={{
+                            width: 150,
+                            height: 200,
+                            overflow: "hidden",
+                            borderRadius: "10px",
+                            opacity: 0.6,
+                            position: "relative",
+                        }}
+                    >
+                        <AnimatePresence initial={false} custom={direction}>
+                            {renderMedia(posts[nextIndex], nextIndex, { variants: smallVariants })}
+                        </AnimatePresence>
+                    </Box>
+                    <IconButton onClick={() => paginate(1)} sx={{ mt: 3 }}>
+                        <ArrowForwardIosIcon />
+                    </IconButton>
                 </Box>
             </motion.div>
         </Box>
