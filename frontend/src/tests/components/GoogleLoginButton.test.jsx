@@ -41,7 +41,7 @@ test('calls Google login API and stores token', async () => {
   await new Promise(resolve => setTimeout(resolve, 50));
 
   expect(axios.post).toHaveBeenCalledWith(
-    'http://localhost:5000/api/users/google-login',
+    '/api/users/google-login',
     expect.objectContaining({
       email: 'test@example.com',
       name: 'Test User',

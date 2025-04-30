@@ -81,7 +81,7 @@ describe('SpaMenuPage', () => {
     fireEvent.click(purchaseButton);
 
     expect(axios.post).toHaveBeenCalledWith(
-      'http://localhost:5000/api/carts/add/service',
+      '/api/carts/add/service',
       {
         email: 'jordan@example.com',
         serviceName: 'Swedish Massage',

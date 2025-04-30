@@ -47,7 +47,7 @@ describe("Login Page", () => {
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
-        "http://localhost:5000/api/users/login",
+        "/api/users/login",
         {
           email: "test@example.com",
           password: "TestPass123!",

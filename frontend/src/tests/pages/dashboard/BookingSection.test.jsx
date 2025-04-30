@@ -81,10 +81,10 @@ describe('BookingSection', () => {
 
         // Send both get requests to the endpoints
         expect(axios.get).toHaveBeenCalledWith(
-            'http://localhost:5000/api/categories/list?source=mongo'
+            '/api/categories/list?source=mongo'
         );
         expect(axios.get).toHaveBeenCalledWith(
-            'http://localhost:5000/api/services'
+            '/api/services'
         );
 
         // Wait for the UI to reflect them
@@ -157,7 +157,7 @@ describe('BookingSection', () => {
 
             // Call the populate endpoint
             expect(axios.post).toHaveBeenCalledWith(
-                'http://localhost:5000/api/services/populate',
+                '/api/services/populate',
                 {
                     services: [
                         {

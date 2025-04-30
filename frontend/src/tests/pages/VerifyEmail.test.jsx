@@ -41,7 +41,7 @@ test('renders verification form and submits code', async () => {
 
   await waitFor(() =>
     expect(axios.post).toHaveBeenCalledWith(
-      'http://localhost:5000/api/users/verify-email',
+      '/api/users/verify-email',
       {
         userId: 'mockUser123',
         code: '123456',

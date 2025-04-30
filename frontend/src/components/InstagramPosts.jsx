@@ -200,7 +200,7 @@ const InstagramPosts = () => {
                                 <motion.video
                                     key={page}
                                     src={posts[imageIndex].media_url}
-                                    data-testid="current-media"
+                                    data-testid="current-image"
                                     alt="Current Media"
                                     custom={direction}
                                     variants={centerVariants}
@@ -236,7 +236,7 @@ const InstagramPosts = () => {
                                 <motion.img
                                     key={page}
                                     src={posts[imageIndex].media_url}
-                                    data-testid="current-media"
+                                    data-testid="current-image"
                                     alt="Current Media"
                                     custom={direction}
                                     variants={centerVariants}

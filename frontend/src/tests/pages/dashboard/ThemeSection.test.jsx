@@ -55,7 +55,7 @@ describe('ThemeSection', () => {
 
         // Get the theme by having Axios mock a get request to the endpoint
         expect(axios.get).toHaveBeenCalledWith(
-            'http://localhost:5000/api/themes'
+            '/api/themes'
         );
 
         // Wait for the Light theme to load up
@@ -96,7 +96,7 @@ describe('ThemeSection', () => {
         // Wait for axios to mock a post request
         await waitFor(() =>
             expect(axios.post).toHaveBeenCalledWith(
-                'http://localhost:5000/api/themes',
+                '/api/themes',
                 expect.objectContaining({ name: 'Dark' })
             )
         );
@@ -138,7 +138,7 @@ describe('ThemeSection', () => {
         // And check if it is the same theme as the mock theme
         await waitFor(() => {
             expect(axios.put).toHaveBeenCalledWith(
-                'http://localhost:5000/api/themes/1',
+                '/api/themes/1',
                 { isActive: true }
             );
             expect(createCustomTheme).toHaveBeenCalledWith(activatedTheme);
@@ -176,7 +176,7 @@ describe('ThemeSection', () => {
         // And check if it does not exist anymore
         await waitFor(() => {
             expect(global.fetch).toHaveBeenCalledWith(
-                'http://localhost:5000/api/themes/1',
+                '/api/themes/1',
                 { method: 'DELETE' }
             );
             expect(screen.queryByText('Light')).not.toBeInTheDocument();
