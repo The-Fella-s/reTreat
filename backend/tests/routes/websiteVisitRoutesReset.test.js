@@ -1,29 +1,34 @@
 const request = require('supertest');
 const express = require('express');
 const mongoose = require('mongoose');
-const WebsiteVisit = require('../models/WebsiteVisit'); // adjust path as needed
-const websiteVisitRoutes = require('../routes/websiteVisitsRoutes');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const WebsiteVisit = require('../../models/WebsiteVisit');
+const websiteVisitRoutes = require('../../routes/websiteVisitRoutes');
 
 const app = express();
 app.use(express.json());
 app.use('/api/website-visits', websiteVisitRoutes);
 
+let mongoServer;
+
 beforeAll(async () => {
-    const MONGO_TEST_URI = 'mongodb://127.0.0.1:27017/test_website_visits';
-    await mongoose.connect(MONGO_TEST_URI, {
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
+
+    await mongoose.connect(uri, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     });
 });
 
 afterAll(async () => {
-    await mongoose.connection.db.dropDatabase(); // clear test db
     await mongoose.disconnect();
+    await mongoServer.stop();
 });
 
 describe('POST /api/website-visits/reset', () => {
     it('should reset website visits to 0', async () => {
-        // seed test data
+        // Seed test data
         await WebsiteVisit.findOneAndUpdate(
             {},
             {

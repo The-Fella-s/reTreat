@@ -2,11 +2,11 @@
 
 const request = require('supertest');
 const express = require('express');
-const teamRoutes = require('../routes/teamRoutes'); // adjust path as needed
-const Employee = require('../models/Employee');
+const teamRoutes = require('../../routes/teamRoutes'); // adjust path as needed
+const Employee = require('../../models/Employee');
 
 // Mock Mongoose model
-jest.mock('../models/Employee');
+jest.mock('../../models/Employee');
 
 const app = express();
 app.use('/api/team', teamRoutes);

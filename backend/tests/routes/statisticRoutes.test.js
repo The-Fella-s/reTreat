@@ -1,4 +1,8 @@
 // statisticsRoutes.test.js
+
+// Set a fake encryption key for testing
+process.env.ENCRYPTION_KEY = 'key-for-testing';
+
 const request = require("supertest");
 const express = require("express");
 const mongoose = require("mongoose");
@@ -6,6 +10,7 @@ const { MongoMemoryServer } = require("mongodb-memory-server");
 const MockDate = require("mockdate"); // <-- Import mockdate
 const Statistics = require("../../models/Statistics");
 const statisticsRoutes = require("../../routes/statisticsRoutes");
+
 
 describe("Statistics Routes (Unique Signups & Daily Signups)", () => {
   let mongoServer;
