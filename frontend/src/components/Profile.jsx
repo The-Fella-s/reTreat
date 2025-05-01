@@ -1,4 +1,3 @@
-// src/components/Profile.jsx
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
@@ -7,7 +6,6 @@ import {
   Box,
   Container,
   Typography,
-  Avatar,
   Card,
   IconButton,
   TextField,
@@ -32,14 +30,10 @@ export default function ProfilePage() {
   const [selectedWaiver, setSelectedWaiver] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState({ name: "", phone: "" });
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [preview, setPreview] = useState(null);
 
-  // fetch user info and their waivers
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/login");
-
     const headers = { Authorization: `Bearer ${token}` };
 
     axios.get("/api/users/me", { headers })
@@ -54,39 +48,22 @@ export default function ProfilePage() {
       .catch(console.error);
   }, [navigate]);
 
-  // preview profile pic
-  useEffect(() => {
-    if (!selectedFile) return setPreview(null);
-    const url = URL.createObjectURL(selectedFile);
-    setPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [selectedFile]);
-
   if (!profile) return <Typography>Loading profile…</Typography>;
-
-  const profileImageUrl = profile.profilePicture || "https://via.placeholder.com/120";
 
   return (
     <Box sx={{ bgcolor: "primary.light", py: 5, minHeight: "100vh" }}>
       <Container maxWidth="sm">
         <Card sx={{ p: 4, borderRadius: 3, boxShadow: 3, bgcolor: "white", textAlign: "center", position: "relative" }}>
-          <Avatar
-            alt="Profile Picture"
-            src={isEditing && preview ? preview : profileImageUrl}
-            sx={{ width: 120, height: 120, mx: "auto", mb: 2 }}
-          />
-          <IconButton onClick={() => setIsEditing(x => !x)} sx={{ position: "absolute", top: 8, right: 8 }}>
+          <IconButton
+            aria-label="Edit Profile"
+            onClick={() => setIsEditing(x => !x)}
+            sx={{ position: "absolute", top: 8, right: 8 }}
+          >
             <Edit />
           </IconButton>
 
           {isEditing ? (
             <>
-              <Button variant="contained" component="label" sx={{ mb: 2 }}>
-                Choose File
-                <input type="file" hidden onChange={e => setSelectedFile(e.target.files[0])} accept="image/*" />
-              </Button>
-              {selectedFile && <Typography variant="body2" sx={{ mb: 2 }}>{selectedFile.name}</Typography>}
-
               <TextField
                 label="Name"
                 name="name"
@@ -108,19 +85,14 @@ export default function ProfilePage() {
                   variant="contained"
                   onClick={async () => {
                     const token = localStorage.getItem("token");
-                    const form = new FormData();
-                    form.append("name", editedProfile.name);
-                    form.append("phone", editedProfile.phone);
-                    if (selectedFile) form.append("profilePicture", selectedFile);
                     try {
                       const res = await axios.put(
                         `/api/users/update-profile/${user.id}`,
-                        form,
-                        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
+                        { name: editedProfile.name, phone: editedProfile.phone },
+                        { headers: { Authorization: `Bearer ${token}` } }
                       );
                       setProfile(res.data.user);
                       setIsEditing(false);
-                      setSelectedFile(null);
                     } catch (e) {
                       console.error(e);
                     }
@@ -146,7 +118,6 @@ export default function ProfilePage() {
 
           <Divider sx={{ my: 3 }} />
 
-          {/* ——— My Waivers Section ——— */}
           <Typography variant="h6" align="left" gutterBottom>My Waivers</Typography>
           {waivers.length === 0 ? (
             <Typography>You haven’t submitted any waivers yet.</Typography>
@@ -164,7 +135,6 @@ export default function ProfilePage() {
             </List>
           )}
 
-          {/* Details Dialog */}
           <Dialog open={!!selectedWaiver} onClose={() => setSelectedWaiver(null)} fullWidth maxWidth="sm">
             <DialogTitle>Waiver Details</DialogTitle>
             <DialogContent dividers>
@@ -183,7 +153,6 @@ export default function ProfilePage() {
               <Button onClick={() => setSelectedWaiver(null)}>Close</Button>
             </DialogActions>
           </Dialog>
-          {/* ————————————— */}
         </Card>
       </Container>
     </Box>

@@ -1,70 +1,95 @@
-import React from "react";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import ProfilePage from "../../components/Profile.jsx";
-import { BrowserRouter } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext.jsx";
-import axios from "axios";
+// src/tests/pages/Profile.test.jsx
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import ProfilePage from '../../components/Profile';
+import { AuthContext } from '../../context/AuthContext';
+import { MemoryRouter } from 'react-router-dom';
+import axios from 'axios';
+import '@testing-library/jest-dom';
 
-jest.mock("axios");
+jest.mock('axios');
 
-beforeAll(() => {
-  localStorage.setItem("token", "dummy-token");
-});
-
-afterAll(() => {
-  localStorage.removeItem("token");
-});
-
-const fakeProfile = {
-  _id: "123",
-  name: "John Doe",
-  email: "john@example.com",
-  phone: "5555555555",
-  profilePicture: "/uploads/test.jpg"
+const mockProfile = {
+  id: 'u1',
+  name: 'Alice',
+  email: 'alice@example.com',
+  phone: '1234567890'
 };
+const mockDate = '2025-04-01T00:00:00Z';
+const mockWaivers = [
+  {
+    _id: 'w1',
+    waiverType: 'browLash',
+    dateSigned: mockDate,
+    status: 'pending',
+    formData: { field1: 'value1' }
+  }
+];
 
-const renderProfilePage = (authValue = { user: { id: "123" } }) => {
+const renderProfile = () => {
+  localStorage.setItem('token', 'fake-token');
   return render(
-    <BrowserRouter>
-      <AuthContext.Provider value={authValue}>
+    <AuthContext.Provider value={{ user: { id: mockProfile.id } }}>
+      <MemoryRouter>
         <ProfilePage />
-      </AuthContext.Provider>
-    </BrowserRouter>
+      </MemoryRouter>
+    </AuthContext.Provider>
   );
 };
 
-describe("ProfilePage Component", () => {
+describe('ProfilePage', () => {
   beforeEach(() => {
-    axios.get.mockResolvedValueOnce({ data: fakeProfile });
+    axios.get.mockReset();
+    axios.put.mockReset();
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  test('loads and displays profile and waivers', async () => {
+    axios.get
+      .mockResolvedValueOnce({ data: mockProfile })
+      .mockResolvedValueOnce({ data: mockWaivers });
+
+    renderProfile();
+
+    expect(screen.getByText(/Loading profile…/i)).toBeInTheDocument();
+
+    await waitFor(() => screen.getByText(mockProfile.name));
+    expect(screen.getByText(mockProfile.email)).toBeInTheDocument();
+    expect(screen.getByText(mockProfile.phone)).toBeInTheDocument();
+    expect(screen.getByText(/My Waivers/i)).toBeInTheDocument();
+
+    const expectedDate = new Date(mockDate).toLocaleDateString();
+    expect(screen.getByText(new RegExp(`BrowLash — ${expectedDate}`))).toBeInTheDocument();
   });
 
-  it("shows loading state initially", () => {
-    renderProfilePage();
-    expect(screen.getByText(/Loading profile/i)).toBeInTheDocument();
-  });
+  test('edits and saves profile', async () => {
+    axios.get
+      .mockResolvedValueOnce({ data: mockProfile })
+      .mockResolvedValueOnce({ data: [] });
 
-  it("fetches and displays user profile data", async () => {
-    renderProfilePage({ user: { id: "123" } });
-    await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
-    expect(screen.getByText(/John Doe/i)).toBeInTheDocument();
-    expect(screen.getByText(/john@example.com/i)).toBeInTheDocument();
-    expect(screen.getByText(/5555555555/i)).toBeInTheDocument();
-  });
+    renderProfile();
+    await waitFor(() => screen.getByText(mockProfile.name));
 
-  it("toggles edit mode when clicking the edit button", async () => {
-    renderProfilePage({ user: { id: "123" } });
-    await waitFor(() => expect(axios.get).toHaveBeenCalled());
-    expect(screen.queryByLabelText(/Name/i)).not.toBeInTheDocument();
-    const iconButtons = screen.getAllByRole("button");
-    fireEvent.click(iconButtons[0]);
+    fireEvent.click(screen.getByRole('button', { name: /edit profile/i }));
+    fireEvent.change(screen.getByLabelText(/name/i), {
+      target: { value: 'Alice Cooper' }
+    });
+    fireEvent.change(screen.getByLabelText(/phone/i), {
+      target: { value: '0987654321' }
+    });
+
+    axios.put.mockResolvedValueOnce({
+      data: { user: { ...mockProfile, name: 'Alice Cooper', phone: '0987654321' } }
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
     await waitFor(() => {
-      expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Phone/i)).toBeInTheDocument();
+      expect(axios.put).toHaveBeenCalledWith(
+        `/api/users/update-profile/${mockProfile.id}`,
+        { name: 'Alice Cooper', phone: '0987654321' },
+        expect.any(Object)
+      );
+      expect(screen.getByText('Alice Cooper')).toBeInTheDocument();
+      expect(screen.getByText('0987654321')).toBeInTheDocument();
     });
   });
 });
