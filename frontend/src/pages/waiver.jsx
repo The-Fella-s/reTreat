@@ -116,21 +116,29 @@ const waiverConfigs = {
   }
 };
 
+// Map of waiver types to DocuSign template IDs
+const templateIds = {
+  massage: "0e2036c6-3a04-4a2b-bbca-9daae5b09d2e",
+  wax: "1d5bc7de-df50-4882-b893-9e265b46e2be", 
+  skin: "67e88994-7f7b-4be7-9528-c04c3fa10af0",
+  browlash: "4913129a-0b8b-48a1-9693-ccff9085a822"
+};
+
 export default function WaiverForms() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const iframeRef = useRef(null);
 
   const [selected, setSelected] = useState(null);
-  const [values, setValues]     = useState({});
-  const [dsUrl, setDsUrl]       = useState("");
-  const [dsOpen, setDsOpen]     = useState(false);
+  const [values, setValues] = useState({});
+  const [dsUrl, setDsUrl] = useState("");
+  const [dsOpen, setDsOpen] = useState(false);
   const [dsLoading, setDsLoading] = useState(false);
 
   // auto-computed initials
   const initials =
     (values.firstName?.charAt(0) || "").toUpperCase() +
-    (values.lastName?.charAt(0)  || "").toUpperCase();
+    (values.lastName?.charAt(0) || "").toUpperCase();
 
   const handleSelect = (key) => {
     setSelected(key);
@@ -167,26 +175,26 @@ export default function WaiverForms() {
       if (Array.isArray(v)) return v.length === 0;
       return !v || !v.toString().trim();
     });
-    if (missing.length) {
-      toast.error("Please complete all fields before signing.");
-      return;
-    }
+    
 
     // initials fields must match
     waiverConfigs[selected].fields
       .filter(f => f.name.startsWith("initials_"))
       .forEach(f => {
         if (values[f.name] !== initials) {
+          toast.error(`Initials for ${f.label} must be "${initials}"`);
           throw new Error(`Initials for ${f.label} must be "${initials}"`);
         }
       });
 
     try {
+      setDsLoading(true);
+      
       // if logged in, include token for user
       const token = localStorage.getItem("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      // save waiver
+      // First save the waiver to get an ID
       const { data: waiver } = await axios.post("/api/waivers", {
         waiverType: selected,
         formData: values
@@ -194,19 +202,59 @@ export default function WaiverForms() {
 
       toast.success("Form saved—launching signature…");
 
-      // send to DocuSign
-      setDsLoading(true);
+      // Convert form values to DocuSign tabs format
+      const textTabs = [];
+      const radioGroupTabs = [];
+      const checkboxTabs = [];
+
+      // Process each form field based on its type
+      waiverConfigs[selected].fields.forEach(field => {
+        const value = values[field.name];
+        
+        // Skip empty values
+        if (!value && value !== 0) return;
+        
+        if (field.type === 'radio') {
+          radioGroupTabs.push({
+            groupName: field.name,
+            radios: [{
+              value: value,
+              selected: "true"
+            }]
+          });
+        } 
+        else if (field.type === 'checkbox' && Array.isArray(value)) {
+          value.forEach(option => {
+            checkboxTabs.push({
+              tabLabel: `${field.name}_${option.replace(/\s+/g, '')}`,
+              selected: "true"
+            });
+          });
+        }
+        else {
+          // Handle text, textarea, date, etc.
+          textTabs.push({
+            tabLabel: field.name,
+            value: value.toString()
+          });
+        }
+      });
+
+      
       const { data } = await axios.post("/api/docusign/send-envelope", {
-        customerEmail: values.email || user.email,
+        customerEmail: values.email || user?.email,
         customerName: `${values.firstName} ${values.lastName}`,
-        clientUserId: waiver._id
+        clientUserId: waiver._id,
+        waiverType: selected,
+        templateId: templateIds[selected],
+
       }, { headers });
 
       setDsUrl(data.signingUrl);
       setDsOpen(true);
     } catch (err) {
       console.error(err);
-      toast.error(err.message || "Something went wrong—please try again.");
+      toast.error(err.response?.data?.message || err.message || "Something went wrong—please try again.");
     } finally {
       setDsLoading(false);
     }
