@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Divider, useMediaQuery, IconButton, AppBar, Toolbar } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Dashboard as DashboardIcon, People as PeopleIcon, BarChart as BarChartIcon, Layers as LayersIcon, Menu as MenuIcon, Close as CloseIcon, RestaurantMenu as RestaurantMenuIcon } from "@mui/icons-material";
+import { Dashboard as DashboardIcon, People as PeopleIcon, BarChart as BarChartIcon, Layers as LayersIcon, Menu as MenuIcon, Close as CloseIcon } from "@mui/icons-material";
 import PropTypes from "prop-types";
 
 import StatisticsSection from "./StatisticsSection.jsx";
@@ -59,7 +59,6 @@ function Dashboard({ setTheme }) {
         { text: "Overview", icon: <DashboardIcon />, path: "" },
         { text: "Employees", icon: <PeopleIcon />, path: "employees" },
         { text: "Users", icon: <PeopleIcon />, path: "users" },
-        { text: "Menu", icon: <RestaurantMenuIcon />, path: "menu" },
         { text: "Bookings", icon: <BarChartIcon />, path: "booking" },
         { text: "Themes", icon: <LayersIcon />, path: "themes" },
         { text: "Waivers", icon: <LayersIcon />, path: "waivers" },
