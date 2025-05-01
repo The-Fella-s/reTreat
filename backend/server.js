@@ -53,6 +53,7 @@ const themeRoutes = require('./routes/themeRoutes');
 const userRoutes = require('./routes/userRoutes');
 const waiverRoutes = require('./routes/waiverRoutes');
 const websiteVisitRoutes = require('./routes/websiteVisitRoutes');
+const emailRoutes = require('./routes/emailRoutes');
 
 app.use('/api/catalogs', catalogRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -69,6 +70,7 @@ app.use('/api/themes', themeRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/website-visits', websiteVisitRoutes);
 app.use('/api/waivers', waiverRoutes);
+app.use('/api/send-email', emailRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
