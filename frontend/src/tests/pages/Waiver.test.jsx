@@ -1,76 +1,74 @@
-import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import WaiverForm from "../../pages/waiver.jsx"; // adjust the path if needed
-import axios from "axios";
-import "@testing-library/jest-dom";
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import WaiverForm from '../../pages/waiver';
+import { AuthContext } from '../../context/AuthContext';
+import axios from 'axios';
+import '@testing-library/jest-dom';
 
-// axios is already mocked above
-jest.mock("axios");
+jest.mock('axios');
 
-describe("WaiverForm Additional Tests", () => {
+const renderWaiverForm = (slug) =>
+  render(
+    <AuthContext.Provider value={{ user: { id: 'test-user' } }}>
+      <MemoryRouter initialEntries={[`/waiver/${slug}`]}>
+        <Routes>
+          <Route path="/waiver/:slug" element={<WaiverForm />} />
+        </Routes>
+      </MemoryRouter>
+    </AuthContext.Provider>
+  );
+
+describe('Brow & Lash Waiver Form', () => {
   beforeEach(() => {
     delete window.location;
-    window.location = { href: "" };
+    window.location = { href: '' };
     axios.post.mockReset();
   });
 
-  test("disables the submit button while processing", async () => {
-    // Force axios.post to return a never-resolving promise to simulate a pending state.
+  test('disables the submit button while processing', async () => {
     axios.post.mockImplementation(() => new Promise(() => {}));
-  
-    render(<WaiverForm />);
-    
+    renderWaiverForm('brow-lash-waiver');
     fireEvent.change(screen.getByLabelText(/First Name/i), {
-      target: { value: "Test" },
+      target: { value: 'Test' },
     });
     fireEvent.change(screen.getByLabelText(/Last Name/i), {
-      target: { value: "User" },
+      target: { value: 'User' },
     });
     fireEvent.change(screen.getByLabelText(/Date/i), {
-      target: { value: "2023-12-12" },
+      target: { value: '2023-12-12' },
     });
-    
-    const submitButton = screen.getByRole("button", { name: /Sign Waiver/i });
+    const submitButton = screen.getByRole('button', { name: /Sign Waiver/i });
     fireEvent.click(submitButton);
-
-    // The button text should change to "Processing..." and the button should be disabled.
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Processing/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /Processing/i })).toBeDisabled();
     });
   });
 
-  test("prevents multiple submissions while loading", async () => {
-    // Simulate axios.post that delays resolution so we can check multiple clicks
+  test('prevents multiple submissions while loading', async () => {
     axios.post.mockImplementation(() => new Promise(() => {}));
-  
-    render(<WaiverForm />);
-    
+    renderWaiverForm('brow-lash-waiver');
     fireEvent.change(screen.getByLabelText(/First Name/i), {
-      target: { value: "Test" },
+      target: { value: 'Test' },
     });
     fireEvent.change(screen.getByLabelText(/Last Name/i), {
-      target: { value: "User" },
+      target: { value: 'User' },
     });
     fireEvent.change(screen.getByLabelText(/Date/i), {
-      target: { value: "2023-12-12" },
+      target: { value: '2023-12-12' },
     });
-    
-    const submitButton = screen.getByRole("button", { name: /Sign Waiver/i });
-    
-    // Click the button multiple times
+    const submitButton = screen.getByRole('button', { name: /Sign Waiver/i });
     fireEvent.click(submitButton);
     fireEvent.click(submitButton);
     fireEvent.click(submitButton);
-    
-    // Expect axios.post to be called only once despite multiple clicks.
-    await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(axios.post).toHaveBeenCalledTimes(1)
+    );
   });
 
-  test("renders the ToastContainer", () => {
-    render(<WaiverForm />);
-    // Query the ToastContainer element using its class name
+  test('renders the ToastContainer', () => {
+    renderWaiverForm('brow-lash-waiver');
     const toastContainer = document.querySelector('.Toastify');
     expect(toastContainer).toBeInTheDocument();
   });
-  
 });
