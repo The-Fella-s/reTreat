@@ -14,7 +14,7 @@
         "@sendgrid/mail": "^8.1.4",
         "axios": "^1.7.9",
         "backend": "file:",
-        "bcrypt": "^5.1.1",
+        "bcryptjs": "^3.0.2",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
         "docusign-esign": "^8.0.1",
@@ -28,6 +28,7 @@
         "passport": "^0.7.0",
         "passport-oauth2": "^1.8.0",
         "react-square-web-payments-sdk": "^3.2.1",
+        "serverless-http": "^3.2.0",
         "square": "^41.0.0"
     },
     "devDependencies": {
