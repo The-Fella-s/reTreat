@@ -1,20 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, TextField, Typography, Button } from '@mui/material'; 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 const Contact = () => {
-    const handleSubmit = () => {
-        // Display the toast notification
-        toast.success("Form successfully sent!");
+    const [formData, setFormData] = useState({
+        name: '',
+        surname: '',
+        phone: '',
+        email: '',
+        message: ''
+    });
+
+    const handleChange = (e) => {
+        setFormData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post('/api/send-email', formData);
+            toast.success("Form successfully sent!");
+            setFormData({
+                name: '',
+                surname: '',
+                phone: '',
+                email: '',
+                message: ''
+            });
+        } catch (error) {
+            toast.error("Failed to send message.");
+        }
+    };
 
     return (
-        <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: "Special Elite"}}>
+        <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: "Special Elite" }}>
             <h1>Contact Us</h1>
 
             <Box 
+                component="form"
+                onSubmit={handleSubmit}
                 sx={{ 
                     width: '50%', 
                     margin: '0 auto', 
@@ -28,49 +57,63 @@ const Contact = () => {
                     Please Fill in Your Details:
                 </Typography>
                 <TextField 
-                    label="Name" 
+                    name="name"
+                    label="First Name" 
                     variant="outlined" 
                     fullWidth 
+                    value={formData.name}
+                    onChange={handleChange}
                     sx={{ marginBottom: 2 }}
-                ></TextField>
+                />
                 <TextField 
-                    label="Surname" 
+                    name="surname"
+                    label="Last Name" 
                     variant="outlined" 
                     fullWidth 
+                    value={formData.surname}
+                    onChange={handleChange}
                     sx={{ marginBottom: 2 }}
-                ></TextField>
+                />
                 <TextField 
+                    name="phone"
                     label="Phone Number" 
                     variant="outlined" 
                     fullWidth 
+                    value={formData.phone}
+                    onChange={handleChange}
                     sx={{ marginBottom: 2 }}
-                ></TextField>
+                />
                 <TextField 
+                    name="email"
                     label="Email"
                     type="email" 
                     variant="outlined" 
                     fullWidth 
+                    value={formData.email}
+                    onChange={handleChange}
                     sx={{ marginBottom: 2 }}
-                ></TextField>
+                />
                 <TextField 
+                    name="message"
                     label="Message" 
                     variant="outlined" 
                     fullWidth 
                     multiline 
                     rows={6}
+                    value={formData.message}
+                    onChange={handleChange}
                     sx={{ marginBottom: 2 }}
-                ></TextField>
+                />
                 <Button 
-                variant="contained" 
-                color="secondary"
-                fullWidth
-                onClick={handleSubmit} // Attach the handleSubmit function to the button
+                    type="submit"
+                    variant="contained" 
+                    color="secondary"
+                    fullWidth
                 >
-                Submit
+                    Submit
                 </Button>
             </Box>
-             {/* Toast container to display the notification */}
-             <ToastContainer />
+            <ToastContainer />
         </div>
     );
 };

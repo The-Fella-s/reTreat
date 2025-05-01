@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
 You have a new contact form submission from your website:
 
 Name: ${name}
-Surname: ${surname}
+Last Name: ${surname}
 Phone: ${phone}
 Email: ${email}
 
@@ -35,7 +35,7 @@ ${message}
     await transporter.sendMail(mailOptions);
     res.status(200).json({ message: 'Email sent successfully' });
   } catch (err) {
-    console.error('❌ Email error:', err);
+    console.error('Email error:', err);
     res.status(500).json({ error: 'Failed to send email' });
   }
 });
