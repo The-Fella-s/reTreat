@@ -7,7 +7,6 @@ const passport = require('./config/passport');
 const cron = require('node-cron');
 const { refreshTokens } = require('./utilities/refreshToken');
 const session = require('express-session');
-const serverless = require('serverless-http');
 
 dotenv.config();
 
@@ -93,5 +92,4 @@ if (require.main === module) {
   app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
 }
 
-// Export Lambda handler
-module.exports.handler = serverless(app);
+module.exports = app;
