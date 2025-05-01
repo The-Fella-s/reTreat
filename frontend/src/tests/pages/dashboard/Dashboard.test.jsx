@@ -10,6 +10,12 @@ jest.mock("../../../pages/dashboard/EmployeeSection.jsx", () => () => <div>Emplo
 jest.mock("../../../pages/dashboard/UserSection.jsx", () => () => <div>User Section</div>);
 jest.mock("../../../pages/dashboard/BookingSection.jsx", () => () => <div>Booking Section</div>);
 jest.mock("../../../pages/dashboard/ThemeSection.jsx", () => (props) => <div>Theme Section</div>);
+// --- Mock for the WaiverSection component --- //
+jest.mock("../../../pages/dashboard/WaiverSection.jsx", () => () => <div>Waiver Section</div>);
+
+// --- Mock jwt-decode so Dashboard sees an “admin” role and doesn’t redirect away --- //
+import jwt_decode from "jwt-decode";
+jest.mock("jwt-decode");
 
 // --- Mock useMediaQuery to simulate mobile and desktop --- //
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -30,6 +36,9 @@ describe("Dashboard Component", () => {
     const setThemeMock = jest.fn();
 
     beforeEach(() => {
+        // seed a valid token so useEffect won’t navigate to /unauthorized
+        localStorage.setItem("token", "dummy-token");
+        jwt_decode.mockReturnValue({ role: "admin" });
         setThemeMock.mockClear();
     });
 
@@ -48,6 +57,7 @@ describe("Dashboard Component", () => {
             expect(screen.getByText("Users")).toBeInTheDocument();
             expect(screen.getByText("Bookings")).toBeInTheDocument();
             expect(screen.getByText("Themes")).toBeInTheDocument();
+            expect(screen.getByText("Waivers")).toBeInTheDocument();
 
             // Expect the default route to render the Statistics Section.
             expect(screen.getByText("Statistics Section")).toBeInTheDocument();
@@ -100,6 +110,18 @@ describe("Dashboard Component", () => {
                 expect(screen.getByText("Theme Section")).toBeInTheDocument();
             });
         });
+
+        test("navigates to Waivers route when clicking menu item", async () => {
+            renderDashboard("/dashboard/", setThemeMock);
+
+            // Click on the "Waivers" menu item.
+            fireEvent.click(screen.getByText("Waivers"));
+
+            // Wait for the Waiver Section to load up.
+            await waitFor(() => {
+                expect(screen.getByText("Waiver Section")).toBeInTheDocument();
+            });
+        });
     });
 
     describe("Mobile Layout", () => {
@@ -120,6 +142,7 @@ describe("Dashboard Component", () => {
             expect(screen.queryByText("Users")).not.toBeVisible();
             expect(screen.queryByText("Bookings")).not.toBeVisible();
             expect(screen.queryByText("Themes")).not.toBeVisible();
+            expect(screen.queryByText("Waivers")).not.toBeVisible();
         });
 
         test("opens the drawer when menu icon is clicked and then navigates on menu item click for Employees", async () => {
@@ -185,7 +208,7 @@ describe("Dashboard Component", () => {
             });
         });
 
-        test("opens the drawer when menu icon is clicked and navigates to Themes route", async () => {
+        test("opens the drawer when menu icon is clicked and then navigates on menu item click for Themes", async () => {
             renderDashboard("/dashboard/", setThemeMock);
             const menuButton = screen.getByLabelText("menu");
 
@@ -203,6 +226,27 @@ describe("Dashboard Component", () => {
             // Wait for the Theme Section to load up.
             await waitFor(() => {
                 expect(screen.getByText("Theme Section")).toBeInTheDocument();
+            });
+        });
+
+        test("opens the drawer when menu icon is clicked and then navigates on menu item click for Waivers", async () => {
+            renderDashboard("/dashboard/", setThemeMock);
+            const menuButton = screen.getByLabelText("menu");
+
+            // Open the temporary Drawer by clicking the menu icon.
+            fireEvent.click(menuButton);
+
+            // Wait for the drawer content to appear.
+            await waitFor(() => {
+                expect(screen.getByText("Waivers")).toBeInTheDocument();
+            });
+
+            // Click on the "Waivers" menu item.
+            fireEvent.click(screen.getByText("Waivers"));
+
+            // Wait for the Waiver Section to load up.
+            await waitFor(() => {
+                expect(screen.getByText("Waiver Section")).toBeInTheDocument();
             });
         });
     });
