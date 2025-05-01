@@ -13,15 +13,51 @@ const Contact = () => {
         message: ''
     });
 
+    const [formErrors, setFormErrors] = useState({});
+
     const handleChange = (e) => {
-        setFormData(prev => ({
-            ...prev,
-            [e.target.name]: e.target.value
-        }));
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+
+        // Clear error for the field when user starts typing
+        setFormErrors(prev => ({ ...prev, [name]: false }));
+    };
+
+    const validateForm = () => {
+        const errors = {};
+        const { name, surname, phone, email, message } = formData;
+
+        if (!name) errors.name = true;
+        if (!surname) errors.surname = true;
+        if (!phone) {
+            errors.phone = true;
+        } else {
+            const phoneRegex = /^(\d{10}|\d{3}[-\s.]?\d{3}[-\s.]?\d{4})$/;
+            if (!phoneRegex.test(phone)) errors.phone = true;
+        }
+        if (!email) {
+            errors.email = true;
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) errors.email = true;
+        }
+        if (!message) errors.message = true;
+
+        setFormErrors(errors);
+
+        if (Object.keys(errors).length > 0) {
+            toast.error("Please fix the highlighted fields.");
+            return false;
+        }
+
+        return true;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateForm()) return;
+
         try {
             await axios.post('/api/send-email', formData);
             toast.success("Form successfully sent!");
@@ -32,6 +68,7 @@ const Contact = () => {
                 email: '',
                 message: ''
             });
+            setFormErrors({});
         } catch (error) {
             toast.error("Failed to send message.");
         }
@@ -58,55 +95,65 @@ const Contact = () => {
                 </Typography>
                 <TextField 
                     name="name"
-                    label="First Name" 
-                    variant="outlined" 
-                    fullWidth 
+                    label="First Name"
+                    variant="outlined"
+                    fullWidth
                     value={formData.name}
                     onChange={handleChange}
-                    sx={{ marginBottom: 2 }}
+                    error={formErrors.name}
+                    helperText={formErrors.name && "First name is required"}
+                    sx={{ mb: 2 }}
                 />
                 <TextField 
                     name="surname"
-                    label="Last Name" 
-                    variant="outlined" 
-                    fullWidth 
+                    label="Last Name"
+                    variant="outlined"
+                    fullWidth
                     value={formData.surname}
                     onChange={handleChange}
-                    sx={{ marginBottom: 2 }}
+                    error={formErrors.surname}
+                    helperText={formErrors.surname && "Last name is required"}
+                    sx={{ mb: 2 }}
                 />
                 <TextField 
                     name="phone"
-                    label="Phone Number" 
-                    variant="outlined" 
-                    fullWidth 
+                    label="Phone Number"
+                    variant="outlined"
+                    fullWidth
                     value={formData.phone}
                     onChange={handleChange}
-                    sx={{ marginBottom: 2 }}
+                    error={formErrors.phone}
+                    helperText={formErrors.phone && "Enter a valid phone number"}
+                    sx={{ mb: 2 }}
                 />
                 <TextField 
                     name="email"
                     label="Email"
-                    type="email" 
-                    variant="outlined" 
-                    fullWidth 
+                    type="email"
+                    variant="outlined"
+                    fullWidth
                     value={formData.email}
                     onChange={handleChange}
-                    sx={{ marginBottom: 2 }}
+                    error={formErrors.email}
+                    helperText={formErrors.email && "Enter a valid email address"}
+                    sx={{ mb: 2 }}
                 />
                 <TextField 
                     name="message"
-                    label="Message" 
-                    variant="outlined" 
-                    fullWidth 
-                    multiline 
+                    label="Message"
+                    variant="outlined"
+                    fullWidth
+                    multiline
                     rows={6}
                     value={formData.message}
                     onChange={handleChange}
-                    sx={{ marginBottom: 2 }}
+                    error={formErrors.message}
+                    helperText={formErrors.message && "Message is required"}
+                    sx={{ mb: 2 }}
                 />
                 <Button 
                     type="submit"
-                    variant="contained" 
+                    variant="contained"
                     color="secondary"
                     fullWidth
                 >
