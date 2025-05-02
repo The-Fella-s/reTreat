@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { encrypt, decrypt } = require('../utilities/encryption');
 
 // Separate schema for addresses
 const addressSchema = new mongoose.Schema({
@@ -18,18 +17,6 @@ const userSchema = new mongoose.Schema({
   address: addressSchema,
   role: { type: String, enum: ['user', 'employee', 'admin'], default: 'user' },
   createdAt: { type: Date, default: Date.now },
-  squareId: {
-    type: String,
-    unique: true,
-    set: encrypt,
-    get: decrypt,
-  },
-  cardId: {
-    type: String,
-    unique: true,
-    set: encrypt,
-    get: decrypt,
-  },
   // Profile picture fields
   profilePicture: { type: String },
   profilePictureHash: { type: String },
