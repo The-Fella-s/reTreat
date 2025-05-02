@@ -182,14 +182,14 @@ function MeetTheTeam() {
                 component="img"
                 height="300"
                 image={member.imageUrl}
-                alt={member.name}
+                alt={member.fullName}
                 sx={{ objectFit: 'contain' }}
               />
               
               {/* Card Content */}
               <CardContent>
                 <Typography variant="h6" component="div">
-                  {member.name}
+                  {member.fullName}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
                   {member.title}
