@@ -1,4 +1,3 @@
-// backend/routes/docusignRoutes.js
 
 const express = require("express");
 const router = express.Router();
@@ -13,7 +12,7 @@ const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL;
 router.get("/templates", async (req, res) => {
   try {
     const apiClient = await getJwtApiClient();
-    apiClient.setBasePath(BASE_PATH || "https://demo.docusign.net/restapi");
+    apiClient.setBasePath(BASE_PATH || "https://docusign.net/restapi");
     
     const templatesApi = new docusign.TemplatesApi(apiClient);
     
