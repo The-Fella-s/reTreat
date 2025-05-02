@@ -151,20 +151,21 @@ const InstagramPosts = () => {
                 flexDirection: "column",
                 alignItems: "center",
                 mt: 4,
-                width: "100%",
             }}
         >
-            <motion.div
-                style={{
+            <Box
+                component={motion.div}
+                sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "10px",
+                    justifyContent: "center",
+                    gap: 2,
                     cursor: "grab",
                     position: "relative",
                 }}
             >
-                {/* Left (Previous) Media */}
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                {/* Left (Previous) Media, hidden on mobile */}
+                <Box sx={{ display: { xs: "none", sm: "flex" }, flexDirection: "column", alignItems: "center" }}>
                     <Box
                         sx={{
                             width: 150,
@@ -184,7 +185,7 @@ const InstagramPosts = () => {
                     </IconButton>
                 </Box>
 
-                {/* Center (Current) Media */}
+                {/* Center */}
                 <Box
                     sx={{
                         width: 300,
@@ -269,8 +270,8 @@ const InstagramPosts = () => {
                     </AnimatePresence>
                 </Box>
 
-                {/* Right (Next) Media */}
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                {/* Right (Next) Media, hidden on mobile */}
+                <Box sx={{ display: { xs: "none", sm: "flex" }, flexDirection: "column", alignItems: "center" }}>
                     <Box
                         sx={{
                             width: 150,
@@ -289,7 +290,14 @@ const InstagramPosts = () => {
                         <ArrowForwardIosIcon />
                     </IconButton>
                 </Box>
-            </motion.div>
+            </Box>
+
+            {/* Swipe hint, only on mobile */}
+            <Box sx={{ display: { xs: "block", sm: "none" }, mt: 2 }}>
+                <Typography variant="body2" align="center" sx={{ color: "text.secondary" }}>
+                    Swipe to see previous/next image
+                </Typography>
+            </Box>
         </Box>
     );
 };
