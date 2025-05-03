@@ -39,7 +39,6 @@ connectDB(); // Connect to the database
 // Import and Register Routes
 const catalogRoutes = require('./routes/catalogRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
-const docusignRoutes = require('./routes/docusignRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const googleRoutes = require('./routes/googleRoutes');
 const instagramRoutes = require('./routes/instagramRoutes');
@@ -50,13 +49,11 @@ const statisticsRoutes = require('./routes/statisticsRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const themeRoutes = require('./routes/themeRoutes');
 const userRoutes = require('./routes/userRoutes');
-const waiverRoutes = require('./routes/waiverRoutes');
 const websiteVisitRoutes = require('./routes/websiteVisitRoutes');
 const emailRoutes = require('./routes/emailRoutes');
 
 app.use('/api/catalogs', catalogRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/docusign', docusignRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/places', googleRoutes);
 app.use('/api/instagram', instagramRoutes);
@@ -68,7 +65,6 @@ app.use('/api/team', teamRoutes);
 app.use('/api/themes', themeRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/website-visits', websiteVisitRoutes);
-app.use('/api/waivers', waiverRoutes);
 app.use('/api/send-email', emailRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
