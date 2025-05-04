@@ -29,7 +29,7 @@ function ItemCard({ name, description, price, onPurchase }) {
 
       <CardActions sx={{ justifyContent: 'space-between', padding: '16px' }}>
         <Typography variant="h6">{price}</Typography>
-        <Button variant="contained" color="primary" onClick={onPurchase}>
+        <Button variant="contained" color="primary" onClick={onPurchase} data-testid="purchase-button">
           Purchase
         </Button>
       </CardActions>

@@ -1,6 +1,6 @@
 // __tests__/menu.test.jsx
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import axios from 'axios';
 import { BrowserRouter } from 'react-router-dom';
 import SpaMenuPage from '../../pages/menu.jsx';
@@ -60,37 +60,32 @@ describe('SpaMenuPage', () => {
     expect(screen.getByText('Basic Facial')).toBeInTheDocument();
   });
 
-  test('adds an item to the cart (mock POST) and shows success toast', async () => {
+  test('Purchase button redirects to checkout page', async () => {
     const mockServices = [
-      { name: 'Swedish Massage', description: 'Relaxing massage', pricing: 100, category: 'Massage' },
+      {
+        name: 'Gift Card',
+        description: 'Buy a gift card for someone special',
+        pricing: 100,
+        category: 'Purchase',
+      },
     ];
     axios.get.mockResolvedValueOnce({ data: mockServices });
-    axios.post.mockResolvedValueOnce({ data: { message: 'Added to cart' } });
-
+  
+    // Mock window.location.href
+    delete window.location;
+    window.location = { href: '' };
+  
     render(
       <BrowserRouter>
-        <ToastContainer />
         <SpaMenuPage />
       </BrowserRouter>
     );
-
-    const itemTitle = await screen.findByText('Swedish Massage');
-    expect(itemTitle).toBeInTheDocument();
-
-    const purchaseButton = screen.getByRole('button', { name: /purchase/i });
+  
+    const purchaseButton = await screen.findByTestId('purchase-button');
+    expect(purchaseButton).toBeInTheDocument();
+  
     fireEvent.click(purchaseButton);
-
-    expect(axios.post).toHaveBeenCalledWith(
-      '/api/carts/add/service',
-      {
-        email: 'jordan@example.com',
-        serviceName: 'Swedish Massage',
-        quantity: 1,
-      }
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText(/swedish massage added to cart/i)).toBeInTheDocument();
-    });
-  });
+  
+    expect(window.location.href).toBe('https://retreat-salon-and-spa.square.site/');
+  });  
 });

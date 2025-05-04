@@ -1,6 +1,4 @@
-// Add to your utilities/refreshToken.js file
-
-const InstagramUser = require("../models/instagramBusinessAccount"); 
+const InstagramUser = require("../models/instagramBusinessAccount");
 const SquareBusinessAccount = require("../models/squareBusinessAccount");
 const axios = require("axios");
 require("dotenv").config();
@@ -44,17 +42,69 @@ async function refreshSquareTokens() {
   }
 }
 
-// Combine with your existing refreshTokens function
+async function refreshTokensForUser(user) {
+  try {
+
+    // Exchange the current token for a fresh long-lived token.
+    const tokenResponse = await axios.get("https://graph.facebook.com/v22.0/oauth/access_token", {
+      params: {
+        grant_type: "fb_exchange_token",
+        client_id: process.env.INSTAGRAM_APP_ID,
+        client_secret: process.env.INSTAGRAM_APP_SECRET,
+        fb_exchange_token: user.accessToken
+      }
+    });
+    const newAccessToken = tokenResponse.data.access_token;
+
+    // Refresh the pageAccessToken
+    const pagesResponse = await axios.get("https://graph.facebook.com/v22.0/me/accounts", {
+      params: { access_token: newAccessToken }
+    });
+    if (!pagesResponse.data.data || !pagesResponse.data.data.length) {
+      throw new Error("No connected Facebook pages found during token refresh");
+    }
+    const page = pagesResponse.data.data[0];
+
+    // Update user tokens and timestamp in the database
+    user.accessToken = newAccessToken;
+    user.pageAccessToken = page.access_token;
+    user.generatedAt = new Date();
+
+    await user.save();
+    console.log(`Tokens refreshed for Instagram ID: ${user.instagramId}`);
+  } catch (error) {
+    console.error(`Error refreshing tokens for Instagram ID ${user.instagramId}:`, error.message);
+  }
+}
+
+async function refreshInstagramTokens() {
+  try {
+    // Refresh tokens 2 days before they expire (for a 60-day token validity)
+    const THRESHOLD_DAYS = 58;
+    const thresholdDate = new Date();
+    thresholdDate.setDate(thresholdDate.getDate() - THRESHOLD_DAYS);
+
+    // Query only users whose tokens were generated before the threshold date
+    const users = await InstagramUser.find({ generatedAt: { $lte: thresholdDate } });
+
+    for (const user of users) {
+      await refreshTokensForUser(user);
+    }
+  } catch (error) {
+    console.error("Error in token refresh process:", error.message);
+  }
+}
+
 async function refreshTokens() {
-  // Include any existing code for refreshing Instagram tokens
-  
-  // Add Square token refresh
+  // Refresh the Instagram tokens
+  await refreshInstagramTokens();
+
+  // Refresh the Square tokens
   await refreshSquareTokens();
-  
+
   console.log("Token refresh completed");
 }
 
-module.exports = { 
+module.exports = {
   refreshTokens,
-  refreshSquareTokens
 };
