@@ -9,6 +9,7 @@
         "test": "jest"
     },
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.802.0",
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
         "@sendgrid/mail": "^8.1.4",

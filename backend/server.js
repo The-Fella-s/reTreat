@@ -12,31 +12,33 @@ dotenv.config();
 
 const app = express();
 
-// Use JSON parsing middleware early
+// Parse JSON bodies
 app.use(express.json());
 
-// Improved CORS Configuration, support .env frontend URL otherwise fallback to localhost
+// CORS configuration
 const corsOptions = {
   origin: process.env.FRONTEND_BASE_URL || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 };
-
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Allow preflight requests
+app.options('*', cors(corsOptions));
+
+// Session & Passport
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-session-secret-key',
+  secret: process.env.SESSION_SECRET || 'your-session-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'sandbox' }
+  cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-connectDB(); // Connect to the database
+// Connect to MongoDB
+connectDB();
 
-// Import and Register Routes
+// Route imports
 const catalogRoutes = require('./routes/catalogRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
@@ -52,6 +54,7 @@ const userRoutes = require('./routes/userRoutes');
 const websiteVisitRoutes = require('./routes/websiteVisitRoutes');
 const emailRoutes = require('./routes/emailRoutes');
 
+// Register routes
 app.use('/api/catalogs', catalogRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/employees', employeeRoutes);
@@ -67,22 +70,21 @@ app.use('/api/users', userRoutes);
 app.use('/api/website-visits', websiteVisitRoutes);
 app.use('/api/send-email', emailRoutes);
 
+// Serve uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Ping pong
-app.get('/api/ping', (req, res) => {
-  res.send('Pong');
-});
-
+// Health checks
+app.get('/api/ping', (req, res) => res.send('Pong'));
 app.get('/', (req, res) => res.send('Backend is running'));
-app.get('/api/', (req, res) => res.send('API is running'));
+app.get('/api', (req, res) => res.send('API is running'));
 
-cron.schedule("0 0 * * *", async () => {
-  console.log("Running scheduled token refresh...");
+// Scheduled token refresh (daily at midnight)
+cron.schedule('0 0 * * *', async () => {
+  console.log('Running scheduled token refresh...');
   await refreshTokens();
 });
 
-// Only start server if running locally
+// Start server if this is the main module
 if (require.main === module) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
