@@ -16,15 +16,15 @@ export default function WaiverForms() {
     },
     {
       name: "Wax Waiver",
-      url: "https://waivermaster.com/sign.html?q=DWUAT4XBNAYD9"
+      url: "https://waivermaster.com/r/2025-05-04/c0e747ce-cb4c-4ec2-981f-2ad83f5b42e3/9c557ebd-9cb1-44e4-a47f-7c421ff724a7/d1bcb9f0-1def-4523-867b-9930c9298e36.html"
     },
     {
       name: "Skincare Waiver",
-      url: "https://waivermaster.com/sign.html?q=DJBC7DLM8GFKM"
+      url: "https://waivermaster.com/r/2025-05-04/c0e747ce-cb4c-4ec2-981f-2ad83f5b42e3/4af67c3c-53e8-4917-9b45-61c8be1b976a/f10b7e69-a99d-4dc6-98bc-2108317b85a7.html"
     },
     {
       name: "Brow & Lash Waiver",
-      url: "https://waivermaster.com/sign.html?q=D3DU5CRMUP2D2"
+      url: "https://waivermaster.com/r/2025-05-04/c0e747ce-cb4c-4ec2-981f-2ad83f5b42e3/3a7dd5bc-9498-49ea-8da1-50b38004738e/63401fec-726b-4b20-9c15-92a89fb1c7ab.html"
     }
   ];
 
