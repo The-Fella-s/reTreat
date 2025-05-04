@@ -208,31 +208,45 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Set up multer storage
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/services'); // Save files in uploads/services
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}_${file.originalname}`); // Unique filename
-    }
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+
+const s3 = new S3Client({
+  region: 'us-west-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  }
 });
 
-const upload = multer({ storage });
-
+const upload = multer({ storage: multer.memoryStorage() });
 // Image upload endpoint
 router.post('/upload', upload.single('servicePicture'), async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded.' });
-        }
-
-        // Upload to the services folder
-        const filePath = `/uploads/services/${req.file.filename}`;
-        res.status(200).json({ message: 'File uploaded successfully', filePath });
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded.' });
+      }
+  
+      const file = req.file;
+      const extension = path.extname(file.originalname);
+      const s3Key = `services/${Date.now()}-${uuidv4()}${extension}`;
+  
+      const uploadParams = {
+        Bucket: 'retreatimages',
+        Key: s3Key,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+  
+      await s3.send(new PutObjectCommand(uploadParams));
+  
+      const publicUrl = `https://retreatimages.s3.us-west-1.amazonaws.com/${s3Key}`;
+      res.status(200).json({ message: 'File uploaded to S3', filePath: publicUrl });
     } catch (error) {
-        console.error('Error uploading file:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+      console.error('S3 Upload Error:', error);
+      res.status(500).json({ message: 'S3 upload failed', error: error.message });
     }
-});
+  });
 
 module.exports = router;
