@@ -26,7 +26,7 @@ function MeetTheTeam() {
         {
           fullName: 'Holly',
           title: 'Co-Owner & Hairstylist',
-          imageUrl: 'src/assets/team_photos/holly.webp',
+          imageUrl: 'https://retreatimages.s3.us-west-1.amazonaws.com/Employees/holly.webp',
           description: 'Holly has spent nearly ten years in the industry and is ready to take on more. She has a passion for all things hair and loves when she gets to play with fashion colors, bridal and prom styles, as well as creative haircuts. Because of her background in teaching and coaching, Holly is excited to take on the role as co-owner and strives to make reTreat a place where all guests can come relax and get pampered.'
         },
         {
