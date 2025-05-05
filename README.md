@@ -181,71 +181,75 @@ npm run test instagramRoutes.test.jsx
 
 ## Frontend Deployment
 1. **Open Your Amplify App**
-    - Go to `https://us-west-1.console.aws.amazon.com/amplify/apps`
-    - Click on your Amplify app instance.
+   - Go to `https://us-west-1.console.aws.amazon.com/amplify/apps`
+   - Click on your Amplify app instance.
 
 2. **Add (or Configure) a Frontend Branch**
-    1. In the side menu, select **Branches**
-    2. Under **Deploy frontend**, click **Get started**
+   1. In the side menu, select **Branches**
+   2. Under **Deploy frontend**, click **Get started**
 
 3. **Connect Your GitHub Repository**
-    - Choose **GitHub** as the repository provider
-    - Click **Next**, authorize Amplify if prompted
-    - Select:
-        - **Repository**: `reTreat`
-        - **Branch**: `main`
-    - Click **Next**
+   - Choose **GitHub** as the repository provider
+   - Click **Next**, authorize Amplify if prompted
+   - Select:
+      - **Repository**: `reTreat`
+      - **Branch**: `main`
+   - Click **Next**
 
 4. **Edit Your Build Settings (`amplify.yml`)**
-    1. Click **Edit YML file**
-    2. Replace the contents with:
-       ```yaml
-       version: 1
-       frontend:
-         runtime-versions:
-           nodejs: 20
-         phases:
-           preBuild:
-             commands:
-               - cd frontend
-               - rm -rf node_modules package-lock.json
-               - npm install
-           build:
-             commands:
-               - npm run build
-         artifacts:
-           baseDirectory: frontend/dist
-           files:
-             - '**/*'
-         cache:
-           paths: []
-       ```
-    3. Click **Save**
+   1. Click **Edit YML file**
+   2. Replace the contents with:
+      ```yaml
+      version: 1
+      frontend:
+        runtime-versions:
+          nodejs: 20
+        phases:
+          preBuild:
+            commands:
+              - cd frontend
+              - rm -rf node_modules package-lock.json
+              - npm install
+          build:
+            commands:
+              - npm run build
+        artifacts:
+          baseDirectory: frontend/dist
+          files:
+            - '**/*'
+        cache:
+          paths: []
+      ```
+   3. Click **Save**
 
 5. **Link Your Backend Environment & IAM Role**
-    - Scroll to **Select a backend environment to use with this branch** and choose your Amplify environment (e.g., `dev`)
-    - Under **Service role**, select the IAM role you created (e.g., `retreatexampleLambdaRole48832019-dev`)
+   - Scroll to **Select a backend environment to use with this branch** and choose your Amplify environment (e.g., `dev`)
+   - Under **Service role**, select the IAM role you created (e.g., `retreatexampleLambdaRole48832019-dev`)
 
 6. **Set Environment Variables**
-    1. Expand **Advanced settings**
-    2. Under **Environment variables**, add the following keys (with their values):
-        - `VITE_API_URL`
-        - `VITE_GOOGLE_CLIENT_ID`
-        - `VITE_GOOGLE_MAP_API`
-    3. Click **Next**
+   1. Expand **Advanced settings**
+   2. Under **Environment variables**, add the following keys (with their values):
+
+      ```env
+      VITE_API_URL=
+      VITE_GOOGLE_CLIENT_ID=
+      VITE_GOOGLE_MAP_API=
+      ```
+
+   4. Click **Next**
 
 7. **Review & Deploy**
-    - On the **Review** screen, confirm all settings
-    - Click **Save and deploy**
+   - On the **Review** screen, confirm all settings
+   - Click **Save and deploy**
 
 8. **Monitor Deployment**
-    - You’ll see your branch kick off a deployment
-    - Click on the branch to view real-time build logs
-    - Wait for all build phases (preBuild → build → deploy) to complete
+   - You’ll see your branch kick off a deployment
+   - Click on the branch to view real-time build logs
+   - Wait for all build phases (preBuild → build → deploy) to complete
 
 9. **Verify Your Live Site**
-    - Once deployed, Amplify will provide a URL (e.g. `https://<branch>.<your-app>.amplifyapp.com`)
-    - Open it in your browser to confirm your `reTreat` frontend is live
+   - Once deployed, Amplify will provide a URL (e.g. `https://<branch>.<your-app>.amplifyapp.com`)
+   - Open it in your browser to confirm your `reTreat` frontend is live
 
 > **Tip:** Any future pushes to your GitHub `main` branch will automatically trigger this same build & deploy pipeline.
 
@@ -255,50 +259,98 @@ npm run test instagramRoutes.test.jsx
    ```bash
    amplify add api
    ```  
-    - Select **REST** (it defaults to GraphQL).
-    - Name it `reTreatExampleAPI`.
-    - Set the path to `/api` (e.g. `https://<api-id>.execute-api.us-west-1.amazonaws.com/dev/api/`).
+   - Select **REST** (it defaults to GraphQL).
+   - Name it `reTreatExampleAPI`.
+   - Set the path to `/api` (e.g. `https://<api-id>.execute-api.us-west-1.amazonaws.com/dev/api/`).
 
 2. **Configure the Lambda backend**
-    - Enter Lambda function name:
-      ```bash
-      reTreatExampleLambda
-      ```  
-    - Choose **Node.js** runtime.
-    - For the template, select
-      > Serverless ExpressJS function (Integration with API Gateway)
+   - Enter Lambda function name:
+     ```bash
+     reTreatExampleLambda
+     ```  
+   - Choose **Node.js** runtime.
+   - For the template, select
+     > Serverless ExpressJS function (Integration with API Gateway)
 
 3. **Advanced settings & environment variables**
-    - When prompted, choose **Yes** to configure advanced settings.
-    - Say **No** to all extra prompts until you see the environment-variable section.
-    - Copy the variable names from your repo’s `README.md` and enter their values.
-    - Confirm **I’m done**.
-    - Say **No** to configuring secret values.
-    - Select **npm** as your package manager.
-    - Say **No** when asked to edit the generated Lambda code.
-    - Say **No** twice when asked about API restrictions.
+   - When prompted, choose **Yes** to configure advanced settings.
+   - Say **No** to all extra prompts until you see the environment-variable section.
+   - Copy the variable names from here and enter their values:
+
+     ```env
+     # MongoDB Connection String
+     MONGO_URI=
+     PORT=5000
+
+     # General Backend Stuff
+     # FRONTEND_BASE_URL is to allow CORS to the frontend
+     FRONTEND_BASE_URL=
+     SESSION_SECRET=
+     JWT_SECRET=
+
+     # SendGrid configuration for email verification
+     SENDGRID_API_KEY=
+     FROM_EMAIL=
+
+     # Email Information
+     EMAIL_USER=
+     EMAIL_PASS=
+
+     # Instagram API Credentials
+     INSTAGRAM_APP_ID=
+     INSTAGRAM_APP_SECRET=
+     INSTAGRAM_REDIRECT_URI=/api/instagram/callback
+
+     # Square API/OAuth Credentials
+     NODE_ENV=development
+     SQUARE_ACCESS_TOKEN=
+     SQUARE_ENVIRONMENT=
+     SQUARE_APPLICATION_ID=
+     SQUARE_APPLICATION_SECRET=
+     SQUARE_REDIRECT_URI=
+     CUSTOMER_ID=
+     LOCATION_ID=
+
+     # Google API Credentials
+     GOOGLE_MAP_API=
+     GOOGLE_API_KEY=
+     RETREAT_ID=
+     VITE_GOOGLE_CLIENT_ID=
+
+     # AWS S3 Credentials
+     AWS_ACCESS_KEY_ID=
+     AWS_SECRET_ACCESS_KEY=
+     AWS_REGION=us-west-1
+     S3_BUCKET_NAME=
+     ```
+
+   - Confirm **I’m done**.
+   - Say **No** to configuring secret values.
+   - Select **npm** as your package manager.
+   - Say **No** when asked to edit the generated Lambda code.
+   - Say **No** twice when asked about API restrictions.
 
 4. **Deploy locally & push to AWS**
    ```bash
    amplify push
    ```  
-    - Confirm **Yes**.
-    - Wait for the cloud resources to finish deploying.
+   - Confirm **Yes**.
+   - Wait for the cloud resources to finish deploying.
 
 5. **Verify the API**
-    - Visit your endpoint in a browser:
-      ```bash
-      https://<api-id>.execute-api.us-west-1.amazonaws.com/dev/api/
-      ```  
-    - You should see a simple text response, confirming the API is live.
+   - Visit your endpoint in a browser:
+     ```bash
+     https://<api-id>.execute-api.us-west-1.amazonaws.com/dev/api/
+     ```  
+   - You should see a simple text response, confirming the API is live.
 
 6. **Replace the generated function code**
-    - Navigate to the new function’s src folder:
-      ```bash
-      amplify/backend/function/reTreatExampleLambda/src/
-      ```  
-    - Delete the default files (`app.js`, `event.json`, `index.js`, `package.json`, `package-lock.json`).
-    - Copy your existing backend folder contents (except `node_modules`) from GitHub into this folder.
+   - Navigate to the new function’s src folder:
+     ```bash
+     amplify/backend/function/reTreatExampleLambda/src/
+     ```  
+   - Delete the default files (`app.js`, `event.json`, `index.js`, `package.json`, `package-lock.json`).
+   - Copy your existing backend folder contents (except `node_modules`) from GitHub into this folder.
 
 7. **Install dependencies & redeploy**
    ```bash
@@ -306,28 +358,28 @@ npm run test instagramRoutes.test.jsx
    npm install
    amplify push
    ```  
-    - Confirm **Yes**.
-    - Wait for the update to complete.
-    - Test the ping endpoint:
-      ```bash
-      https://<api-id>.execute-api.us-west-1.amazonaws.com/dev/api/ping
-      ```  
-      It should return `Pong`.
+   - Confirm **Yes**.
+   - Wait for the update to complete.
+   - Test the ping endpoint:
+     ```bash
+     https://<api-id>.execute-api.us-west-1.amazonaws.com/dev/api/ping
+     ```  
+     It should return `Pong`.
 
 8. **Increase Lambda memory**
-    - Open the CloudFormation template file:
-      ```bash
-      amplify/backend/function/reTreatExampleLambda/reTreatExampleLambda-cloudformation-template.json
-      ```  
-    - Under `Resources → LambdaFunction`, add:
-      ```json
-      "MemorySize": 2048
-      ```  
-    - Save and run:
-      ```bash
-      amplify push
-      ```  
-    - Confirm **Yes** and wait for the deployment.
+   - Open the CloudFormation template file:
+     ```bash
+     amplify/backend/function/reTreatExampleLambda/reTreatExampleLambda-cloudformation-template.json
+     ```  
+   - Under `Resources → LambdaFunction`, add:
+     ```json
+     "MemorySize": 2048
+     ```  
+   - Save and run:
+     ```bash
+     amplify push
+     ```  
+   - Confirm **Yes** and wait for the deployment.
 
 
 ## Developer instructions
