@@ -10,9 +10,9 @@ function AboutUs() {
             {/* Header Section */}
             <Box sx={{textAlign: 'center', mb: 4, color: 'primary.main',}}>
                 <Typography variant="h2" gutterBottom sx={{}}>
-                    Welcome to reTreat Salon & Spa
+                    Our Story at reTreat Salon & Spa
                     <Typography variant="h5" color="text.primary">
-                        Experience reTreat — a place to pause, exhale, and renew
+                    A place born from passion, care, and the belief that everyone deserves a space to pause, exhale, and renew.
                     </Typography>
                 </Typography>
                 <Typography variant="h5" color="text.secondary" sx={{mb: 0}}>
