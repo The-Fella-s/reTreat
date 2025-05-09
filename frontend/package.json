@@ -62,5 +62,8 @@
     "jest-environment-jsdom": "^29.7.0",
     "util": "^0.12.5",
     "vite": "^6.1.1"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }
